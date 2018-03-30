@@ -1,0 +1,106 @@
+{--
+ - Možnosti (všech) přiřazení hodnot symbolu.
+ -}
+
+symbol = True
+
+int = 1
+
+real = 1.2
+
+text = "Lorem ipsum"
+
+list = [1, '5']
+
+list = [
+	1
+	'5'
+]
+
+list =
+	1
+	'5'
+	symbol	-- Jedná-li se o hodnotu, není třeba escapovat,
+	\int	-- ...ale může.
+	\fn     -- funkce se musí escapovat
+	(\ -> fn) -- nebo zabalit do funkce
+	fn 1 2  -- ... jinak by se vykonala, a v listu by byl výsledek.
+
+list =
+	inc x = x + 1
+	pi = 3.141592
+	1
+	2
+	3
+	inc 3
+	inc 4
+	inc pi
+	pi
+	-- Vyleze [1, 2, 3, 4, 5, 4.141592, 3.141592]
+
+dict = {a: 1, b: "B"}
+
+dict = {
+	a: 1
+	b: "B"
+}
+
+dict =
+	a: 1
+	b: "B"
+
+dict =
+	a: 1
+	b: "B"
+	c: \fn
+	d: real
+
+dict = -- Výsledek bude tříprvková struktura. pi se použije jako lokální konstatna pro výpočet.
+	pi = 3.141592
+	a: 1 + pi
+	b: "B"
+	c: fn pi
+
+dict = {
+	pi = 3.141592
+	{
+		a: 1 + pi
+		b: "B"
+		c: fn pi
+	}
+}
+
+fn = 1 + 2
+
+fn =
+	1 + 2
+
+fn x = x
+
+fn x =
+	x
+
+fn x = x + 1
+
+fn a b = a + b
+
+fn x = x + int
+
+fn x = str.concat "[" x "]"
+
+fn x =
+	inc x = x + 1
+	inc x
+
+fn x = inc x = x + 1;inc x
+
+fn x =
+	inc x = x + 1;inc x
+
+fn x =
+	inc x =
+		increment = 1
+		x + increment
+	inc x
+
+fn x = {inc x = {increment = 1;x + increment}inc x}

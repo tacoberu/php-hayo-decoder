@@ -1,0 +1,9 @@
+{--
+ - Možnosti (všech) definic funkcí.
+ -}
+
+\ -> fn
+\ -> fn 1
+\ a -> fn a
+\ a -> a
+\ a b -> a + b
