@@ -1,0 +1,23 @@
+{
+	"name": "hockej/php-hayo-decoder",
+	"description": "...",
+	"type": "library",
+	"require": {
+		"php" : ">=5.3.3",
+		"nette/utils": "^2.5"
+	},
+	"authors": [
+		{
+			"name": "Martin Takáč",
+			"email": "martin@takac.name"
+		}
+	],
+	"autoload": {
+		"classmap": ["libs/"]
+	},
+	"license": "MIT",
+	"require-dev": {
+		"tracy/tracy": "^2.4",
+		"phpunit/phpunit": "4.0"
+	}
+}
