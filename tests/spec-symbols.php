@@ -12,28 +12,28 @@ return [
 		[ Token::symbol_('True')
 		, Token::eof()
 		],
-			'true'
+			new Val('True', 'SYMBOL')
 		],
 
 	["False",
 		[ Token::symbol_('False')
 		, Token::eof()
 		],
-			'False'
+			new Val('False', 'SYMBOL')
 		],
 
 	["Null",
 		[ Token::symbol_('Null')
 		, Token::eof()
 		],
-			'Null'
+			new Val('Null', 'SYMBOL')
 		],
 
 	["Nil",
 		[ Token::symbol_('Nil')
 		, Token::eof()
 		],
-			'Nil'
+			new Val('Nil', 'SYMBOL')
 		],
 
 	];
