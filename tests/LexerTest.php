@@ -122,6 +122,32 @@ format
 				, Token::eof()
 				]
 				],
+
+			["format = (s: String) ->
+	'::' ++ s
+format 'A'
+",
+				[ Token::identifier('format', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('(', 1)
+				, Token::identifier('s', 1)
+				, Token::generic(':', 1)
+				, Token::symbol_('String', 1)
+				, Token::bracket(')', 1)
+				, Token::arrow('->', 1)
+
+				, Token::indent(1, 2)
+				, Token::string_("'::'", 2)
+				, Token::identifier('++', 2)
+				, Token::identifier('s', 2)
+				, Token::outdent(1, 2)
+				, Token::terminator("\n", 2)
+				, Token::identifier('format', 3)
+				, Token::string_("'A'", 3)
+				, Token::terminator("\n", 3)
+				, Token::eof()
+				]
+				],
 		];
 	}
 

@@ -15,28 +15,35 @@ class LambdaTest extends PHPUnit_Framework_TestCase
 
 	function testToStringEmpty()
 	{
-		$this->assertSame('{() -> }', (string)new Lambda([], [new Expr([])]));
+		$this->assertSame('{() -> }', (string)new Lambda([], new Expr([])));
 	}
 
 
 
 	function testToStringOne()
 	{
-		$this->assertSame('{() -> abc}', (string)new Lambda([], [new Expr(['abc'])]));
+		$this->assertSame('{() -> abc}', (string)new Lambda([], new Expr(['abc'])));
 	}
 
 
 
 	function testToStringMany()
 	{
-		$this->assertSame('{() -> abc def}', (string)new Lambda([], [new Expr(['abc def'])]));
+		$this->assertSame('{() -> abc def}', (string)new Lambda([], new Expr(['abc def'])));
 	}
 
 
 
 	function testToStringManyWithArgs()
 	{
-		$this->assertSame('{(x) -> abc def}', (string)new Lambda(['x'], [new Expr(['abc def'])]));
+		$this->assertSame('{(x) -> abc def}', (string)new Lambda(['x'], new Expr(['abc def'])));
+	}
+
+
+
+	function testToStringManyWithArgs2()
+	{
+		$this->assertSame("{(x) -> pi = 3.14 :: NUMERIC\nabc def}", (string)new Lambda(['x'], new Expr(['abc def'], [ new Let('pi', new Symbol(3.14, 'NUMERIC'))])));
 	}
 
 }

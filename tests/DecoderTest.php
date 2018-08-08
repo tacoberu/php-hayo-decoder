@@ -22,9 +22,9 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider dataDecodeFail
 	 */
-	function _testDecodeFail($script, $msg)
+	function testDecodeFail($script, $msg)
 	{
-		$this->setExpectedException(ParserException::class, $msg);
+		$this->setExpectedException(HayoParserException::class, $msg);
 		$this->decoder->decode($script);
 	}
 
@@ -34,8 +34,9 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 	{
 		return [
 			["froo\nboo\n foo\nboo",
-				'Unexpected token `boo\' (type: :symbol) on line: 2.'
+				'Unexpected (INDENT: 1).'
 				],
+			/*
 			["say\nhay",
 				'Unexpected token `hay\' (type: :symbol) on line: 2.'
 				],
@@ -44,10 +45,11 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 > fn = 1
 '
 				],
+				*/
 			["{dump {a : b}}",
-				'Unexpected dict token `a\' (type: :symbol) on line: 1. The key must be followed char of colon. Exactly, without any whitechars.
-> {dump {a : b}}'
+				'Required delimiter between key and value: (BRACKET: {).'
 				],
+			/*
 			["{dump {a :b}}",
 				'Unexpected dict token `a\' (type: :symbol) on line: 1. The key must be followed char of colon. Exactly, without any whitechars.
 > {dump {a :b}}'
@@ -87,7 +89,7 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider dataDecode
 	 */
-	function testDecode($script, $expected)
+	function testDecode($script, $ast, $expected)
 	{
 		$this->assertEquals($expected, $this->decoder->decode($script));
 	}
@@ -98,6 +100,10 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 	{
 		return array_merge(
 			require __dir__ . '/spec-const.php',
+			require __dir__ . '/spec-expr.php',
+			require __dir__ . '/spec-assign.php',
+			require __dir__ . '/spec-comment.php',
+			require __dir__ . '/spec-shebank.php',
 			[]
 		);
 	}

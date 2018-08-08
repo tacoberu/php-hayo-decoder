@@ -15,21 +15,21 @@ class LetTest extends PHPUnit_Framework_TestCase
 
 	function testToStringMany()
 	{
-		$this->assertSame('fn = {() -> abc def}', (string) new Let('fn', new Lambda([], [new Expr(['abc def'])])));
+		$this->assertSame('fn = {() -> abc def}', (string) new Let('fn', new Lambda([], new Expr(['abc def']))));
 	}
 
 
 
 	function testToStringManyWithArg()
 	{
-		$this->assertSame('fn = {(x) -> abc def}', (string) new Let('fn', new Lambda(['x'], [new Expr(['abc def'])])));
+		$this->assertSame('fn = {(x) -> abc def}', (string) new Let('fn', new Lambda(['x'], new Expr(['abc def']))));
 	}
 
 
 
 	function testToStringManyWithArgs()
 	{
-		$this->assertSame('fn = {(x b) -> abc def}', (string) new Let('fn', new Lambda(['x', 'b'], [new Expr(['abc def'])])));
+		$this->assertSame('fn = {(x b) -> abc def}', (string) new Let('fn', new Lambda(['x', 'b'], new Expr(['abc def']))));
 	}
 
 }

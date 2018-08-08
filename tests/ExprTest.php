@@ -52,6 +52,10 @@ class ExprTest extends PHPUnit_Framework_TestCase
 			[ new Expr(['abc', new Symbol('def', 'STRING')])
 				, 'abc def :: STRING'
 				, ['abc']],
+			[ new Expr(['x', '+', new Expr([new Symbol('1', 'NUMERIC'), '+', new Symbol('2', 'NUMERIC')])]
+					, [ new Let('x', new Symbol(41, 'NUMERIC'))])
+				, "x = 41 :: NUMERIC\nx + (1 :: NUMERIC + 2 :: NUMERIC)"
+				, ['+']],
 		];
 	}
 

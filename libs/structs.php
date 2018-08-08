@@ -78,6 +78,16 @@ class Symbol implements Term
 		return [];
 	}
 
+
+
+	/**
+	 * @return string
+	 */
+	function getValue()
+	{
+		return $this->val;
+	}
+
 }
 
 
@@ -98,20 +108,34 @@ class Let
 	 * Výraz, na který byl symbol nabindován.
 	 * @var Term
 	 */
-	private $val;
+	private $term;
 
-	function __construct($symbol, Term $val)
+	function __construct($symbol, /*Term*/ $term)
 	{
 		Validators::assert($symbol, 'string:1..');
 		$this->symbol = $symbol;
-		$this->val = $val;
+		$this->term = $term;
 	}
 
 
 
 	function __toString()
 	{
-		return $this->symbol . ' = ' . $this->val;
+		return $this->symbol . ' = ' . $this->term;
+	}
+
+
+
+	function getSymbol()
+	{
+		return $this->symbol;
+	}
+
+
+
+	function getTerm()
+	{
+		return $this->term;
 	}
 
 }
@@ -136,21 +160,14 @@ class Lambda implements Term
 	 */
 	private $exprs;
 
-	/**
-	 * Interní symboly a lambdy.
-	 * @var array of Let
-	 */
-	private $lets;
 
-
-	function __construct(array $args, $exprs, array $lets = [])
+	function __construct(array $args, $exprs)
 	{
 		if ( ! is_array($exprs)) {
 			$exprs = [$exprs];
 		}
 		$this->args = $args;
 		$this->exprs = $exprs;
-		$this->lets = $lets;
 	}
 
 
@@ -158,9 +175,6 @@ class Lambda implements Term
 	function __toString()
 	{
 		$xs = [];
-		foreach ($this->lets as $x) {
-			$xs[] = (string) $x;
-		}
 		foreach ($this->exprs as $x) {
 			$xs[] = (string) $x;
 		}
@@ -191,6 +205,33 @@ class Lambda implements Term
 		return [];
 	}
 
+
+
+	function getExpr()
+	{
+		return reset($this->exprs);
+	}
+
+
+
+	function getArgs()
+	{
+		return $this->args;
+	}
+
+
+
+	function getSymbols()
+	{
+		return $this->getExpr()->getLets();
+	}
+
+
+	function getExprs()
+	{
+		return $this->exprs;
+	}
+
 }
 
 
@@ -211,25 +252,41 @@ class Expr implements Term
 	private $items;
 
 
-	function __construct(array $xs)
+	/**
+	 * Interní symboly a lambdy.
+	 * @var array of Let
+	 */
+	private $lets;
+
+
+	function __construct(array $xs, array $lets = [])
 	{
 		$this->items = $xs;
+		$this->lets = [];
+		foreach ($lets as $x) {
+			$this->lets[$x->getSymbol()] = $x;
+		}
 	}
 
 
 
 	function __toString()
 	{
-		$xs = [];
+		$exprs = [];
 		foreach ($this->items as $x) {
 			if ($x instanceof self) {
-				$xs[] = "({$x})";
+				$exprs[] = "({$x})";
 			}
 			else {
-				$xs[] = "{$x}";
+				$exprs[] = "{$x}";
 			}
 		}
-		return implode(' ', $xs);
+		$lets = [];
+		foreach ($this->lets as $x) {
+			$lets[] = "{$x}";
+		}
+		$lets[] = implode(' ', $exprs);
+		return implode("\n", $lets);
 	}
 
 
@@ -258,7 +315,14 @@ class Expr implements Term
 				$xs = array_merge($xs, $x->refs());
 			}
 		}
-		return array_unique($xs);
+		$xs = array_unique($xs);
+
+		if ($this->lets) {
+			$lets = array_keys($this->lets);
+			$xs = array_values(array_diff($xs, $lets));
+		}
+
+		return $xs;
 	}
 
 
@@ -266,6 +330,13 @@ class Expr implements Term
 	function getItems()
 	{
 		return $this->items;
+	}
+
+
+
+	function getLets()
+	{
+		return $this->lets;
 	}
 
 }

@@ -70,6 +70,13 @@ return [
 			'=='
 		],
 
+	['True',
+		[ Token::symbol_('True', 1)
+		, Token::eof()
+		],
+			new Literal('True', 'SYMBOL'),
+		],
+
 	// Tuples
 	["(1, 2, 4)",
 		[ Token::bracket('(')
@@ -487,6 +494,30 @@ return [
 				new Symbol("'Une'", 'STRING'),
 				new Symbol("'Deux'", 'STRING'),
 				new Symbol("'Trois'", 'STRING')
+			])
+		],
+
+	'Přiřazení symbolů' => ["[
+	une
+	deux
+	trois
+]",
+		[ Token::bracket('[')
+			, Token::indent(1)
+			, Token::identifier('une')
+			, Token::terminator("\n")
+			, Token::identifier('deux')
+			, Token::terminator("\n")
+			, Token::identifier('trois')
+			, Token::outdent(1)
+		, Token::terminator("\n")
+		, Token::bracket(']')
+		, Token::eof()
+		],
+			new StructList([
+				'une',
+				'deux',
+				'trois',
 			])
 		],
 
