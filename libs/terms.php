@@ -48,7 +48,7 @@ class Symbol implements Term
 
 	function __construct($val, $type)
 	{
-		//~ Validators::assert($val, 'string');
+		Validators::assert($val, 'string|number');
 		Validators::assert($type, 'string:1..255');
 		$this->val = $val;
 		$this->type = $type;
@@ -112,31 +112,24 @@ class Lambda implements Term
 	 * Vlastní logika lambdy.
 	 * @var array of Expr
 	 */
-	private $exprs;
+	private $expr;
 
 
-	function __construct(array $args, $exprs)
+	function __construct(array $args, Term $expr)
 	{
-		if ( ! is_array($exprs)) {
-			$exprs = [$exprs];
-		}
 		$this->args = $args;
-		$this->exprs = $exprs;
+		$this->expr = $expr;
 	}
 
 
 
 	function __toString()
 	{
-		$xs = [];
-		foreach ($this->exprs as $x) {
-			$xs[] = (string) $x;
-		}
 		$args = [];
 		foreach ($this->args as $x) {
 			$args[] = (string) $x;
 		}
-		return '{(' . implode(' ', $args) . ') -> ' . implode(';', $xs) . '}';
+		return '{(' . implode(' ', $args) . ') -> ' . $this->expr . '}';
 	}
 
 
@@ -166,7 +159,7 @@ class Lambda implements Term
 
 	function getExpr()
 	{
-		return reset($this->exprs);
+		return $this->expr;
 	}
 
 
@@ -184,13 +177,6 @@ class Lambda implements Term
 			return $this->getExpr()->getLets();
 		}
 		return [];
-	}
-
-
-
-	function getExprs()
-	{
-		return $this->exprs;
 	}
 
 }

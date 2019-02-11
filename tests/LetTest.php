@@ -40,8 +40,8 @@ class LetTest extends PHPUnit_Framework_TestCase
 			['arg' => new Let('fn', new Lambda(['x'], new Expr(['abc', 'def'])))
 				, 'fn = {(x) -> abc def}'
 				],
-			['args' => new Let('fn', new Lambda(['x', 'b'], new Expr(['abc', 'def'])))
-				, 'fn = {(x b) -> abc def}'
+			['args' => new Let('fn', new Lambda(['x', 'b'], new Expr(['abc', '.', 'def'])))
+				, 'fn = {(x b) -> abc . def}'
 				],
 		];
 	}
