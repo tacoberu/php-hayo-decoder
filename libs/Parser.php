@@ -467,7 +467,7 @@ class HayoParser
 					// key
 					$key = $token->val;
 					if ($token->type !== 'IDENTIFIER') {
-						$key = self::toString(self::buildLiteral($token));
+						$key = Utils::formatLiteral(self::buildLiteral($token));
 					}
 
 					// ':'
@@ -642,13 +642,6 @@ class HayoParser
 	private static function endsWith($haystack, $needle)
 	{
 		return strlen($needle) === 0 || substr($haystack, -strlen($needle)) === $needle;
-	}
-
-
-
-	private static function toString($x)
-	{
-		return json_encode((object)['val' => $x->getValue(), 'type' => $x->type()]);
 	}
 
 }
