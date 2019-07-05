@@ -33,7 +33,7 @@ interface Term
 /**
  * Hodnota: číslo, text, symbol True,...
  */
-class Symbol implements Term
+class Literal implements Term
 {
 
 	/**

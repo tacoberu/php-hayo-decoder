@@ -12,28 +12,28 @@ return [
 		[ Token::symbol_('True', 1)
 		, Token::eof()
 		],
-			new Symbol('True', 'SYMBOL')
+			new Literal('True', 'SYMBOL')
 		],
 
 	["False",
 		[ Token::symbol_('False', 1)
 		, Token::eof()
 		],
-			new Symbol('False', 'SYMBOL')
+			new Literal('False', 'SYMBOL')
 		],
 
 	["Null",
 		[ Token::symbol_('Null', 1)
 		, Token::eof()
 		],
-			new Symbol('Null', 'SYMBOL')
+			new Literal('Null', 'SYMBOL')
 		],
 
 	["Nil",
 		[ Token::symbol_('Nil', 1)
 		, Token::eof()
 		],
-			new Symbol('Nil', 'SYMBOL')
+			new Literal('Nil', 'SYMBOL')
 		],
 
 	];

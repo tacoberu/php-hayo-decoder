@@ -44,28 +44,28 @@ class StructListTest extends PHPUnit_Framework_TestCase
 				, [42, 65, -88]
 				, []
 				],
-			['one1' => new StructList([new Symbol(42, 'Number')])
+			['one1' => new StructList([new Literal(42, 'Number')])
 				, '[42 :: Number]'
-				, [new Symbol(42, 'Number')]
+				, [new Literal(42, 'Number')]
 				, []
 				],
-			['many1' => new StructList([new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')])
+			['many1' => new StructList([new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')])
 				, '[42 :: Number, 65 :: Number, -88 :: Number]'
-				, [new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')]
+				, [new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')]
 				, []
 				],
-			['many+symbol' => new StructList([new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')])
+			['many+symbol' => new StructList([new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')])
 				, '[42 :: Number, a, -88 :: Number]'
-				, [new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')]
+				, [new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')]
 				, ['a']
 				],
 			['many+symbol+expr' => new StructList([
-					new Symbol(42, 'Number'),
+					new Literal(42, 'Number'),
 					'a',
-					new Expr([new Symbol(-88, 'Number'), '+', 'a'])
+					new Expr([new Literal(-88, 'Number'), '+', 'a'])
 					])
 				, '[42 :: Number, a, -88 :: Number + a]'
-				, [new Symbol(42, 'Number'), 'a', new Expr([new Symbol(-88, 'Number'), '+', 'a'])]
+				, [new Literal(42, 'Number'), 'a', new Expr([new Literal(-88, 'Number'), '+', 'a'])]
 				, ['a', '+']
 				],
 		];

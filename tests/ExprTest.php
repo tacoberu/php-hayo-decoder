@@ -50,23 +50,23 @@ class ExprTest extends PHPUnit_Framework_TestCase
 			[ new Expr(['abc', 'def'])
 				, 'abc def'
 				, ['abc', 'def']],
-			[ new Expr(['abc', 'def', new Expr([new Symbol('1', 'NUMERIC'), '+', new Symbol('2', 'NUMERIC')])])
+			[ new Expr(['abc', 'def', new Expr([new Literal('1', 'NUMERIC'), '+', new Literal('2', 'NUMERIC')])])
 				, 'abc def (1 :: NUMERIC + 2 :: NUMERIC)'
 				, ['abc', 'def', '+']],
-			[ new Expr(['abc', new Symbol('def', 'STRING')])
+			[ new Expr(['abc', new Literal('def', 'STRING')])
 				, 'abc \'def\' :: STRING'
 				, ['abc']],
-			[ new Expr(['x', '+', new Expr([new Symbol('1', 'NUMERIC'), '+', new Symbol('2', 'NUMERIC')])]
-					, [ new Let('x', new Symbol(41, 'NUMERIC'))])
+			[ new Expr(['x', '+', new Expr([new Literal('1', 'NUMERIC'), '+', new Literal('2', 'NUMERIC')])]
+					, [ new Let('x', new Literal(41, 'NUMERIC'))])
 				, "x = 41 :: NUMERIC\nx + (1 :: NUMERIC + 2 :: NUMERIC)"
 				, ['+']],
 			'transitivní refs' => [ new Expr([
 					'abc',
-					new Symbol('def', 'STRING'),
+					new Literal('def', 'STRING'),
 					new StructList([
 						new Expr([
 							'prelude.echo',
-							new Symbol('Caou', 'STRING'),
+							new Literal('Caou', 'STRING'),
 						])
 					]),
 				])
@@ -75,15 +75,15 @@ class ExprTest extends PHPUnit_Framework_TestCase
 			'transitivní refs i do lets' => [ new Expr([
 					'abc',
 					'fn',
-					new Symbol('def', 'STRING'),
+					new Literal('def', 'STRING'),
 					new StructList([
 						new Expr([
 							'prelude.echo',
-							new Symbol('Caou', 'STRING'),
+							new Literal('Caou', 'STRING'),
 						])
 					]),
 				], [
-					new Let('abc', new Symbol(45, 'NUMBER')),
+					new Let('abc', new Literal(45, 'NUMBER')),
 					new Let('fn', new Lambda(['x'], new Expr([
 						'prelude.foo',
 						'x'

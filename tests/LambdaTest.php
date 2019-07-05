@@ -28,10 +28,10 @@ class LambdaTest extends PHPUnit_Framework_TestCase
 	{
 		// @TODO Zakázat prázdné argumenty?
 		return [
-			['literal' => new Lambda([], new Symbol('abc', 'STRING'))
+			['literal' => new Lambda([], new Literal('abc', 'STRING'))
 				, '{() -> \'abc\' :: STRING}'
 				, []],
-			['struct' => new Lambda([], new StructList(['abc', new Symbol('saf', 'STRING')]))
+			['struct' => new Lambda([], new StructList(['abc', new Literal('saf', 'STRING')]))
 				, '{() -> [abc, \'saf\' :: STRING]}'
 				, ['abc']],
 			['symbol' => new Lambda([], new Expr(['abc']))
@@ -43,7 +43,7 @@ class LambdaTest extends PHPUnit_Framework_TestCase
 			['many+args' => new Lambda(['x'], new Expr(['x', 'def']))
 				, '{(x) -> x def}'
 				, ['def']],
-			['many+args 2' => new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Symbol(3.14, 'NUMERIC'))]))
+			['many+args 2' => new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Literal(3.14, 'NUMERIC'))]))
 				, "{(x) -> pi = 3.14 :: NUMERIC\nx pi}"
 				, []],
 		];

@@ -513,7 +513,7 @@ class HayoParser
 
 	private static function buildLiteral(Token $token)
 	{
-		return new Symbol($token->val, $token->type);
+		return new Literal($token->val, $token->type);
 	}
 
 

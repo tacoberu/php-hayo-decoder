@@ -19,7 +19,7 @@ return [
 		, Token::terminator("\n", 3)
 		, Token::eof()
 		],
-			new Symbol('44', 'NUMBER')
+			new Literal('44', 'NUMBER')
 		],
 
 	'blokový komentář - je možno zanořovat' => ["{- 42
@@ -36,7 +36,7 @@ return [
 		, Token::terminator("\n", 7)
 		, Token::eof()
 		],
-			new Symbol('44', 'NUMBER')
+			new Literal('44', 'NUMBER')
 		],
 
 	'céčkovské komentáře ignoruje' => ["{- 42
@@ -53,7 +53,7 @@ return [
 		, Token::terminator("\n", 7)
 		, Token::eof()
 		],
-			new Symbol('44', 'NUMBER')
+			new Literal('44', 'NUMBER')
 		],
 
 	'komentář uvnitř konstrukce' => [
@@ -80,8 +80,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -108,8 +108,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -132,8 +132,8 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -153,7 +153,7 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
+				new Literal('1', 'NUMBER'),
 			])
 		],
 
@@ -195,12 +195,12 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Symbol('222', 'NUMBER'),
-						new Symbol('"Lewis Carrol"', 'STRING'),
+						new Literal('222', 'NUMBER'),
+						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
 			])
@@ -249,16 +249,16 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Symbol('111', 'NUMBER'),
-						new Symbol('"non"', 'STRING'),
+						new Literal('111', 'NUMBER'),
+						new Literal('"non"', 'STRING'),
 					]),
 					new StructTuple([
-						new Symbol('222', 'NUMBER'),
-						new Symbol('"Lewis Carrol"', 'STRING'),
+						new Literal('222', 'NUMBER'),
+						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
 			])
@@ -289,8 +289,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"De{- non -}ux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"De{- non -}ux"', 'STRING'),
 				'c' => new StructList([]),
 			])
 		],
@@ -339,15 +339,15 @@ return [
 			new Expr(['prelude.do', new StructList([
 				new Expr([
 					'prelude.echo',
-					new Symbol('"dict: "', 'STRING'),
+					new Literal('"dict: "', 'STRING'),
 					new Expr([
 						'prelude.dump', new StructDict([
-							'num' => new Symbol('42', 'NUMBER'),
-							'real' => new Symbol('3.12', 'NUMBER'),
-							'text' => new Symbol('"Lorem ipsum doler ist"', 'STRING'),
+							'num' => new Literal('42', 'NUMBER'),
+							'real' => new Literal('3.12', 'NUMBER'),
+							'text' => new Literal('"Lorem ipsum doler ist"', 'STRING'),
 						]),
 					]),
-					new Symbol('"\n"', 'STRING'),
+					new Literal('"\n"', 'STRING'),
 				]),
 			])]),
 		],

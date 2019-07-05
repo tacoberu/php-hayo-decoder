@@ -28,8 +28,8 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						]),
 				],
 
@@ -48,8 +48,8 @@ return [
 				, Token::identifier('num', 3)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						])
 				],
 
@@ -67,8 +67,8 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')]))
 						])
 				],
 
@@ -86,8 +86,8 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '-', new Symbol('5', 'NUMBER')])),
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '-', new Literal('5', 'NUMBER')])),
 						])
 				],
 
@@ -109,8 +109,8 @@ return [
 				, Token::identifier('num', 4)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')])),
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
 						])
 				],
 
@@ -137,9 +137,9 @@ inc =
 				, Token::identifier('num', 4)
 				, Token::eof()
 				],
-						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
-						, new Let('inc', new Expr([new Symbol('2', 'NUMBER'), '+', new Symbol('1', 'NUMBER')]))
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
+						, new Let('inc', new Expr([new Literal('2', 'NUMBER'), '+', new Literal('1', 'NUMBER')]))
 						])
 				],
 
@@ -177,10 +177,10 @@ inc =
 				, Token::identifier('num', 6)
 				, Token::eof()
 				],
-						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
-						, new Let('inc', new Expr(['m', '+', new Symbol('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]))
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
+						, new Let('inc', new Expr(['m', '+', new Literal('1', 'NUMBER')],
+							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')]))
 							]))
 						])
 				],
@@ -215,10 +215,10 @@ inc =
 				, Token::identifier('num', 6)
 				, Token::eof()
 				],
-						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
 						[ new Let('inc',
-							new Expr(['m', '+', new Symbol('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]))
+							new Expr(['m', '+', new Literal('1', 'NUMBER')],
+							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')]))
 							]))
 						])
 				],
@@ -391,17 +391,17 @@ dec =
 				, Token::identifier('num', 14)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						, new Let('inc',
-							new Expr(['m', '+', new Symbol('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]
+							new Expr(['m', '+', new Literal('1', 'NUMBER')],
+							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')]
 								))
 							]))
-						, new Let('dec', new Expr(['m', '-', new Symbol('1', 'NUMBER')],
+						, new Let('dec', new Expr(['m', '-', new Literal('1', 'NUMBER')],
 							[ new Let('m', new Expr(['a', '+', 'x'],
-								[ new Let('x', new Symbol('42', 'NUMBER'))
-								, new Let('y', new Expr([new Symbol('11', 'NUMBER'), '*', new Symbol('22', 'NUMBER')]))
+								[ new Let('x', new Literal('42', 'NUMBER'))
+								, new Let('y', new Expr([new Literal('11', 'NUMBER'), '*', new Literal('22', 'NUMBER')]))
 								]))
 							]))
 						])
@@ -432,10 +432,10 @@ inc = x ->
 				, Token::identifier('num', 4)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Symbol('1', 'NUMBER')])
+							new Expr(['x', '+', new Literal('1', 'NUMBER')])
 							))
 						])
 				],
@@ -468,10 +468,10 @@ inc = x ->
 				, Token::bracket(')', 4)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['inc', new Symbol('1', 'NUMBER')])],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Symbol('1', 'NUMBER')])
+							new Expr(['x', '+', new Literal('1', 'NUMBER')])
 							))
 						])
 				],
@@ -506,8 +506,8 @@ sum = x y ->
 				, Token::bracket(')', 4)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['sum', new Symbol('1', 'NUMBER'), new Symbol('2', 'NUMBER')])],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
+					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])],
+						[ new Let('num', new Literal('45', 'NUMBER'))
 						, new Let('sum', new Lambda(['x', 'y'],
 							new Expr(['x', '+', 'y'])
 							))
@@ -535,7 +535,7 @@ sum = x y ->
 				, Token::bracket(')', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['sum', new Symbol('1', 'NUMBER'), new Symbol('2', 'NUMBER')])],
+					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])],
 						[ new Let('sum', new Lambda(['x', 'y'],
 							new Expr(['x', '+', 'y'])
 							))
@@ -556,8 +556,8 @@ sum = x y ->
 				, Token::identifier('num', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]))
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')]))
 						])
 				],
 
@@ -582,10 +582,10 @@ x = 5
 				, Token::identifier('num', 3)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
+					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
 							// Jenže ono to sice nevyžaduje žádné argumenty, ale může to šahat do proměnných v nadřazeném kontextu. A ty by měli být zafixovány.
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', 'x']))
-						, new Let('x', new Symbol('5', 'NUMBER'))
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', 'x']))
+						, new Let('x', new Literal('5', 'NUMBER'))
 						])
 				],
 
@@ -606,10 +606,10 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							new Expr(['hash', 'num'])
 						],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]))
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')]))
 						])
 				],
 
@@ -631,11 +631,11 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num'])
 						],
-						[ new Let('num', new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]))
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')]))
 						])
 				],
 
@@ -659,13 +659,13 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num'])
 						],
 						[ new Let('num', new StructList([
-								new Symbol('4', 'NUMBER'),
-								new Symbol('5', 'NUMBER'),
+								new Literal('4', 'NUMBER'),
+								new Literal('5', 'NUMBER'),
 							]))
 						])
 				],
@@ -690,14 +690,14 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num'])
 						],
 						[
 							new Let('num', new StructTuple([
-								new Symbol('4', 'NUMBER'),
-								new Symbol('5', 'NUMBER'),
+								new Literal('4', 'NUMBER'),
+								new Literal('5', 'NUMBER'),
 							]))
 						])
 				],
@@ -726,13 +726,13 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num'])
 						],
 						[ new Let('num', new StructDict([
-							'a' => new Symbol('4', 'NUMBER'),
-							'b' => new Symbol('5', 'NUMBER'),
+							'a' => new Literal('4', 'NUMBER'),
+							'b' => new Literal('5', 'NUMBER'),
 							]))
 						])
 				],
@@ -767,13 +767,13 @@ x = 5
 				, Token::eof()
 				],
 					new Expr([
-							new Symbol('123', 'NUMBER'),
+							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num'])
 						],
 						[ new Let('num', new StructDict([
-							'a' => new Symbol('4', 'NUMBER'),
-							'b' => new Symbol('5', 'NUMBER'),
+							'a' => new Literal('4', 'NUMBER'),
+							'b' => new Literal('5', 'NUMBER'),
 							]))
 						])
 				],
@@ -810,12 +810,12 @@ log 11
 				],
 			new Expr([
 				'log',
-				new Symbol('11', 'NUMBER')
+				new Literal('11', 'NUMBER')
 				], [
-					new Let('x', new Symbol('14', 'NUMBER')),
+					new Let('x', new Literal('14', 'NUMBER')),
 					new Let('foo', new Expr([
 						'prelude.echo',
-						new Symbol('"done, line: "', 'STRING'),
+						new Literal('"done, line: "', 'STRING'),
 						'x',
 						])),
 					new Let('log', new Lambda(['x'], new Expr([

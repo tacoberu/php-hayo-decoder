@@ -16,6 +16,6 @@ return [
 		, Token::terminator("\n", 2)
 		, Token::eof()
 		],
-			new Symbol('44', 'NUMBER')
+			new Literal('44', 'NUMBER')
 		],
 	];

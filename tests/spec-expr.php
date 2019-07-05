@@ -13,7 +13,7 @@ return [
 		, Token::number_('3', 1)
 		, Token::eof()
 		],
-			new Expr([new Symbol('42', 'NUMBER'), '+', new Symbol('3', 'NUMBER')]),
+			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
 		],
 
 	["(42 + 3)",
@@ -24,7 +24,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof()
 		],
-			new Expr([new Symbol('42', 'NUMBER'), '+', new Symbol('3', 'NUMBER')]),
+			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
 		],
 
 	["42 + m",
@@ -33,8 +33,9 @@ return [
 		, Token::identifier('m', 1)
 		, Token::eof()
 		],
-			new Expr([new Symbol('42', 'NUMBER'), '+', 'm']),
+			new Expr([new Literal('42', 'NUMBER'), '+', 'm']),
 		],
+
 	["x * 42 + m",
 		[ Token::identifier('x', 1)
 		, Token::identifier('*', 1)
@@ -43,8 +44,9 @@ return [
 		, Token::identifier('m', 1)
 		, Token::eof()
 		],
-			new Expr(['x', '*', new Symbol('42', 'NUMBER'), '+', 'm']),
+			new Expr(['x', '*', new Literal('42', 'NUMBER'), '+', 'm']),
 		],
+
 	["42 + (3 * 3)",
 		[ Token::number_('42', 1)
 		, Token::identifier('+', 1)
@@ -55,7 +57,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof()
 		],
-			new Expr([new Symbol('42', 'NUMBER'), '+', new Expr([new Symbol('3', 'NUMBER'), '*', new Symbol('3', 'NUMBER')])]),
+			new Expr([new Literal('42', 'NUMBER'), '+', new Expr([new Literal('3', 'NUMBER'), '*', new Literal('3', 'NUMBER')])]),
 		],
 
 	["123 + (inc 1)",
@@ -67,7 +69,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof()
 		],
-			new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['inc', new Symbol('1', 'NUMBER')])]),
+			new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])]),
 		],
 
 
@@ -82,7 +84,7 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['add'],
-			new Expr([new Symbol('42', 'NUMBER'), 'add', new Expr([new Symbol('3', 'NUMBER'), '*', new Symbol('3', 'NUMBER')])]),
+			new Expr([new Literal('42', 'NUMBER'), 'add', new Expr([new Literal('3', 'NUMBER'), '*', new Literal('3', 'NUMBER')])]),
 			[])
 		],//*/
 
@@ -91,7 +93,7 @@ return [
 		, Token::string_('"hallo"', 1)
 		, Token::eof()
 		],
-			new Expr(['say', new Symbol('"hallo"', 'STRING')]),
+			new Expr(['say', new Literal('"hallo"', 'STRING')]),
 		],
 
 ];

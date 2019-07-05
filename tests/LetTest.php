@@ -25,10 +25,10 @@ class LetTest extends PHPUnit_Framework_TestCase
 	function dataState()
 	{
 		return [
-			['literal' => new Let('fn', new Symbol(42, 'Num'))
+			['literal' => new Let('fn', new Literal(42, 'Num'))
 				, 'fn = 42 :: Num'
 				],
-			['literal str' => new Let('fn', new Symbol('"42"', 'String'))
+			['literal str' => new Let('fn', new Literal('"42"', 'String'))
 				, 'fn = \'"42"\' :: String'
 				],
 			['expr' => new Let('fn', new Expr(['a', 'b']))

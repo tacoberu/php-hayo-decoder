@@ -45,40 +45,40 @@ class StructDictTest extends PHPUnit_Framework_TestCase
 				, []
 				],
 
-			['one1' => new StructDict([new Symbol(42, 'Number')])
+			['one1' => new StructDict([new Literal(42, 'Number')])
 				, '{0: 42 :: Number}'
-				, [new Symbol(42, 'Number')]
+				, [new Literal(42, 'Number')]
 				, []
 				],
-			['many1' => new StructDict([new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')])
+			['many1' => new StructDict([new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')])
 				, '{0: 42 :: Number, 1: 65 :: Number, 2: -88 :: Number}'
-				, [new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')]
+				, [new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')]
 				, []
 				],
-			['many+symbol' => new StructDict([new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')])
+			['many+symbol' => new StructDict([new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')])
 				, '{0: 42 :: Number, 1: a, 2: -88 :: Number}'
-				, [new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')]
+				, [new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')]
 				, ['a']
 				],
 			['many+symbol+expr' => new StructDict([
-					new Symbol(42, 'Number'),
+					new Literal(42, 'Number'),
 					'a',
-					new Expr([new Symbol(-88, 'Number'), '+', 'a'])
+					new Expr([new Literal(-88, 'Number'), '+', 'a'])
 					])
 				, '{0: 42 :: Number, 1: a, 2: -88 :: Number + a}'
-				, [new Symbol(42, 'Number'), 'a', new Expr([new Symbol(-88, 'Number'), '+', 'a'])]
+				, [new Literal(42, 'Number'), 'a', new Expr([new Literal(-88, 'Number'), '+', 'a'])]
 				, ['a', '+']
 				],
 			['expr as key' => (new StructDict([
-					'x' => new Symbol(42, 'Number'),
+					'x' => new Literal(42, 'Number'),
 					]))
 					->add('a', 'a')
-					->add(new Symbol(42, 'Number'), new Expr([new Symbol(-88, 'Number'), '+', 'a']))
+					->add(new Literal(42, 'Number'), new Expr([new Literal(-88, 'Number'), '+', 'a']))
 				, '{x: 42 :: Number, a: a, {"val":42,"type":"Number"}: -88 :: Number + a}'
 				, [
-					'x' => new Symbol(42, 'Number'),
+					'x' => new Literal(42, 'Number'),
 					'a' => 'a',
-					'{"val":42,"type":"Number"}' => new Expr([new Symbol(-88, 'Number'), '+', 'a'])
+					'{"val":42,"type":"Number"}' => new Expr([new Literal(-88, 'Number'), '+', 'a'])
 					]
 				, ['a', '+']
 				],

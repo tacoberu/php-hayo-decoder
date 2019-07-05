@@ -16,43 +16,43 @@ return [
 		[ Token::number_('1', 1)
 		, Token::eof()
 		],
-		new Symbol('1', 'NUMBER')
+		new Literal('1', 'NUMBER')
 		],
 	["42",
 		[ Token::number_('42', 1)
 		, Token::eof()
 		],
-			new Symbol('42', 'NUMBER')
+			new Literal('42', 'NUMBER')
 		],
 	["3.141592",
 		[ Token::number_('3.141592', 1)
 		, Token::eof()
 		],
-			new Symbol('3.141592', 'NUMBER')
+			new Literal('3.141592', 'NUMBER')
 		],
 	['"text"',
 		[ Token::string_('"text"', 1)
 		, Token::eof()
 		],
-			new Symbol('"text"', 'STRING')
+			new Literal('"text"', 'STRING')
 		],
 	["'text'",
 		[ Token::string_("'text'", 1)
 		, Token::eof()
 		],
-			new Symbol("'text'", 'STRING')
+			new Literal("'text'", 'STRING')
 		],
 	["'\"text\"'",
 		[ Token::string_('\'"text"\'', 1)
 		, Token::eof()
 		],
-			new Symbol('\'"text"\'', 'STRING')
+			new Literal('\'"text"\'', 'STRING')
 		],
 	['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"', 1)
 		, Token::eof()
 		],
-			new Symbol('"t@xtč你好 🐶"', 'STRING')
+			new Literal('"t@xtč你好 🐶"', 'STRING')
 		],
 
 	// Special
@@ -89,9 +89,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 	["(1, 2, 4,)",
@@ -106,9 +106,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 	["(
@@ -129,9 +129,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 	["(111, \"Sinead O'Connor\")",
@@ -143,8 +143,8 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('111', 'NUMBER'),
-				new Symbol('"Sinead O\'Connor"', 'STRING')
+				new Literal('111', 'NUMBER'),
+				new Literal('"Sinead O\'Connor"', 'STRING')
 			])
 		],
 	["()",
@@ -161,7 +161,7 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('1', 'NUMBER'),
+				new Literal('1', 'NUMBER'),
 			])
 		],
 	["(1,)",
@@ -172,7 +172,7 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Symbol('1', 'NUMBER'),
+				new Literal('1', 'NUMBER'),
 			])
 		],
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
@@ -185,9 +185,9 @@ return [
 		, Token::eof()
 		],
 			new Expr([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -202,9 +202,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 	["[
@@ -225,9 +225,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 	["[1, 2,]",
@@ -240,8 +240,8 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
 			])
 		],
 	["[1]",
@@ -251,7 +251,7 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
+				new Literal('1', 'NUMBER'),
 			])
 		],
 	["[]",
@@ -273,9 +273,9 @@ return [
 		],
 			new StructList([
 				new Expr([
-					new Symbol('1', 'NUMBER'),
-					new Symbol('2', 'NUMBER'),
-					new Symbol('4', 'NUMBER')
+					new Literal('1', 'NUMBER'),
+					new Literal('2', 'NUMBER'),
+					new Literal('4', 'NUMBER')
 				]),
 			])
 		],
@@ -290,9 +290,9 @@ return [
 		],
 			new StructList([
 				new Expr([
-					new Symbol('1', 'NUMBER'),
+					new Literal('1', 'NUMBER'),
 					'+',
-					new Symbol('4', 'NUMBER')
+					new Literal('4', 'NUMBER')
 				]),
 			])
 		],
@@ -315,9 +315,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('2', 'NUMBER'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('2', 'NUMBER'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 	["{}",
@@ -351,13 +351,13 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
+				'a' => new Literal('1', 'NUMBER'),
 				'b' => new StructList([
-					new Symbol('4', 'NUMBER'),
-					new Symbol('2', 'NUMBER'),
-					new Symbol('4', 'NUMBER'),
+					new Literal('4', 'NUMBER'),
+					new Literal('2', 'NUMBER'),
+					new Literal('4', 'NUMBER'),
 				]),
-				'c' => new Symbol('4', 'NUMBER')
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -387,9 +387,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('2', 'NUMBER'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('2', 'NUMBER'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -419,9 +419,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'{"val":"1","type":"NUMBER"}' => new Symbol('1', 'NUMBER'),
-				'{"val":"\'b\'","type":"STRING"}' => new Symbol('2', 'NUMBER'),
-				'_' => new Symbol('4', 'NUMBER')
+				'{"val":"1","type":"NUMBER"}' => new Literal('1', 'NUMBER'),
+				'{"val":"\'b\'","type":"STRING"}' => new Literal('2', 'NUMBER'),
+				'_' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -449,9 +449,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('2', 'NUMBER'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('2', 'NUMBER'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -475,9 +475,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -499,9 +499,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol('1', 'NUMBER'),
-				new Symbol('2', 'NUMBER'),
-				new Symbol('4', 'NUMBER')
+				new Literal('1', 'NUMBER'),
+				new Literal('2', 'NUMBER'),
+				new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -523,9 +523,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Symbol("'Une'", 'STRING'),
-				new Symbol("'Deux'", 'STRING'),
-				new Symbol("'Trois'", 'STRING')
+				new Literal("'Une'", 'STRING'),
+				new Literal("'Deux'", 'STRING'),
+				new Literal("'Trois'", 'STRING')
 			])
 		],
 
@@ -577,9 +577,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
-				'c' => new Symbol('4', 'NUMBER')
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
+				'c' => new Literal('4', 'NUMBER')
 			])
 		],
 
@@ -608,8 +608,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([])
 			])
 		],
@@ -641,8 +641,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([])
 			])
 		],
@@ -670,7 +670,7 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
+				'a' => new Literal('1', 'NUMBER'),
 				'c' => new StructList([])
 			])
 		],
@@ -706,10 +706,10 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
-					new Symbol('111', 'NUMBER'),
+					new Literal('111', 'NUMBER'),
 				])
 			])
 		],
@@ -748,11 +748,11 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructTuple([
-					new Symbol('111', 'NUMBER'),
-					new Symbol('"Sinead O\'Connor"', 'STRING'),
+					new Literal('111', 'NUMBER'),
+					new Literal('"Sinead O\'Connor"', 'STRING'),
 				])
 			])
 		],
@@ -792,12 +792,12 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Symbol('111', 'NUMBER'),
-						new Symbol('"Sinead O\'Connor"', 'STRING'),
+						new Literal('111', 'NUMBER'),
+						new Literal('"Sinead O\'Connor"', 'STRING'),
 					]),
 				]),
 			])
@@ -845,18 +845,19 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Symbol('1', 'NUMBER'),
-				'b' => new Symbol('"Deux"', 'STRING'),
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Symbol('111', 'NUMBER'),
-						new Symbol('"Sinead O\'Connor"', 'STRING'),
+						new Literal('111', 'NUMBER'),
+						new Literal('"Sinead O\'Connor"', 'STRING'),
 					]),
 					new StructTuple([
-						new Symbol('222', 'NUMBER'),
-						new Symbol('"Lewis Carrol"', 'STRING'),
+						new Literal('222', 'NUMBER'),
+						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
 			])
 		],
+
 	];
