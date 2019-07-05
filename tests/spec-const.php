@@ -647,6 +647,34 @@ return [
 			])
 		],
 
+	'Vertikální mezera mezi prvky' => ["{
+	a: 1
+
+	c: [
+	]
+}",
+		[ Token::bracket('{')
+			, Token::indent(1)
+			, Token::identifier('a')
+			, Token::generic(':')
+			, Token::number_('1')
+			, Token::terminator("\n\n")
+			, Token::identifier('c')
+			, Token::generic(':')
+				, Token::bracket('[')
+				, Token::terminator("\n")
+				, Token::bracket(']')
+			, Token::outdent(1)
+		, Token::terminator("\n")
+		, Token::bracket('}')
+		, Token::eof()
+		],
+			new StructDict([
+				'a' => new Symbol('1', 'NUMBER'),
+				'c' => new StructList([])
+			])
+		],
+
 	["{
 	a: 1
 	b: \"Deux\"

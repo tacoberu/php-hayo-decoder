@@ -347,13 +347,16 @@ class HayoParser
 
 					self::assertTokenValue($token, [',', ')'], 'delimiter or end of tuple');
 
-				case 'TERMINATOR':
-					break;
-
 				case 'INDENT':
 					if (empty($xs)) {
 						break;
 					}
+					break;
+
+				case 'TERMINATOR':
+				case 'COMMENT':
+				case 'OUTDENT':
+					break;
 
 				default:
 					HayoParserException::createUnexpectedToken($token);
@@ -411,6 +414,8 @@ class HayoParser
 					break;
 
 				case 'TERMINATOR':
+				case 'COMMENT':
+				case 'OUTDENT':
 					break;
 
 				default:
@@ -463,13 +468,16 @@ class HayoParser
 						break 2;
 					}
 
-				case 'TERMINATOR':
-					break;
-
 				case 'INDENT':
 					if (empty($xs)) {
 						break;
 					}
+					break;
+
+				case 'TERMINATOR':
+				case 'COMMENT':
+				case 'OUTDENT':
+					break;
 
 				default:
 					HayoParserException::createUnexpectedToken($token);

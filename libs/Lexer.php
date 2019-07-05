@@ -15,8 +15,8 @@ class HayoLexer
 	const IDENTIFIER = '~^[a-zA-Z$_][a-zA-Z0-9$_.]*~';
 	const IDENTIFIER_SPECIAL = '!#$%&*+-.:;<=>?@^_|~';
 	const NUMBER = '~^-?[0-9]+(\.[0-9]+)?~';
-	const COMMENT_LINE = '~^\/\/.*~';
-	const COMMENT_BLOCK = '~^\/\*~';
+	const COMMENT_LINE = '~^\-\-.*~';
+	const COMMENT_BLOCK = '~^\{\-~';
 	const WHITESPACE = '~^[^\n\S]+~';
 	const INDENT = '~^(?:\n[^\n\S]*)+~';
 	const SHEBANG = '~^#!.*~';
@@ -39,13 +39,13 @@ class HayoLexer
 
 		$i = 0;
 		while ($chunk = substr($src, $i)) {
-			$diff = $this->identifierToken($chunk)
-				?: $this->shebangToken($chunk)
+			$diff = $this->shebangToken($chunk)
+				?: $this->commentToken($chunk)
+				?: $this->identifierToken($chunk)
 				?: $this->assignToken($chunk)
 				?: $this->bracketToken($chunk)
 				?: $this->numberToken($chunk)
 				?: $this->stringToken($chunk)
-				?: $this->commentToken($chunk)
 				?: $this->whitespaceToken($chunk)
 				?: $this->lineToken($chunk)
 				?: $this->literalToken($chunk);
@@ -241,7 +241,7 @@ class HayoLexer
 			}
 			else {
 				if ($size < $this->indent) {
-					$last = $this->indents[count($this->indents) - 1];
+					$last = @$this->indents[count($this->indents) - 1];
 					while ($size < $last) {
 						$this->tokens[] = Token::outdent($last - $size);
 						array_pop($this->indents);
@@ -332,10 +332,10 @@ class HayoLexer
 	private static function lookupCloseCommentBlockIndex($chunk, $offset)
 	{
 		while (True) {
-			if ( ! $close = strpos($chunk, '*/', $offset)) {
+			if ( ! $close = strpos($chunk, '-}', $offset)) {
 				throw new \Exception("Missing closing of comment block.");
 			}
-			$open = strpos($chunk, '/*', $offset);
+			$open = strpos($chunk, '{-', $offset);
 
 			if ($open === False || $close < $open) {
 				return $close + 2;
