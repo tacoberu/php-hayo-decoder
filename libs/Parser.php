@@ -102,7 +102,7 @@ class HayoParser
 			}
 		}
 
-		if ($lets) {
+		if ($lets && $expr) {
 			$expr = new Expr($expr->getItems(), $lets);
 		}
 
@@ -159,7 +159,7 @@ class HayoParser
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
-					$xs[] = new Symbol($token->val, $token->type);
+					$xs[] = self::buildLiteral($token);
 					break;
 
 				// Přiřazení lokálního symbolu
@@ -258,7 +258,7 @@ class HayoParser
 				case 'NUMBER':
 				case 'STRING':
 				case 'SYMBOL':
-					$xs[] = new Symbol($token->val, $token->type);
+					$xs[] = self::buildLiteral($token);
 					break;
 
 				case 'IDENTIFIER':
@@ -435,8 +435,13 @@ class HayoParser
 					break 2;
 
 				case 'IDENTIFIER':
+				case 'NUMBER':
+				case 'STRING':
 					// key
 					$key = $token->val;
+					if ($token->type !== 'IDENTIFIER') {
+						$key = self::toString(self::buildLiteral($token));
+					}
 
 					// ':'
 					$token = array_shift($src);
@@ -472,6 +477,13 @@ class HayoParser
 		}
 
 		return [new StructDict($xs), $src];
+	}
+
+
+
+	private static function buildLiteral(Token $token)
+	{
+		return new Symbol($token->val, $token->type);
 	}
 
 
@@ -600,6 +612,13 @@ class HayoParser
 	private static function endsWith($haystack, $needle)
 	{
 		return strlen($needle) === 0 || substr($haystack, -strlen($needle)) === $needle;
+	}
+
+
+
+	private static function toString($x)
+	{
+		return json_encode((object)['val' => $x->getValue(), 'type' => $x->type()]);
 	}
 
 }

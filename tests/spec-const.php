@@ -393,6 +393,38 @@ return [
 			])
 		],
 
+	'klíčem nemusí být symbol' => ["{
+	1: 1,
+	'b': 2,
+	_: 4
+}",
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::number_('1', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::generic(',', 2)
+			, Token::terminator("\n", 2)
+			, Token::string_("'b'", 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::generic(',', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('_', 4)
+			, Token::generic(':', 4)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
+		, Token::eof()
+		],
+			new StructDict([
+				'{"val":"1","type":"NUMBER"}' => new Symbol('1', 'NUMBER'),
+				'{"val":"\'b\'","type":"STRING"}' => new Symbol('2', 'NUMBER'),
+				'_' => new Symbol('4', 'NUMBER')
+			])
+		],
+
 	["{
 	a: 1
 	b: 2
