@@ -60,6 +60,39 @@ class ExprTest extends PHPUnit_Framework_TestCase
 					, [ new Let('x', new Symbol(41, 'NUMERIC'))])
 				, "x = 41 :: NUMERIC\nx + (1 :: NUMERIC + 2 :: NUMERIC)"
 				, ['+']],
+			'transitivní refs' => [ new Expr([
+					'abc',
+					new Symbol('def', 'STRING'),
+					new StructList([
+						new Expr([
+							'prelude.echo',
+							new Symbol('Caou', 'STRING'),
+						])
+					]),
+				])
+				, 'abc def :: STRING [prelude.echo Caou :: STRING]'
+				, ['abc', 'prelude.echo']],
+			'transitivní refs i do lets' => [ new Expr([
+					'abc',
+					'fn',
+					new Symbol('def', 'STRING'),
+					new StructList([
+						new Expr([
+							'prelude.echo',
+							new Symbol('Caou', 'STRING'),
+						])
+					]),
+				], [
+					new Let('abc', new Symbol(45, 'NUMBER')),
+					new Let('fn', new Lambda(['x'], new Expr([
+						'prelude.foo',
+						'x'
+					]))),
+				])
+				, "abc = 45 :: NUMBER\n"
+					."fn = {(x) -> prelude.foo x}\n"
+					. 'abc fn def :: STRING [prelude.echo Caou :: STRING]'
+				, ['prelude.echo', 'prelude.foo']],
 		];
 	}
 

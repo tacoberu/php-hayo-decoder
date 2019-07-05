@@ -180,7 +180,10 @@ class Lambda implements Term
 
 	function getSymbols()
 	{
-		return $this->getExpr()->getLets();
+		if ($this->getExpr() instanceof Expr) {
+			return $this->getExpr()->getLets();
+		}
+		return [];
 	}
 
 
@@ -275,8 +278,16 @@ class Expr implements Term
 			if (is_string($x)) {
 				$xs[] = $x;
 			}
-			else if ($x instanceof self) {
+			else if ($x instanceof Term) {
 				$xs = array_merge($xs, $x->refs());
+			}
+		}
+		foreach ($this->lets as $x) {
+			if (is_string($x->getTerm())) {
+				$xs[] = $x->getTerm();
+			}
+			else if ($x->getTerm() instanceof Term) {
+				$xs = array_merge($xs, $x->getTerm()->refs());
 			}
 		}
 		$xs = array_unique($xs);
