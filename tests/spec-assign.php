@@ -18,49 +18,34 @@ return [
 
 			1 => ["num = 45
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
-
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
-				, Token::eof()
-				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Symbol('45', 'NUMBER'))
-						]),
-				],
-			/*'the symbol may contain a hyphen' => ["num-8 = 45
-123 + num-8",
-				[ Token::identifier('num-8', 1)
+				[ Token::identifier('num', 1)
 				, Token::assign_('=', 1)
 				, Token::number_('45', 1)
 				, Token::terminator("\n", 1)
 
 				, Token::number_('123', 2)
 				, Token::identifier('+', 2)
-				, Token::identifier('num-8', 2)
+				, Token::identifier('num', 2)
 				, Token::eof()
 				],
-					new Expr([new Symbol('123', 'NUMBER'), '+', 'num-8'],
-						[ new Let('num-8', new Symbol('45', 'NUMBER'))
+					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						]),
-				],*/
+				],
+
 			2 => ["num =
 	45
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::indent(1)
-				, Token::number_('45')
-				, Token::outdent(1)
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::indent(1, 2)
+				, Token::number_('45', 2)
+				, Token::outdent(1, 2)
+				, Token::terminator("\n", 2)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 3)
+				, Token::identifier('+', 3)
+				, Token::identifier('num', 3)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -70,16 +55,16 @@ return [
 
 			3 => ["num = 4 + 5
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('+', 1)
+				, Token::number_('5', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 2)
+				, Token::identifier('+', 2)
+				, Token::identifier('num', 2)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -89,16 +74,16 @@ return [
 
 			4 => ["num = 4 - 5
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('-')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('-', 1)
+				, Token::number_('5', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 2)
+				, Token::identifier('+', 2)
+				, Token::identifier('num', 2)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -110,18 +95,18 @@ return [
 	4 + 5
 
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::indent(1)
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::number_('5')
-				, Token::outdent(1)
-				, Token::terminator("\n\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::indent(1, 2)
+				, Token::number_('4', 2)
+				, Token::identifier('+', 2)
+				, Token::number_('5', 2)
+				, Token::outdent(1, 2)
+				, Token::terminator("\n\n", 2)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::identifier('num', 4)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -133,23 +118,23 @@ return [
 inc =
 	2 + 1
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::indent(1)
-				, Token::number_('2')
-				, Token::identifier('+')
-				, Token::number_('1')
-				, Token::outdent(1)
-				, Token::terminator("\n")
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::indent(1, 3)
+				, Token::number_('2', 3)
+				, Token::identifier('+', 3)
+				, Token::number_('1', 3)
+				, Token::outdent(1, 3)
+				, Token::terminator("\n", 3)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::identifier('num', 4)
 				, Token::eof()
 				],
 						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -164,32 +149,32 @@ inc =
 		1 + 2
 	m + 1
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::indent(1)
-					, Token::identifier('m')
-					, Token::assign_('=')
-						, Token::indent(1)
-						, Token::number_('1')
-						, Token::identifier('+')
-						, Token::number_('2')
-						, Token::outdent(1)
-						, Token::terminator("\n")
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::indent(1, 3)
+					, Token::identifier('m', 3)
+					, Token::assign_('=', 3)
+						, Token::indent(1, 4)
+						, Token::number_('1', 4)
+						, Token::identifier('+', 4)
+						, Token::number_('2', 4)
+						, Token::outdent(1, 4)
+						, Token::terminator("\n", 4)
 
-					, Token::identifier('m')
-					, Token::identifier('+')
-					, Token::number_('1')
-					, Token::outdent(1)
-				, Token::terminator("\n")
+					, Token::identifier('m', 5)
+					, Token::identifier('+', 5)
+					, Token::number_('1', 5)
+					, Token::outdent(1, 5)
+				, Token::terminator("\n", 5)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 6)
+				, Token::identifier('+', 6)
+				, Token::identifier('num', 6)
 				, Token::eof()
 				],
 						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -206,28 +191,28 @@ inc =
 		1 + 2
 	m + 1
 123 + num",
-				[ Token::terminator("\n")
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::indent(1)
-					, Token::identifier('m')
-					, Token::assign_('=')
-						, Token::indent(1)
-						, Token::number_('1')
-						, Token::identifier('+')
-						, Token::number_('2')
-						, Token::outdent(1)
-						, Token::terminator("\n")
+				[ Token::terminator("\n", 1)
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::indent(1, 3)
+					, Token::identifier('m', 3)
+					, Token::assign_('=', 3)
+						, Token::indent(1, 4)
+						, Token::number_('1', 4)
+						, Token::identifier('+', 4)
+						, Token::number_('2', 4)
+						, Token::outdent(1, 4)
+						, Token::terminator("\n", 4)
 
-					, Token::identifier('m')
-					, Token::identifier('+')
-					, Token::number_('1')
-					, Token::outdent(1)
-				, Token::terminator("\n")
+					, Token::identifier('m', 5)
+					, Token::identifier('+', 5)
+					, Token::number_('1', 5)
+					, Token::outdent(1, 5)
+				, Token::terminator("\n", 5)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 6)
+				, Token::identifier('+', 6)
+				, Token::identifier('num', 6)
 				, Token::eof()
 				],
 						new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -333,77 +318,77 @@ dec =
 	m - 1
 123 + num",
 				// num = 45
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
 				// inc = ...
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::indent(1)
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::indent(1, 3)
 					// m = ...
-					, Token::identifier('m')
-					, Token::assign_('=')
-						, Token::indent(1)
-						, Token::number_('1')
-						, Token::identifier('+')
-						, Token::number_('2')
-						, Token::outdent(1)
-					, Token::terminator("\n")
+					, Token::identifier('m', 3)
+					, Token::assign_('=', 3)
+						, Token::indent(1, 4)
+						, Token::number_('1', 4)
+						, Token::identifier('+', 4)
+						, Token::number_('2', 4)
+						, Token::outdent(1, 4)
+					, Token::terminator("\n", 4)
 
 					// m + 1
-					, Token::identifier('m')
-					, Token::identifier('+')
-					, Token::number_('1')
-					, Token::outdent(1)
-				, Token::terminator("\n")
+					, Token::identifier('m', 5)
+					, Token::identifier('+', 5)
+					, Token::number_('1', 5)
+					, Token::outdent(1, 5)
+				, Token::terminator("\n", 5)
 
 				// dec = ...
-				, Token::identifier('dec')
-				, Token::assign_('=')
-				, Token::indent(1)
+				, Token::identifier('dec', 6)
+				, Token::assign_('=', 6)
+				, Token::indent(1, 7)
 					// m = ...
-					, Token::identifier('m')
-					, Token::assign_('=')
-						, Token::indent(1)
+					, Token::identifier('m', 7)
+					, Token::assign_('=', 7)
+						, Token::indent(1, 8)
 
 						// x = ...
-						, Token::identifier('x')
-						, Token::assign_('=')
-							, Token::indent(1)
-							, Token::number_('42')
-							, Token::outdent(1)
-						, Token::terminator("\n")
+						, Token::identifier('x', 8)
+						, Token::assign_('=', 8)
+							, Token::indent(1, 9)
+							, Token::number_('42', 9)
+							, Token::outdent(1, 9)
+						, Token::terminator("\n", 9)
 
 						// y = ...
-						, Token::identifier('y')
-						, Token::assign_('=')
-							, Token::indent(1)
-							, Token::number_('11')
-							, Token::identifier('*')
-							, Token::number_('22')
-							, Token::outdent(1)
-						, Token::terminator("\n")
+						, Token::identifier('y', 10)
+						, Token::assign_('=', 10)
+							, Token::indent(1, 11)
+							, Token::number_('11', 11)
+							, Token::identifier('*', 11)
+							, Token::number_('22', 11)
+							, Token::outdent(1, 11)
+						, Token::terminator("\n", 11)
 
 						// a + x
-						, Token::identifier('a')
-						, Token::identifier('+')
-						, Token::identifier('x')
-						, Token::outdent(1)
-					, Token::terminator("\n")
+						, Token::identifier('a', 12)
+						, Token::identifier('+', 12)
+						, Token::identifier('x', 12)
+						, Token::outdent(1, 12)
+					, Token::terminator("\n", 12)
 
 					// m - 1
-					, Token::identifier('m')
-					, Token::identifier('-')
-					, Token::number_('1')
-					, Token::outdent(1)
-				, Token::terminator("\n")
+					, Token::identifier('m', 13)
+					, Token::identifier('-', 13)
+					, Token::number_('1', 13)
+					, Token::outdent(1, 13)
+				, Token::terminator("\n", 13)
 
 				// 123 + num
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 14)
+				, Token::identifier('+', 14)
+				, Token::identifier('num', 14)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -426,25 +411,25 @@ dec =
 inc = x ->
 	x + 1
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::identifier('x')
-				, Token::arrow('->')
-					, Token::indent(1)
-					, Token::identifier('x')
-					, Token::identifier('+')
-					, Token::number_('1')
-					, Token::outdent(1)
-				, Token::terminator("\n")
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::identifier('x', 2)
+				, Token::arrow('->', 2)
+					, Token::indent(1, 3)
+					, Token::identifier('x', 3)
+					, Token::identifier('+', 3)
+					, Token::number_('1', 3)
+					, Token::outdent(1, 3)
+				, Token::terminator("\n", 3)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::identifier('num', 4)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -459,28 +444,28 @@ inc = x ->
 inc = x ->
 	x + 1
 123 + (inc 1)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('inc')
-				, Token::assign_('=')
-				, Token::identifier('x')
-				, Token::arrow('->')
-					, Token::indent(1)
-					, Token::identifier('x')
-					, Token::identifier('+')
-					, Token::number_('1')
-					, Token::outdent(1)
-					, Token::terminator("\n")
+				, Token::identifier('inc', 2)
+				, Token::assign_('=', 2)
+				, Token::identifier('x', 2)
+				, Token::arrow('->', 2)
+					, Token::indent(1, 3)
+					, Token::identifier('x', 3)
+					, Token::identifier('+', 3)
+					, Token::number_('1', 3)
+					, Token::outdent(1, 3)
+					, Token::terminator("\n", 3)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::bracket('(')
-				, Token::identifier('inc')
-				, Token::number_('1')
-				, Token::bracket(')')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::bracket('(', 4)
+				, Token::identifier('inc', 4)
+				, Token::number_('1', 4)
+				, Token::bracket(')', 4)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['inc', new Symbol('1', 'NUMBER')])],
@@ -495,30 +480,30 @@ inc = x ->
 sum = x y ->
 	x + y
 123 + (sum 1 2)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('sum')
-				, Token::assign_('=')
-				, Token::identifier('x')
-				, Token::identifier('y')
-				, Token::arrow('->')
-					, Token::indent(1)
-					, Token::identifier('x')
-					, Token::identifier('+')
-					, Token::identifier('y')
-					, Token::outdent(1)
-					, Token::terminator("\n")
+				, Token::identifier('sum', 2)
+				, Token::assign_('=', 2)
+				, Token::identifier('x', 2)
+				, Token::identifier('y', 2)
+				, Token::arrow('->', 2)
+					, Token::indent(1, 3)
+					, Token::identifier('x', 3)
+					, Token::identifier('+', 3)
+					, Token::identifier('y', 3)
+					, Token::outdent(1, 3)
+					, Token::terminator("\n", 3)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::bracket('(')
-				, Token::identifier('sum')
-				, Token::number_('1')
-				, Token::number_('2')
-				, Token::bracket(')')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::bracket('(', 4)
+				, Token::identifier('sum', 4)
+				, Token::number_('1', 4)
+				, Token::number_('2', 4)
+				, Token::bracket(')', 4)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['sum', new Symbol('1', 'NUMBER'), new Symbol('2', 'NUMBER')])],
@@ -531,23 +516,23 @@ sum = x y ->
 
 		["sum = x y -> x + y
 123 + (sum 1 2)",
-				[ Token::identifier('sum')
-				, Token::assign_('=')
-				, Token::identifier('x')
-				, Token::identifier('y')
-				, Token::arrow('->')
-					, Token::identifier('x')
-					, Token::identifier('+')
-					, Token::identifier('y')
-					, Token::terminator("\n")
+				[ Token::identifier('sum', 1)
+				, Token::assign_('=', 1)
+				, Token::identifier('x', 1)
+				, Token::identifier('y', 1)
+				, Token::arrow('->', 1)
+					, Token::identifier('x', 1)
+					, Token::identifier('+', 1)
+					, Token::identifier('y', 1)
+					, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::bracket('(')
-				, Token::identifier('sum')
-				, Token::number_('1')
-				, Token::number_('2')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::identifier('+', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('sum', 2)
+				, Token::number_('1', 2)
+				, Token::number_('2', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['sum', new Symbol('1', 'NUMBER'), new Symbol('2', 'NUMBER')])],
@@ -559,16 +544,16 @@ sum = x y ->
 
 		["num = 4 + 5
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('+', 1)
+				, Token::number_('5', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 2)
+				, Token::identifier('+', 2)
+				, Token::identifier('num', 2)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -580,21 +565,21 @@ sum = x y ->
 		["num = 4 + x
 x = 5
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::identifier('x')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('+', 1)
+				, Token::identifier('x', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('x')
-				, Token::assign_('=')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				, Token::identifier('x', 2)
+				, Token::assign_('=', 2)
+				, Token::number_('5', 2)
+				, Token::terminator("\n", 2)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 3)
+				, Token::identifier('+', 3)
+				, Token::identifier('num', 3)
 				, Token::eof()
 				],
 					new Expr([new Symbol('123', 'NUMBER'), '+', 'num'],
@@ -606,18 +591,18 @@ x = 5
 
 		["num = 4 + 5
 123 (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('+', 1)
+				, Token::number_('5', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('hash', 2)
+				, Token::identifier('num', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([
@@ -630,19 +615,19 @@ x = 5
 
 		["num = 4 + 5
 123 ++ (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('4')
-				, Token::identifier('+')
-				, Token::number_('5')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('4', 1)
+				, Token::identifier('+', 1)
+				, Token::number_('5', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('++')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::identifier('++', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('hash', 2)
+				, Token::identifier('num', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([
@@ -656,21 +641,21 @@ x = 5
 
 		["num = [4, 5]
 123 ++ (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::bracket('[')
-				, Token::number_('4')
-				, Token::generic(',')
-				, Token::number_('5')
-				, Token::bracket(']')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('[', 1)
+				, Token::number_('4', 1)
+				, Token::generic(',', 1)
+				, Token::number_('5', 1)
+				, Token::bracket(']', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('++')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::identifier('++', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('hash', 2)
+				, Token::identifier('num', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([
@@ -687,21 +672,21 @@ x = 5
 
 		["num = (4, 5)
 123 ++ (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::bracket('(')
-				, Token::number_('4')
-				, Token::generic(',')
-				, Token::number_('5')
-				, Token::bracket(')')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('(', 1)
+				, Token::number_('4', 1)
+				, Token::generic(',', 1)
+				, Token::number_('5', 1)
+				, Token::bracket(')', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('++')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::identifier('++', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('hash', 2)
+				, Token::identifier('num', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([
@@ -719,25 +704,25 @@ x = 5
 
 		["num = {a: 4, b: 5}
 123 ++ (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::bracket('{')
-				, Token::identifier('a')
-				, Token::generic(':')
-				, Token::number_('4')
-				, Token::generic(',')
-				, Token::identifier('b')
-				, Token::generic(':')
-				, Token::number_('5')
-				, Token::bracket('}')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('{', 1)
+				, Token::identifier('a', 1)
+				, Token::generic(':', 1)
+				, Token::number_('4', 1)
+				, Token::generic(',', 1)
+				, Token::identifier('b', 1)
+				, Token::generic(':', 1)
+				, Token::number_('5', 1)
+				, Token::bracket('}', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::number_('123')
-				, Token::identifier('++')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 2)
+				, Token::identifier('++', 2)
+				, Token::bracket('(', 2)
+				, Token::identifier('hash', 2)
+				, Token::identifier('num', 2)
+				, Token::bracket(')', 2)
 				, Token::eof()
 				],
 					new Expr([
@@ -757,28 +742,28 @@ x = 5
 	b: 5
 }
 123 ++ (hash num)",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::bracket('{')
-				, Token::indent(1)
-				, Token::identifier('a')
-				, Token::generic(':')
-				, Token::number_('4')
-				, Token::terminator("\n")
-				, Token::identifier('b')
-				, Token::generic(':')
-				, Token::number_('5')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::bracket('}')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('{', 1)
+				, Token::indent(1, 2)
+				, Token::identifier('a', 2)
+				, Token::generic(':', 2)
+				, Token::number_('4', 2)
+				, Token::terminator("\n", 2)
+				, Token::identifier('b', 3)
+				, Token::generic(':', 3)
+				, Token::number_('5', 3)
+				, Token::outdent(1, 3)
+				, Token::terminator("\n", 3)
+				, Token::bracket('}', 4)
+				, Token::terminator("\n", 4)
 
-				, Token::number_('123')
-				, Token::identifier('++')
-				, Token::bracket('(')
-				, Token::identifier('hash')
-				, Token::identifier('num')
-				, Token::bracket(')')
+				, Token::number_('123', 5)
+				, Token::identifier('++', 5)
+				, Token::bracket('(', 5)
+				, Token::identifier('hash', 5)
+				, Token::identifier('num', 5)
+				, Token::bracket(')', 5)
 				, Token::eof()
 				],
 					new Expr([

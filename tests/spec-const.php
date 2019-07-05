@@ -13,43 +13,43 @@ return [
 		Null
 		],
 	["1",
-		[ Token::number_('1')
+		[ Token::number_('1', 1)
 		, Token::eof()
 		],
 		new Symbol('1', 'NUMBER')
 		],
 	["42",
-		[ Token::number_('42')
+		[ Token::number_('42', 1)
 		, Token::eof()
 		],
 			new Symbol('42', 'NUMBER')
 		],
 	["3.141592",
-		[ Token::number_('3.141592')
+		[ Token::number_('3.141592', 1)
 		, Token::eof()
 		],
 			new Symbol('3.141592', 'NUMBER')
 		],
 	['"text"',
-		[ Token::string_('"text"')
+		[ Token::string_('"text"', 1)
 		, Token::eof()
 		],
 			new Symbol('"text"', 'STRING')
 		],
 	["'text'",
-		[ Token::string_("'text'")
+		[ Token::string_("'text'", 1)
 		, Token::eof()
 		],
 			new Symbol("'text'", 'STRING')
 		],
 	["'\"text\"'",
-		[ Token::string_('\'"text"\'')
+		[ Token::string_('\'"text"\'', 1)
 		, Token::eof()
 		],
 			new Symbol('\'"text"\'', 'STRING')
 		],
 	['"t@xtč你好 🐶"',
-		[ Token::string_('"t@xtč你好 🐶"')
+		[ Token::string_('"t@xtč你好 🐶"', 1)
 		, Token::eof()
 		],
 			new Symbol('"t@xtč你好 🐶"', 'STRING')
@@ -57,14 +57,14 @@ return [
 
 	// Special
 	["true",
-		[ Token::identifier('true')
+		[ Token::identifier('true', 1)
 		, Token::eof()
 		],
 			'true'
 		],
 
 	["==",
-		[ Token::identifier('==')
+		[ Token::identifier('==', 1)
 		, Token::eof()
 		],
 			'=='
@@ -79,13 +79,13 @@ return [
 
 	// Tuples
 	["(1, 2, 4)",
-		[ Token::bracket('(')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::number_('2')
-		, Token::generic(',')
-		, Token::number_('4')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -95,14 +95,14 @@ return [
 			])
 		],
 	["(1, 2, 4,)",
-		[ Token::bracket('(')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::number_('2')
-		, Token::generic(',')
-		, Token::number_('4')
-		, Token::generic(',')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::number_('4', 1)
+		, Token::generic(',', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -116,16 +116,16 @@ return [
 	2
 	4
 )",
-		[ Token::bracket('(')
-		, Token::indent(1)
-		, Token::number_('1')
-		, Token::terminator("\n")
-		, Token::number_('2')
-		, Token::terminator("\n")
-		, Token::number_('4')
-		, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::indent(1, 2)
+		, Token::number_('1', 2)
+		, Token::terminator("\n", 2)
+		, Token::number_('2', 3)
+		, Token::terminator("\n", 3)
+		, Token::number_('4', 4)
+		, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(')', 5)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -135,11 +135,11 @@ return [
 			])
 		],
 	["(111, \"Sinead O'Connor\")",
-		[ Token::bracket('(')
-		, Token::number_('111')
-		, Token::generic(',')
-		, Token::string_('"Sinead O\'Connor"')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('111', 1)
+		, Token::generic(',', 1)
+		, Token::string_('"Sinead O\'Connor"', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -148,16 +148,16 @@ return [
 			])
 		],
 	["()",
-		[ Token::bracket('(')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([])
 		],
 	["(1)",
-		[ Token::bracket('(')
-		, Token::number_('1')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('1', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -165,10 +165,10 @@ return [
 			])
 		],
 	["(1,)",
-		[ Token::bracket('(')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new StructTuple([
@@ -177,11 +177,11 @@ return [
 		],
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
 	["(1 2 4)",
-		[ Token::bracket('(')
-		, Token::number_('1')
-		, Token::number_('2')
-		, Token::number_('4')
-		, Token::bracket(')')
+		[ Token::bracket('(', 1)
+		, Token::number_('1', 1)
+		, Token::number_('2', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(')', 1)
 		, Token::eof()
 		],
 			new Expr([
@@ -192,13 +192,13 @@ return [
 		],
 
 	["[1, 2, 4]",
-		[ Token::bracket('[')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::number_('2')
-		, Token::generic(',')
-		, Token::number_('4')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([
@@ -212,16 +212,16 @@ return [
 	2
 	4
 ]",
-		[ Token::bracket('[')
-		, Token::indent(1)
-		, Token::number_('1')
-		, Token::terminator("\n")
-		, Token::number_('2')
-		, Token::terminator("\n")
-		, Token::number_('4')
-		, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::indent(1, 2)
+		, Token::number_('1', 2)
+		, Token::terminator("\n", 2)
+		, Token::number_('2', 3)
+		, Token::terminator("\n", 3)
+		, Token::number_('4', 4)
+		, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(']', 5)
 		, Token::eof()
 		],
 			new StructList([
@@ -231,12 +231,12 @@ return [
 			])
 		],
 	["[1, 2,]",
-		[ Token::bracket('[')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::number_('2')
-		, Token::generic(',')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([
@@ -245,9 +245,9 @@ return [
 			])
 		],
 	["[1]",
-		[ Token::bracket('[')
-		, Token::number_('1')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([
@@ -255,8 +255,8 @@ return [
 			])
 		],
 	["[]",
-		[ Token::bracket('[')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([])
@@ -264,11 +264,11 @@ return [
 
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
 	["[1 2 4]",
-		[ Token::bracket('[')
-		, Token::number_('1')
-		, Token::number_('2')
-		, Token::number_('4')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::number_('2', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([
@@ -281,11 +281,11 @@ return [
 		],
 
 	["[1 + 4]",
-		[ Token::bracket('[')
-		, Token::number_('1')
-		, Token::identifier('+')
-		, Token::number_('4')
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::identifier('+', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(']', 1)
 		, Token::eof()
 		],
 			new StructList([
@@ -299,19 +299,19 @@ return [
 
 	// dicts
 	["{a: 1, b: 2, c: 4}",
-		[ Token::bracket('{')
-		, Token::identifier('a')
-		, Token::generic(':')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::identifier('b')
-		, Token::generic(':')
-		, Token::number_('2')
-		, Token::generic(',')
-		, Token::identifier('c')
-		, Token::generic(':')
-		, Token::number_('4')
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+		, Token::identifier('a', 1)
+		, Token::generic(':', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::identifier('b', 1)
+		, Token::generic(':', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::identifier('c', 1)
+		, Token::generic(':', 1)
+		, Token::number_('4', 1)
+		, Token::bracket('}', 1)
 		, Token::eof()
 		],
 			new StructDict([
@@ -321,33 +321,33 @@ return [
 			])
 		],
 	["{}",
-		[ Token::bracket('{')
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+		, Token::bracket('}', 1)
 		, Token::eof()
 		],
 			new StructDict([])
 		],
 
 	["{a: 1, b: [4,2,4], c: 4}",
-		[ Token::bracket('{')
-		, Token::identifier('a')
-		, Token::generic(':')
-		, Token::number_('1')
-		, Token::generic(',')
-		, Token::identifier('b')
-		, Token::generic(':')
-			, Token::bracket('[')
-			, Token::number_('4')
-			, Token::generic(',')
-			, Token::number_('2')
-			, Token::generic(',')
-			, Token::number_('4')
-			, Token::bracket(']')
-		, Token::generic(',')
-		, Token::identifier('c')
-		, Token::generic(':')
-		, Token::number_('4')
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+		, Token::identifier('a', 1)
+		, Token::generic(':', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::identifier('b', 1)
+		, Token::generic(':', 1)
+			, Token::bracket('[', 1)
+			, Token::number_('4', 1)
+			, Token::generic(',', 1)
+			, Token::number_('2', 1)
+			, Token::generic(',', 1)
+			, Token::number_('4', 1)
+			, Token::bracket(']', 1)
+		, Token::generic(',', 1)
+		, Token::identifier('c', 1)
+		, Token::generic(':', 1)
+		, Token::number_('4', 1)
+		, Token::bracket('}', 1)
 		, Token::eof()
 		],
 			new StructDict([
@@ -366,24 +366,24 @@ return [
 	b: 2,
 	c: 4
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::generic(',')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::number_('2')
-			, Token::generic(',')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-			, Token::number_('4')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::generic(',', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::generic(',', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
 		, Token::eof()
 		],
 			new StructDict([
@@ -430,22 +430,22 @@ return [
 	b: 2
 	c: 4
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::number_('2')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-			, Token::number_('4')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
 		, Token::eof()
 		],
 			new StructDict([
@@ -460,18 +460,18 @@ return [
 	2,
 	4
 ]",
-		[ Token::bracket('[')
-			, Token::indent(1)
-			, Token::number_('1')
-			, Token::generic(',')
-			, Token::terminator("\n")
-			, Token::number_('2')
-			, Token::generic(',')
-			, Token::terminator("\n")
-			, Token::number_('4')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+			, Token::indent(1, 2)
+			, Token::number_('1', 2)
+			, Token::generic(',', 2)
+			, Token::terminator("\n", 2)
+			, Token::number_('2', 3)
+			, Token::generic(',', 3)
+			, Token::terminator("\n", 3)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(']', 5)
 		, Token::eof()
 		],
 			new StructList([
@@ -486,16 +486,16 @@ return [
 	2
 	4
 ]",
-		[ Token::bracket('[')
-			, Token::indent(1)
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::number_('2')
-			, Token::terminator("\n")
-			, Token::number_('4')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+			, Token::indent(1, 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::number_('2', 3)
+			, Token::terminator("\n", 3)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(']', 5)
 		, Token::eof()
 		],
 			new StructList([
@@ -510,16 +510,16 @@ return [
 	'Deux'
 	'Trois'
 ]",
-		[ Token::bracket('[')
-			, Token::indent(1)
-			, Token::string_("'Une'")
-			, Token::terminator("\n")
-			, Token::string_("'Deux'")
-			, Token::terminator("\n")
-			, Token::string_("'Trois'")
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+			, Token::indent(1, 2)
+			, Token::string_("'Une'", 2)
+			, Token::terminator("\n", 2)
+			, Token::string_("'Deux'", 3)
+			, Token::terminator("\n", 3)
+			, Token::string_("'Trois'", 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(']', 5)
 		, Token::eof()
 		],
 			new StructList([
@@ -534,16 +534,16 @@ return [
 	deux
 	trois
 ]",
-		[ Token::bracket('[')
-			, Token::indent(1)
-			, Token::identifier('une')
-			, Token::terminator("\n")
-			, Token::identifier('deux')
-			, Token::terminator("\n")
-			, Token::identifier('trois')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket(']')
+		[ Token::bracket('[', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('une', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('deux', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('trois', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket(']', 5)
 		, Token::eof()
 		],
 			new StructList([
@@ -558,22 +558,22 @@ return [
 	b: \"Deux\"
 	c: 4
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-			, Token::number_('4')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+			, Token::number_('4', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
 		, Token::eof()
 		],
 			new StructDict([
@@ -588,23 +588,23 @@ return [
 	b: \"Deux\"
 	c: []
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::bracket(']', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
 		, Token::eof()
 		],
 			new StructDict([
@@ -620,24 +620,24 @@ return [
 	c: [
 	]
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::terminator("\n")
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::terminator("\n", 4)
+				, Token::bracket(']', 5)
+			, Token::outdent(1, 5)
+		, Token::terminator("\n", 5)
+		, Token::bracket('}', 6)
 		, Token::eof()
 		],
 			new StructDict([
@@ -653,20 +653,20 @@ return [
 	c: [
 	]
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::terminator("\n")
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n\n", 2)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::terminator("\n", 4)
+				, Token::bracket(']', 5)
+			, Token::outdent(1, 5)
+		, Token::terminator("\n", 5)
+		, Token::bracket('}', 6)
 		, Token::eof()
 		],
 			new StructDict([
@@ -682,27 +682,27 @@ return [
 		111
 	]
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::indent(1)
-				, Token::number_('111')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::indent(1, 5)
+				, Token::number_('111', 5)
+				, Token::outdent(1, 5)
+				, Token::terminator("\n", 5)
+				, Token::bracket(']', 6)
+			, Token::outdent(1, 6)
+		, Token::terminator("\n", 6)
+		, Token::bracket('}', 7)
 		, Token::eof()
 		],
 			new StructDict([
@@ -722,29 +722,29 @@ return [
 		\"Sinead O'Connor\"
 	)
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('(')
-				, Token::indent(1)
-				, Token::number_('111')
-				, Token::terminator("\n")
-				, Token::string_('"Sinead O\'Connor"')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::bracket(')')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('(', 4)
+				, Token::indent(1, 5)
+				, Token::number_('111', 5)
+				, Token::terminator("\n", 5)
+				, Token::string_('"Sinead O\'Connor"', 6)
+				, Token::outdent(1, 6)
+				, Token::terminator("\n", 6)
+				, Token::bracket(')', 7)
+			, Token::outdent(1, 7)
+		, Token::terminator("\n", 7)
+		, Token::bracket('}', 8)
 		, Token::eof()
 		],
 			new StructDict([
@@ -764,31 +764,31 @@ return [
 		(111, \"Sinead O'Connor\")
 	]
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::indent(1)
-				, Token::bracket('(')
-					, Token::number_('111')
-					, Token::generic(',')
-					, Token::string_('"Sinead O\'Connor"')
-					, Token::bracket(')')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::indent(1, 5)
+				, Token::bracket('(', 5)
+					, Token::number_('111', 5)
+					, Token::generic(',', 5)
+					, Token::string_('"Sinead O\'Connor"', 5)
+					, Token::bracket(')', 5)
+				, Token::outdent(1, 5)
+				, Token::terminator("\n", 5)
+				, Token::bracket(']', 6)
+			, Token::outdent(1, 6)
+		, Token::terminator("\n", 6)
+		, Token::bracket('}', 7)
 		, Token::eof()
 		],
 			new StructDict([
@@ -811,37 +811,37 @@ return [
 		(222, \"Lewis Carrol\")
 	]
 }",
-		[ Token::bracket('{')
-			, Token::indent(1)
-			, Token::identifier('a')
-			, Token::generic(':')
-			, Token::number_('1')
-			, Token::terminator("\n")
-			, Token::identifier('b')
-			, Token::generic(':')
-			, Token::string_('"Deux"')
-			, Token::terminator("\n")
-			, Token::identifier('c')
-			, Token::generic(':')
-				, Token::bracket('[')
-				, Token::indent(1)
-				, Token::bracket('(')
-					, Token::number_('111')
-					, Token::generic(',')
-					, Token::string_('"Sinead O\'Connor"')
-					, Token::bracket(')')
-				, Token::terminator("\n")
-				, Token::bracket('(')
-					, Token::number_('222')
-					, Token::generic(',')
-					, Token::string_('"Lewis Carrol"')
-					, Token::bracket(')')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::bracket(']')
-			, Token::outdent(1)
-		, Token::terminator("\n")
-		, Token::bracket('}')
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::string_('"Deux"', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+				, Token::bracket('[', 4)
+				, Token::indent(1, 5)
+				, Token::bracket('(', 5)
+					, Token::number_('111', 5)
+					, Token::generic(',', 5)
+					, Token::string_('"Sinead O\'Connor"', 5)
+					, Token::bracket(')', 5)
+				, Token::terminator("\n", 5)
+				, Token::bracket('(', 6)
+					, Token::number_('222', 6)
+					, Token::generic(',', 6)
+					, Token::string_('"Lewis Carrol"', 6)
+					, Token::bracket(')', 6)
+				, Token::outdent(1, 6)
+				, Token::terminator("\n", 6)
+				, Token::bracket(']', 7)
+			, Token::outdent(1, 7)
+		, Token::terminator("\n", 7)
+		, Token::bracket('}', 8)
 		, Token::eof()
 		],
 			new StructDict([

@@ -34,6 +34,17 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
 
 
+	/**
+	 * @dataProvider dataDecodeFail
+	 */
+	function testDecodeFail($ast, $msg)
+	{
+		$this->setExpectedException(HayoParserException::class, $msg);
+		$this->parser->decode($ast);
+	}
+
+
+
 	function dataDecode()
 	{
 		return array_merge(
@@ -46,6 +57,29 @@ class ParserTest extends PHPUnit_Framework_TestCase
 			require __dir__ . '/spec-lambdas.php',
 			[]
 		);
+	}
+
+
+
+	function dataDecodeFail()
+	{
+		return [
+			[[]
+			, 'Empty content.'],
+
+			[[ Token::number_('1', 1)
+			 , Token::eof()
+			 , Token::number_('1', 2)
+			 ]
+			, 'Unprocessable content.'],
+
+			[[ Token::outdent(1, 1)
+			 , Token::eof()
+			 ]
+			, 'Unexpected (OUTDENT: 1)'],
+
+
+		];
 	}
 
 }

@@ -10,16 +10,37 @@ namespace Hockej\Hayo;
 class HayoParserException extends \Exception
 {
 
+	/**
+	 * Řádek zdrojového kódu, na kterém nastala chyba.
+	 */
+	private $codeline;
+
+
+	function __construct($message, $codeline = Null, $code = 0, Throwable $previous = NULL)
+	{
+		parent::__construct($message, $code, $previous);
+		$this->codeline = $codeline;
+	}
+
+
+
+	function getCodeline()
+	{
+		return $this->codeline;
+	}
+
+
+
 	static function createUnexpectedToken(Token $token)
 	{
-		throw new self("Unexpected $token.");
+		throw new self("Unexpected $token.", $token->line);
 	}
 
 
 
 	static function createMissingRequiredToken(Token $token, $label)
 	{
-		throw new self("Required $label: $token.");
+		throw new self("Required $label: $token.", $token->line);
 	}
 
 }
@@ -43,7 +64,7 @@ class HayoParser
 		list($expr, $src) = self::buildBlock($src);
 
 		if (count($src)) {
-			throw new HayoParserException('Many tokens.');
+			throw new HayoParserException('Unprocessable content.', $src[0]->line);
 		}
 
 		return $expr;
@@ -58,7 +79,7 @@ class HayoParser
 	private static function buildBlock(array $src, array $ns = [])
 	{
 		if ($src[0] && $src[0]->type == 'OUTDENT') {
-			throw HayoParserException::createUnexpectedToken($token);
+			throw HayoParserException::createUnexpectedToken($src[0]);
 		}
 
 		$ns = [];
@@ -204,7 +225,8 @@ class HayoParser
 
 					// @TODO
 					if (count($xs) > 1) {
-						throw new HayoParserException('Unexpected many items.');
+						$token = reset($src);
+						throw new HayoParserException('Unexpected many items.', $token->line);
 					}
 
 					if (count($args)) {
@@ -224,7 +246,7 @@ class HayoParser
 					break 2;
 
 				default:
-					HayoParserException::assertUnexpectedToken($token);
+					HayoParserException::createUnexpectedToken($token);
 			}
 		}
 

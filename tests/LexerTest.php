@@ -31,6 +31,54 @@ class LexerTest extends PHPUnit_Framework_TestCase
 
 
 
+	/**
+	 * @dataProvider dataDecodeFail
+	 */
+	function testDecodeFail($script, $msg)
+	{
+		$this->setExpectedException(\Exception::class, $msg);
+		$this->lexer->tokenise($script);
+	}
+
+
+
+	function testDecodeDraft()
+	{
+		$script = 'a = 1
+b = 3
+c = 8
+';
+		$tokens = [ Token::identifier('a', 1)
+			, Token::assign_('=', 1)
+			, Token::number_('1', 1)
+			, Token::terminator("\n", 1)
+
+			, Token::identifier('b', 2)
+			, Token::assign_('=', 2)
+			, Token::number_('3', 2)
+			, Token::terminator("\n", 2)
+
+			, Token::identifier('c', 3)
+			, Token::assign_('=', 3)
+			, Token::number_('8', 3)
+			, Token::terminator("\n", 3)
+			, Token::eof()
+			];
+
+		$this->assertEquals($tokens, $this->lexer->tokenise($script));
+	}
+
+
+
+	function dataDecodeFail()
+	{
+		return [
+			["a = 1\n{-\n\n", 'Missing closing of comment block.'],
+		];
+	}
+
+
+
 	function dataDecode()
 	{
 		return array_merge(
@@ -69,24 +117,24 @@ class LexerTest extends PHPUnit_Framework_TestCase
 inc x =
 	x + 1
 123 + num",
-				[ Token::identifier('num')
-				, Token::assign_('=')
-				, Token::number_('45')
-				, Token::terminator("\n")
+				[ Token::identifier('num', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('45', 1)
+				, Token::terminator("\n", 1)
 
-				, Token::identifier('inc')
-				, Token::identifier('x')
-				, Token::assign_('=')
-				, Token::indent(1)
-				, Token::identifier('x')
-				, Token::identifier('+')
-				, Token::number_('1')
-				, Token::outdent(1)
-				, Token::terminator("\n")
+				, Token::identifier('inc', 2)
+				, Token::identifier('x', 2)
+				, Token::assign_('=', 2)
+				, Token::indent(1, 3)
+				, Token::identifier('x', 3)
+				, Token::identifier('+', 3)
+				, Token::number_('1', 3)
+				, Token::outdent(1, 3)
+				, Token::terminator("\n", 3)
 
-				, Token::number_('123')
-				, Token::identifier('+')
-				, Token::identifier('num')
+				, Token::number_('123', 4)
+				, Token::identifier('+', 4)
+				, Token::identifier('num', 4)
 				, Token::eof()
 				]
 				],
@@ -102,24 +150,25 @@ inc x =
 	'::' ++ s
 format
 ",
-				[ Token::identifier('format')
-				, Token::assign_('=')
-				, Token::bracket('(')
-				, Token::identifier('s')
-				, Token::generic(':')
-				, Token::symbol_('String')
-				, Token::number_('1')
-				, Token::number_('10')
-				, Token::bracket(')')
-				, Token::arrow('->')
-				, Token::indent(1)
-				, Token::string_("'::'")
-				, Token::identifier('++')
-				, Token::identifier('s')
-				, Token::outdent(1)
-				, Token::terminator("\n")
-				, Token::identifier('format')
-				, Token::terminator("\n")
+				[ Token::identifier('format', 1)
+				, Token::assign_('=', 1)
+				, Token::bracket('(', 1)
+				, Token::identifier('s', 1)
+				, Token::generic(':', 1)
+				, Token::symbol_('String', 1)
+				, Token::number_('1', 1)
+				, Token::number_('10', 1)
+				, Token::bracket(')', 1)
+				, Token::arrow('->', 1)
+
+				, Token::indent(1, 2)
+				, Token::string_("'::'", 2)
+				, Token::identifier('++', 2)
+				, Token::identifier('s', 2)
+				, Token::outdent(1, 2)
+				, Token::terminator("\n", 2)
+				, Token::identifier('format', 3)
+				, Token::terminator("\n", 3)
 				, Token::eof()
 				]
 				],

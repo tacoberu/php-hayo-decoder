@@ -9,28 +9,28 @@ namespace Hockej\Hayo;
 return [
 
 	["True",
-		[ Token::symbol_('True')
+		[ Token::symbol_('True', 1)
 		, Token::eof()
 		],
 			new Symbol('True', 'SYMBOL')
 		],
 
 	["False",
-		[ Token::symbol_('False')
+		[ Token::symbol_('False', 1)
 		, Token::eof()
 		],
 			new Symbol('False', 'SYMBOL')
 		],
 
 	["Null",
-		[ Token::symbol_('Null')
+		[ Token::symbol_('Null', 1)
 		, Token::eof()
 		],
 			new Symbol('Null', 'SYMBOL')
 		],
 
 	["Nil",
-		[ Token::symbol_('Nil')
+		[ Token::symbol_('Nil', 1)
 		, Token::eof()
 		],
 			new Symbol('Nil', 'SYMBOL')

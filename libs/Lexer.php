@@ -21,11 +21,10 @@ class HayoLexer
 	const INDENT = '~^(?:\n[^\n\S]*)+~';
 	const SHEBANG = '~^#!.*~';
 
+	private $lines;
 	private $indent = 0;
 	private $indents = [];
 	private $tokens = [];
-
-
 
 	/**
 	 * @param string
@@ -33,6 +32,7 @@ class HayoLexer
 	 */
 	function tokenise($src)
 	{
+		$this->lines = 1;
 		$this->indent = 0;
 		$this->indents = [];
 		$this->tokens = [];
@@ -100,7 +100,7 @@ class HayoLexer
 						$type = 'IDENTIFIER';
 					}
 			}
-			$this->tokens[] = new Token($type, $matches[0]);
+			$this->tokens[] = new Token($type, $matches[0], $this->lines);
 			return strlen($matches[0]);
 		}
 
@@ -116,7 +116,7 @@ class HayoLexer
 	private function assignToken($chunk)
 	{
 		if ($chunk[0] === '=' && ! self::isLiteral($chunk[1])) {
-			$this->tokens[] = Token::assign_();
+			$this->tokens[] = Token::assign_('=', $this->lines);
 			return 1;
 		}
 
@@ -132,7 +132,7 @@ class HayoLexer
 	private function numberToken($chunk)
 	{
 		if (preg_match(self::NUMBER, $chunk, $matches)) {
-			$this->tokens[] = Token::number_($matches[0]);
+			$this->tokens[] = Token::number_($matches[0], $this->lines);
 			return strlen($matches[0]);
 		}
 
@@ -159,7 +159,7 @@ class HayoLexer
 						$quoted = True;
 					}
 					else if ($nextChar == $firstChar) {
-						$this->tokens[] = Token::string_(substr($chunk, 0, $i + 1));
+						$this->tokens[] = Token::string_(substr($chunk, 0, $i + 1), $this->lines);
 						return $i + 1;
 					}
 				}
@@ -181,13 +181,15 @@ class HayoLexer
 	private function commentToken($chunk)
 	{
 		if (preg_match(self::COMMENT_LINE, $chunk, $matches)) {
-			$this->tokens[] = Token::comment($matches[0]);
+			$this->tokens[] = Token::comment($matches[0], $this->lines);
 			return strlen($matches[0]);
 		}
 
 		if (preg_match(self::COMMENT_BLOCK, $chunk, $matches)) {
 			$size = self::lookupCloseCommentBlockIndex($chunk, 2);
-			$this->tokens[] = Token::comment(substr($chunk, 0, $size));
+			$chunk = substr($chunk, 0, $size);
+			$this->tokens[] = Token::comment($chunk, $this->lines);
+			$this->lines += substr_count($chunk, "\n") - 0;
 			return $size;
 		}
 
@@ -203,7 +205,7 @@ class HayoLexer
 	private function shebangToken($chunk)
 	{
 		if (preg_match(self::SHEBANG, $chunk, $matches)) {
-			$this->tokens[] = Token::comment($matches[0]);
+			$this->tokens[] = Token::comment($matches[0], $this->lines);
 			return strlen($matches[0]);
 		}
 		return False;
@@ -218,6 +220,8 @@ class HayoLexer
 	private function whitespaceToken($chunk)
 	{
 		if (preg_match(self::WHITESPACE, $chunk, $matches)) {
+			//~ dump($matches[0]);
+			$this->lines += strpos($matches[0], "\n");
 			return strlen($matches[0]);
 		}
 
@@ -237,13 +241,13 @@ class HayoLexer
 			$size = strlen($matches[0]) - $lastNewline;
 			if ($size > $this->indent) {
 				$this->indents[] = $size;
-				$this->tokens[] = Token::indent($size - $this->indent);
+				$this->tokens[] = Token::indent($size - $this->indent, ++$this->lines);
 			}
 			else {
 				if ($size < $this->indent) {
 					$last = @$this->indents[count($this->indents) - 1];
 					while ($size < $last) {
-						$this->tokens[] = Token::outdent($last - $size);
+						$this->tokens[] = Token::outdent($last - $size, $this->lines);
 						array_pop($this->indents);
 						if (count($this->indents)) {
 							$last = @$this->indents[count($this->indents) - 1];
@@ -253,7 +257,9 @@ class HayoLexer
 						}
 					}
 				}
-				$this->tokens[] = Token::terminator(substr($matches[0], 0, $lastNewline));
+				$chunk = substr($matches[0], 0, $lastNewline);
+				$this->tokens[] = Token::terminator($chunk, $this->lines);
+				$this->lines += substr_count($chunk, "\n");
 			}
 			$this->indent = $size;
 			return strlen($matches[0]);
@@ -271,7 +277,7 @@ class HayoLexer
 	private function bracketToken($chunk)
 	{
 		if (strpos('[]{}()', $chunk[0]) !== False) {
-			$this->tokens[] = Token::bracket($chunk[0]);
+			$this->tokens[] = Token::bracket($chunk[0], $this->lines);
 			return 1;
 		}
 
@@ -289,7 +295,7 @@ class HayoLexer
 		$tag = substr($chunk, 0, 2);
 		switch ($tag) {
 			case '->':
-				$this->tokens[] = Token::arrow($tag);
+				$this->tokens[] = Token::arrow($tag, $this->lines);
 				return 2;
 		}
 
@@ -297,7 +303,7 @@ class HayoLexer
 			case ':':
 			case '.':
 			case ',':
-				$this->tokens[] = Token::generic($chunk[0]);
+				$this->tokens[] = Token::generic($chunk[0], $this->lines);
 				return 1;
 		}
 
@@ -306,16 +312,16 @@ class HayoLexer
 			if (isset($chunk[1]) && self::isLiteral($chunk[1])) {
 				if (isset($chunk[2]) && self::isLiteral($chunk[2])) {
 					if (isset($chunk[3]) && self::isLiteral($chunk[3])) {
-						$this->tokens[] = Token::identifier(substr($chunk, 0, 4));
+						$this->tokens[] = Token::identifier(substr($chunk, 0, 4), $this->lines);
 						return 4;
 					}
-					$this->tokens[] = Token::identifier(substr($chunk, 0, 3));
+					$this->tokens[] = Token::identifier(substr($chunk, 0, 3), $this->lines);
 					return 3;
 				}
-				$this->tokens[] = Token::identifier(substr($chunk, 0, 2));
+				$this->tokens[] = Token::identifier(substr($chunk, 0, 2), $this->lines);
 				return 2;
 			}
-			$this->tokens[] = Token::identifier($chunk[0]);
+			$this->tokens[] = Token::identifier($chunk[0], $this->lines);
 			return 1;
 		}
 
@@ -370,61 +376,61 @@ class HayoLexer
 
 class Token
 {
-	public $type, $val;
+	public $type, $val, $line;
 
 
-	static function comment($val)
+	static function comment($val, $line = Null)
 	{
-		return new static('COMMENT', $val);
+		return new static('COMMENT', $val, $line);
 	}
 
 
 
-	static function generic($val)
+	static function generic($val, $line = Null)
 	{
-		return new static('GENERIC', $val);
+		return new static('GENERIC', $val, $line);
 	}
 
 
 
-	static function arrow($val)
+	static function arrow($val, $line = Null)
 	{
-		return new static('ARROW', $val);
+		return new static('ARROW', $val, $line);
 	}
 
 
 
-	static function assign_()
+	static function assign_($val = '=', $line = Null)
 	{
-		return new static('ASSIGN', '=');
+		return new static('ASSIGN', $val, $line);
 	}
 
 
 
-	static function bracket($val)
+	static function bracket($val, $line = Null)
 	{
-		return new static('BRACKET', $val);
+		return new static('BRACKET', $val, $line);
 	}
 
 
 
-	static function terminator($val)
+	static function terminator($val, $line = Null)
 	{
-		return new static('TERMINATOR', $val);
+		return new static('TERMINATOR', $val, $line);
 	}
 
 
 
-	static function indent($val)
+	static function indent($val, $line = Null)
 	{
-		return new static('INDENT', $val);
+		return new static('INDENT', $val, $line);
 	}
 
 
 
-	static function outdent($val)
+	static function outdent($val, $line = Null)
 	{
-		return new static('OUTDENT', $val);
+		return new static('OUTDENT', $val, $line);
 	}
 
 
@@ -436,38 +442,39 @@ class Token
 
 
 
-	static function identifier($val)
+	static function identifier($val, $line = Null)
 	{
-		return new static('IDENTIFIER', $val);
+		return new static('IDENTIFIER', $val, $line);
 	}
 
 
 
-	static function string_($val)
+	static function string_($val, $line = Null)
 	{
-		return new static('STRING', $val);
+		return new static('STRING', $val, $line);
 	}
 
 
 
-	static function number_($val)
+	static function number_($val, $line = Null)
 	{
-		return new static('NUMBER', $val);
+		return new static('NUMBER', $val, $line);
 	}
 
 
 
-	static function symbol_($val)
+	static function symbol_($val, $line = Null)
 	{
-		return new static('SYMBOL', $val);
+		return new static('SYMBOL', $val, $line);
 	}
 
 
 
-	function __construct($type, $val)
+	function __construct($type, $val, $line = Null)
 	{
 		$this->type = $type;
 		$this->val = $val;
+		$this->line = $line;
 	}
 
 
