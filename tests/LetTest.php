@@ -29,7 +29,7 @@ class LetTest extends PHPUnit_Framework_TestCase
 				, 'fn = 42 :: Num'
 				],
 			['literal str' => new Let('fn', new Symbol('"42"', 'String'))
-				, 'fn = "42" :: String'
+				, 'fn = \'"42"\' :: String'
 				],
 			['expr' => new Let('fn', new Expr(['a', 'b']))
 				, 'fn = a b'

@@ -54,7 +54,7 @@ class ExprTest extends PHPUnit_Framework_TestCase
 				, 'abc def (1 :: NUMERIC + 2 :: NUMERIC)'
 				, ['abc', 'def', '+']],
 			[ new Expr(['abc', new Symbol('def', 'STRING')])
-				, 'abc def :: STRING'
+				, 'abc \'def\' :: STRING'
 				, ['abc']],
 			[ new Expr(['x', '+', new Expr([new Symbol('1', 'NUMERIC'), '+', new Symbol('2', 'NUMERIC')])]
 					, [ new Let('x', new Symbol(41, 'NUMERIC'))])
@@ -70,7 +70,7 @@ class ExprTest extends PHPUnit_Framework_TestCase
 						])
 					]),
 				])
-				, 'abc def :: STRING [prelude.echo Caou :: STRING]'
+				, 'abc \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
 				, ['abc', 'prelude.echo']],
 			'transitivní refs i do lets' => [ new Expr([
 					'abc',
@@ -91,7 +91,7 @@ class ExprTest extends PHPUnit_Framework_TestCase
 				])
 				, "abc = 45 :: NUMBER\n"
 					."fn = {(x) -> prelude.foo x}\n"
-					. 'abc fn def :: STRING [prelude.echo Caou :: STRING]'
+					. 'abc fn \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
 				, ['prelude.echo', 'prelude.foo']],
 		];
 	}

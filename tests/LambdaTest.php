@@ -28,7 +28,13 @@ class LambdaTest extends PHPUnit_Framework_TestCase
 	{
 		// @TODO Zakázat prázdné argumenty?
 		return [
-			['one' => new Lambda([], new Expr(['abc']))
+			['literal' => new Lambda([], new Symbol('abc', 'STRING'))
+				, '{() -> \'abc\' :: STRING}'
+				, []],
+			['struct' => new Lambda([], new StructList(['abc', new Symbol('saf', 'STRING')]))
+				, '{() -> [abc, \'saf\' :: STRING]}'
+				, ['abc']],
+			['symbol' => new Lambda([], new Expr(['abc']))
 				, '{() -> abc}'
 				, ['abc']],
 			['many' => new Lambda([], new Expr(['abc', 'def']))

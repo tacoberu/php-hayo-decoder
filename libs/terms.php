@@ -58,7 +58,14 @@ class Symbol implements Term
 
 	function __toString()
 	{
-		return (string) $this->val . ' :: ' . $this->type;
+		switch (strtoupper($this->type)) {
+			case 'STRING':
+				$val = var_export($this->val, True);
+				break;
+			default:
+				$val = $this->val;
+		}
+		return (string) $val . ' :: ' . $this->type;
 	}
 
 
