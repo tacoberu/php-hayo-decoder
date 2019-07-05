@@ -13,26 +13,61 @@ use RuntimeException;
 class StructListTest extends PHPUnit_Framework_TestCase
 {
 
-	function testEmpty()
+	/**
+	 * @dataProvider dataState
+	 */
+	function testState($expr, $str, $items, $refs)
 	{
-		$xs = new StructList([]);
-		$this->assertEquals([], $xs->getItems());
+		$this->assertSame($str, (string)$expr);
+		$this->assertSame('LIST', $expr->type());
+		$this->assertSame($refs, $expr->refs());
+		$this->assertEquals($items, $expr->getItems());
 	}
 
 
 
-	function testOne()
+	function dataState()
 	{
-		$xs = new StructList([42]);
-		$this->assertEquals([42], $xs->getItems());
+		return [
+			['empty' => new StructList([])
+				, '[]'
+				, []
+				, []
+				],
+			['one' => new StructList([42])
+				, '[42]'
+				, [42]
+				, []
+				],
+			['many' => new StructList([42, 65, -88])
+				, '[42, 65, -88]'
+				, [42, 65, -88]
+				, []
+				],
+			['one1' => new StructList([new Symbol(42, 'Number')])
+				, '[42 :: Number]'
+				, [new Symbol(42, 'Number')]
+				, []
+				],
+			['many1' => new StructList([new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')])
+				, '[42 :: Number, 65 :: Number, -88 :: Number]'
+				, [new Symbol(42, 'Number'), new Symbol(65, 'Number'), new Symbol(-88, 'Number')]
+				, []
+				],
+			['many+symbol' => new StructList([new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')])
+				, '[42 :: Number, a, -88 :: Number]'
+				, [new Symbol(42, 'Number'), 'a', new Symbol(-88, 'Number')]
+				, ['a']
+				],
+			['many+symbol+expr' => new StructList([
+					new Symbol(42, 'Number'),
+					'a',
+					new Expr([new Symbol(-88, 'Number'), '+', 'a'])
+					])
+				, '[42 :: Number, a, -88 :: Number + a]'
+				, [new Symbol(42, 'Number'), 'a', new Expr([new Symbol(-88, 'Number'), '+', 'a'])]
+				, ['a', '+']
+				],
+		];
 	}
-
-
-
-	function testMany()
-	{
-		$xs = new StructList([42, 65, -88]);
-		$this->assertEquals([42, 65, -88], $xs->getItems());
-	}
-
 }

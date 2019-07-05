@@ -104,6 +104,7 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 			require __dir__ . '/spec-assign.php',
 			require __dir__ . '/spec-comment.php',
 			require __dir__ . '/spec-shebank.php',
+			require __dir__ . '/spec-lambdas.php',
 			[]
 		);
 	}

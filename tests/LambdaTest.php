@@ -13,37 +13,34 @@ use RuntimeException;
 class LambdaTest extends PHPUnit_Framework_TestCase
 {
 
-	function testToStringEmpty()
+	/**
+	 * @dataProvider dataState
+	 */
+	function testState($expr, $str, $refs)
 	{
-		$this->assertSame('{() -> }', (string)new Lambda([], new Expr([])));
+		$this->assertSame($str, (string)$expr);
+		$this->assertSame($refs, $expr->refs());
 	}
 
 
 
-	function testToStringOne()
+	function dataState()
 	{
-		$this->assertSame('{() -> abc}', (string)new Lambda([], new Expr(['abc'])));
-	}
-
-
-
-	function testToStringMany()
-	{
-		$this->assertSame('{() -> abc def}', (string)new Lambda([], new Expr(['abc def'])));
-	}
-
-
-
-	function testToStringManyWithArgs()
-	{
-		$this->assertSame('{(x) -> abc def}', (string)new Lambda(['x'], new Expr(['abc def'])));
-	}
-
-
-
-	function testToStringManyWithArgs2()
-	{
-		$this->assertSame("{(x) -> pi = 3.14 :: NUMERIC\nabc def}", (string)new Lambda(['x'], new Expr(['abc def'], [ new Let('pi', new Symbol(3.14, 'NUMERIC'))])));
+		// @TODO Zakázat prázdné argumenty?
+		return [
+			['one' => new Lambda([], new Expr(['abc']))
+				, '{() -> abc}'
+				, ['abc']],
+			['many' => new Lambda([], new Expr(['abc', 'def']))
+				, '{() -> abc def}'
+				, ['abc', 'def']],
+			['many+args' => new Lambda(['x'], new Expr(['x', 'def']))
+				, '{(x) -> x def}'
+				, ['def']],
+			['many+args 2' => new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Symbol(3.14, 'NUMERIC'))]))
+				, "{(x) -> pi = 3.14 :: NUMERIC\nx pi}"
+				, []],
+		];
 	}
 
 }

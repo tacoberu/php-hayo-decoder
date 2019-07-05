@@ -7,39 +7,43 @@
 namespace Hockej\Hayo;
 
 use PHPUnit_Framework_TestCase;
-use RuntimeException;
+use InvalidArgumentException;
 
 
 class ExprTest extends PHPUnit_Framework_TestCase
 {
 
-	function testToStringEmpty()
+
+	/**
+	 * @dataProvider dataState
+	 */
+	function testState($expr, $str, $refs)
 	{
-		$this->assertSame('', (string)new Expr([]));
+		$this->assertSame($str, (string)$expr);
+		$this->assertSame($refs, $expr->refs());
 	}
 
 
 
-	function testToStringOne()
+	function testStateFail()
 	{
-		$this->assertSame('abc', (string)new Expr(['abc']));
+		$this->setExpectedException(InvalidArgumentException::class, 'Empty definitions.');
+		new Expr([]);
 	}
 
 
 
-	function testToStringMany()
+	function testIllegalSymbolFail()
 	{
-		$this->assertSame('abc def', (string)new Expr(['abc', 'def']));
+		$this->setExpectedException(InvalidArgumentException::class, 'Illegal format of symbol name: `abc def\'.');
+		new Expr(['abc def']);
 	}
 
 
 
-	function testToStringManyTree()
+	function dataState()
 	{
 		return [
-			[ new Expr([])
-				, ''
-				, []],
 			[ new Expr(['abc'])
 				, 'abc'
 				, ['abc']],
