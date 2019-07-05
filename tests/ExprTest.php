@@ -36,7 +36,23 @@ class ExprTest extends PHPUnit_Framework_TestCase
 
 	function testToStringManyTree()
 	{
-		$this->assertSame('abc def (1 + 2)', (string)new Expr(['abc', 'def', new Expr(['1', '+', '2'])]));
+		return [
+			[ new Expr([])
+				, ''
+				, []],
+			[ new Expr(['abc'])
+				, 'abc'
+				, ['abc']],
+			[ new Expr(['abc', 'def'])
+				, 'abc def'
+				, ['abc', 'def']],
+			[ new Expr(['abc', 'def', new Expr([new Symbol('1', 'NUMERIC'), '+', new Symbol('2', 'NUMERIC')])])
+				, 'abc def (1 :: NUMERIC + 2 :: NUMERIC)'
+				, ['abc', 'def', '+']],
+			[ new Expr(['abc', new Symbol('def', 'STRING')])
+				, 'abc def :: STRING'
+				, ['abc']],
+		];
 	}
 
 }

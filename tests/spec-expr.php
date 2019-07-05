@@ -14,8 +14,9 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['+'],
-			new Expr([new Val('42', 'NUMBER'), '+', new Val('3', 'NUMBER')]),
-			[])
+				new Expr([new Symbol('42', 'NUMBER'), '+', new Symbol('3', 'NUMBER')]),
+				[]
+			)
 		],
 	["42 + m",
 		[ Token::number_('42')
@@ -24,8 +25,9 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['+', 'm'],
-			new Expr([new Val('42', 'NUMBER'), '+', 'm']),
-			[])
+				new Expr([new Symbol('42', 'NUMBER'), '+', 'm']),
+				[]
+			)
 		],
 	["x * 42 + m",
 		[ Token::identifier('x')
@@ -36,8 +38,9 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['x', '*', '+', 'm'],
-			new Expr(['x', '*', new Val('42', 'NUMBER'), '+', 'm']),
-			[])
+				new Expr(['x', '*', new Symbol('42', 'NUMBER'), '+', 'm']),
+				[]
+			)
 		],
 	["42 + (3 * 3)",
 		[ Token::number_('42')
@@ -49,9 +52,10 @@ return [
 		, Token::bracket(')')
 		, Token::eof()
 		],
-			new Lambda(['+'],
-			new Expr([new Val('42', 'NUMBER'), '+', new Expr([new Val('3', 'NUMBER'), '*', new Val('3', 'NUMBER')])]),
-			[])
+			new Lambda(['+', '*'],
+				new Expr([new Symbol('42', 'NUMBER'), '+', new Expr([new Symbol('3', 'NUMBER'), '*', new Symbol('3', 'NUMBER')])]),
+				[]
+			)
 		],
 	["123 + (inc 1)",
 		[ Token::number_('123')
@@ -62,9 +66,10 @@ return [
 		, Token::bracket(')')
 		, Token::eof()
 		],
-			new Lambda(['+'],
-			new Expr([new Val('123', 'NUMBER'), '+', new Expr(['inc', new Val('1', 'NUMBER')])]),
-			[])
+			new Lambda(['+', 'inc'],
+				new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['inc', new Symbol('1', 'NUMBER')])]),
+				[]
+			)
 		],
 /*	["42 add (3, 3)",
 		[ Token::number_('42')
@@ -77,7 +82,7 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['add'],
-			new Expr([new Val('42', 'NUMBER'), 'add', new Expr([new Val('3', 'NUMBER'), '*', new Val('3', 'NUMBER')])]),
+			new Expr([new Symbol('42', 'NUMBER'), 'add', new Expr([new Symbol('3', 'NUMBER'), '*', new Symbol('3', 'NUMBER')])]),
 			[])
 		],//*/
 ];

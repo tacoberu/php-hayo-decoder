@@ -9,10 +9,41 @@ namespace Hockej\Hayo;
 use Nette\Utils\Validators;
 
 
-
-class Val
+/**
+ * Hodnota. Možná přejmenovat na Val.
+ */
+interface Term
 {
-	private $val, $type;
+	/**
+	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @return array of string
+	 */
+	function refs();
+
+	/**
+	 * @return string
+	 */
+	function type();
+
+}
+
+
+
+/**
+ * Hodnota: číslo, text, symbol True,...
+ */
+class Symbol implements Term
+{
+
+	/**
+	 * @var string
+	 */
+	private $val;
+
+	/**
+	 * @var string
+	 */
+	private $type;
 
 	function __construct($val, $type)
 	{
@@ -29,6 +60,9 @@ class Val
 
 
 
+	/**
+	 * @return string
+	 */
 	function type()
 	{
 		return $this->type;
@@ -49,24 +83,35 @@ class Val
 
 
 /**
- * Přiřazení symbolu a nějakého výrazu včetně kontextu. Viz Lambda.
+ * Svázání symbolu a nějakého výrazu.
+ * x = ...
  */
 class Let
 {
-	public $symbol, $closr;
 
-	function __construct($symbol, /*Lambda*/ $closr)
+	/**
+	 * @var string
+	 */
+	private $symbol;
+
+	/**
+	 * Výraz, na který byl symbol nabindován.
+	 * @var Term
+	 */
+	private $val;
+
+	function __construct($symbol, Term $val)
 	{
 		Validators::assert($symbol, 'string:1..');
 		$this->symbol = $symbol;
-		$this->closr = $closr;
+		$this->val = $val;
 	}
 
 
 
 	function __toString()
 	{
-		return $this->symbol . ' = ' . $this->closr;
+		return $this->symbol . ' = ' . $this->val;
 	}
 
 }
@@ -74,34 +119,38 @@ class Let
 
 
 /**
- * Nějaký výraz s nabindovanými symboly. Lokální funkce, etc.
+ * Výraz obsahující vlastní lokální definice a definující argumenty.
+ * (x) -> x + 41
  */
-class Lambda
+class Lambda implements Term
 {
 	/**
 	 * Lambda vyžaduje doplnit argumenty.
+	 * @var array of string
 	 */
-	public $args;
+	private $args;
 
 	/**
 	 * Vlastní logika lambdy.
+	 * @var array of Expr
 	 */
-	public $exprs;
+	private $exprs;
 
 	/**
 	 * Interní symboly a lambdy.
+	 * @var array of Let
 	 */
-	public $symbols;
+	private $lets;
 
 
-	function __construct(array $args, $exprs, array $symbols = [])
+	function __construct(array $args, $exprs, array $lets = [])
 	{
 		if ( ! is_array($exprs)) {
 			$exprs = [$exprs];
 		}
 		$this->args = $args;
 		$this->exprs = $exprs;
-		$this->symbols = $symbols;
+		$this->lets = $lets;
 	}
 
 
@@ -109,7 +158,7 @@ class Lambda
 	function __toString()
 	{
 		$xs = [];
-		foreach ($this->symbols as $x) {
+		foreach ($this->lets as $x) {
 			$xs[] = (string) $x;
 		}
 		foreach ($this->exprs as $x) {
@@ -122,6 +171,26 @@ class Lambda
 		return '{(' . implode(' ', $args) . ') -> ' . implode(';', $xs) . '}';
 	}
 
+
+
+	/**
+	 * @return string
+	 */
+	function type()
+	{
+		return '?';
+	}
+
+
+
+	/**
+	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 */
+	function refs()
+	{
+		return [];
+	}
+
 }
 
 
@@ -130,10 +199,16 @@ class Lambda
  * 1 + 2
  * 1 + m
  * n + x
+ * print 1
+ * print x
  */
-class Expr
+class Expr implements Term
 {
-	public $items;
+
+	/**
+	 * @var array of Expr | Val | String
+	 */
+	private $items;
 
 
 	function __construct(array $xs)
@@ -160,6 +235,16 @@ class Expr
 
 
 	/**
+	 * @return string
+	 */
+	function type()
+	{
+		return '?';
+	}
+
+
+
+	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
 	 */
 	function refs()
@@ -169,8 +254,18 @@ class Expr
 			if (is_string($x)) {
 				$xs[] = $x;
 			}
+			else if ($x instanceof self) {
+				$xs = array_merge($xs, $x->refs());
+			}
 		}
 		return array_unique($xs);
+	}
+
+
+
+	function getItems()
+	{
+		return $this->items;
 	}
 
 }
@@ -180,7 +275,7 @@ class Expr
 /**
  * Heterogenní struktura kde záleží na pořadí.
  */
-class StructTuple
+class StructTuple implements Term
 {
 
 	private $items;
@@ -212,6 +307,16 @@ class StructTuple
 
 
 	/**
+	 * @return string
+	 */
+	function type()
+	{
+		return 'TUPLE';
+	}
+
+
+
+	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
 	 */
 	function refs()
@@ -226,7 +331,7 @@ class StructTuple
 /**
  * Struktura má vlastnosti Val, páč je to hodnota, a zároveň Expr, páč může obsahovat reference. Homogenní, záleží na pořadí.
  */
-class StructList
+class StructList implements Term
 {
 
 	private $items;
@@ -258,6 +363,16 @@ class StructList
 
 
 	/**
+	 * @return string
+	 */
+	function type()
+	{
+		return 'LIST';
+	}
+
+
+
+	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
 	 */
 	function refs()
@@ -272,7 +387,7 @@ class StructList
 /**
  * Struktura s klíči, nezáleží na pořadí.
  */
-class StructDict
+class StructDict implements Term
 {
 
 	private $items;
@@ -299,6 +414,16 @@ class StructDict
 			$xs[] = "{$k}: {$v}";
 		}
 		return '{' . implode(', ', $xs) . '}';
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	function type()
+	{
+		return 'STRUCT';
 	}
 
 

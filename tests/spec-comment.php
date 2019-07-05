@@ -19,7 +19,7 @@ return [
 		, Token::terminator("\n")
 		, Token::eof()
 		],
-			new Val('44', 'NUMBER')
+			new Symbol('44', 'NUMBER')
 		],
 	["/* 42
 // A
@@ -35,6 +35,6 @@ return [
 		, Token::terminator("\n")
 		, Token::eof()
 		],
-			new Val('44', 'NUMBER')
+			new Symbol('44', 'NUMBER')
 		],
 ];

@@ -16,51 +16,44 @@ return [
 		[ Token::number_('1')
 		, Token::eof()
 		],
-		new Val('1', 'NUMBER')
+		new Symbol('1', 'NUMBER')
 		],
 	["42",
 		[ Token::number_('42')
 		, Token::eof()
 		],
-			new Val('42', 'NUMBER')
+			new Symbol('42', 'NUMBER')
 		],
 	["3.141592",
 		[ Token::number_('3.141592')
 		, Token::eof()
 		],
-			new Val('3.141592', 'NUMBER')
+			new Symbol('3.141592', 'NUMBER')
 		],
 	['"text"',
 		[ Token::string_('"text"')
 		, Token::eof()
 		],
-			new Val('"text"', 'STRING')
+			new Symbol('"text"', 'STRING')
 		],
 	["'text'",
 		[ Token::string_("'text'")
 		, Token::eof()
 		],
-			new Val("'text'", 'STRING')
+			new Symbol("'text'", 'STRING')
 		],
 	["'\"text\"'",
 		[ Token::string_('\'"text"\'')
 		, Token::eof()
 		],
-			new Val('\'"text"\'', 'STRING')
+			new Symbol('\'"text"\'', 'STRING')
 		],
 	['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"')
 		, Token::eof()
 		],
-			new Val('"t@xtč你好 🐶"', 'STRING')
+			new Symbol('"t@xtč你好 🐶"', 'STRING')
 		],
-		/*
-	['True',
-		[ Token::identifier('True')
-		, Token::eof()
-		]
-		],
-		*/
 
 	// Special
 	["true",
@@ -89,9 +82,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 	["(1, 2, 4,)",
@@ -106,9 +99,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 	["(
@@ -129,9 +122,9 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 	["(111, \"Sinead O'Connor\")",
@@ -143,8 +136,8 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('111', 'NUMBER'),
-				new Val('"Sinead O\'Connor"', 'STRING')
+				new Symbol('111', 'NUMBER'),
+				new Symbol('"Sinead O\'Connor"', 'STRING')
 			])
 		],
 	["()",
@@ -161,7 +154,7 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('1', 'NUMBER'),
+				new Symbol('1', 'NUMBER'),
 			])
 		],
 	["(1,)",
@@ -172,7 +165,7 @@ return [
 		, Token::eof()
 		],
 			new StructTuple([
-				new Val('1', 'NUMBER'),
+				new Symbol('1', 'NUMBER'),
 			])
 		],
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
@@ -185,9 +178,9 @@ return [
 		, Token::eof()
 		],
 			new Expr([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -202,9 +195,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 	["[
@@ -225,9 +218,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 	["[1, 2,]",
@@ -240,8 +233,8 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
 			])
 		],
 	["[1]",
@@ -251,7 +244,7 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
+				new Symbol('1', 'NUMBER'),
 			])
 		],
 	["[]",
@@ -273,9 +266,9 @@ return [
 		],
 			new StructList([
 				new Expr([
-					new Val('1', 'NUMBER'),
-					new Val('2', 'NUMBER'),
-					new Val('4', 'NUMBER')
+					new Symbol('1', 'NUMBER'),
+					new Symbol('2', 'NUMBER'),
+					new Symbol('4', 'NUMBER')
 				]),
 			])
 		],
@@ -290,9 +283,9 @@ return [
 		],
 			new StructList([
 				new Expr([
-					new Val('1', 'NUMBER'),
+					new Symbol('1', 'NUMBER'),
 					'+',
-					new Val('4', 'NUMBER')
+					new Symbol('4', 'NUMBER')
 				]),
 			])
 		],
@@ -315,9 +308,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('2', 'NUMBER'),
-				'c' => new Val('4', 'NUMBER')
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('2', 'NUMBER'),
+				'c' => new Symbol('4', 'NUMBER')
 			])
 		],
 	["{}",
@@ -351,13 +344,13 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
+				'a' => new Symbol('1', 'NUMBER'),
 				'b' => new StructList([
-					new Val('4', 'NUMBER'),
-					new Val('2', 'NUMBER'),
-					new Val('4', 'NUMBER'),
+					new Symbol('4', 'NUMBER'),
+					new Symbol('2', 'NUMBER'),
+					new Symbol('4', 'NUMBER'),
 				]),
-				'c' => new Val('4', 'NUMBER')
+				'c' => new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -387,9 +380,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('2', 'NUMBER'),
-				'c' => new Val('4', 'NUMBER')
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('2', 'NUMBER'),
+				'c' => new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -417,9 +410,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('2', 'NUMBER'),
-				'c' => new Val('4', 'NUMBER')
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('2', 'NUMBER'),
+				'c' => new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -443,9 +436,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -467,9 +460,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val('1', 'NUMBER'),
-				new Val('2', 'NUMBER'),
-				new Val('4', 'NUMBER')
+				new Symbol('1', 'NUMBER'),
+				new Symbol('2', 'NUMBER'),
+				new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -491,9 +484,9 @@ return [
 		, Token::eof()
 		],
 			new StructList([
-				new Val("'Une'", 'STRING'),
-				new Val("'Deux'", 'STRING'),
-				new Val("'Trois'", 'STRING')
+				new Symbol("'Une'", 'STRING'),
+				new Symbol("'Deux'", 'STRING'),
+				new Symbol("'Trois'", 'STRING')
 			])
 		],
 
@@ -521,9 +514,9 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
-				'c' => new Val('4', 'NUMBER')
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
+				'c' => new Symbol('4', 'NUMBER')
 			])
 		],
 
@@ -552,8 +545,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructList([])
 			])
 		],
@@ -585,8 +578,8 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructList([])
 			])
 		],
@@ -622,10 +615,10 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructList([
-					new Val('111', 'NUMBER'),
+					new Symbol('111', 'NUMBER'),
 				])
 			])
 		],
@@ -664,11 +657,11 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructTuple([
-					new Val('111', 'NUMBER'),
-					new Val('"Sinead O\'Connor"', 'STRING'),
+					new Symbol('111', 'NUMBER'),
+					new Symbol('"Sinead O\'Connor"', 'STRING'),
 				])
 			])
 		],
@@ -708,12 +701,12 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Val('111', 'NUMBER'),
-						new Val('"Sinead O\'Connor"', 'STRING'),
+						new Symbol('111', 'NUMBER'),
+						new Symbol('"Sinead O\'Connor"', 'STRING'),
 					]),
 				]),
 			])
@@ -761,16 +754,16 @@ return [
 		, Token::eof()
 		],
 			new StructDict([
-				'a' => new Val('1', 'NUMBER'),
-				'b' => new Val('"Deux"', 'STRING'),
+				'a' => new Symbol('1', 'NUMBER'),
+				'b' => new Symbol('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
-						new Val('111', 'NUMBER'),
-						new Val('"Sinead O\'Connor"', 'STRING'),
+						new Symbol('111', 'NUMBER'),
+						new Symbol('"Sinead O\'Connor"', 'STRING'),
 					]),
 					new StructTuple([
-						new Val('222', 'NUMBER'),
-						new Val('"Lewis Carrol"', 'STRING'),
+						new Symbol('222', 'NUMBER'),
+						new Symbol('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
 			])

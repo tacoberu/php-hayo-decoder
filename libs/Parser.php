@@ -127,7 +127,7 @@ class HayoParser
 	/**
 	 * Uzavřené prostředí obsahující výraz, výpočet, může obsahovat lokální
 	 * definice, může vyžadovat argumenty = pak se tedy jedná o funkci.
-	 * Curly bracket slouží ke dvoum věcem. Jednak k definicy closure, a druhak
+	 * Curly bracket slouží ke dvoum věcem. Jednak k definici closure, a druhak
 	 * k definici slovníku.
 	 * @return [Lambda, array]
 	 */
@@ -140,11 +140,31 @@ class HayoParser
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
-					$xs[] = new Val($token->val, $token->type);
+					$xs[] = new Symbol($token->val, $token->type);
 					break;
 
 				case 'IDENTIFIER':
 					$xs[] = $token->val;
+					break;
+
+				// Struktura
+				case 'BRACKET' && $token->val === '(':
+					list($expr, $src) = self::buildStructTuple($src);
+					if (count($expr->getItems()) < 2) {
+						$expr = reset($expr->getItems());
+					}
+
+					$xs[] = $expr;
+					break;
+
+				case 'BRACKET' && $token->val === '[':
+					list($expr, $src) = self::buildStructList($src);
+					$xs[] = $expr;
+					break;
+
+				case 'BRACKET' && $token->val === '{':
+					list($expr, $src) = self::buildStructDict($src);
+					$xs[] = $expr;
 					break;
 
 				case 'INDENT':
@@ -182,7 +202,7 @@ class HayoParser
 				case 'NUMBER':
 				case 'STRING':
 				case 'SYMBOL':
-					$xs[] = new Val($token->val, $token->type);
+					$xs[] = new Symbol($token->val, $token->type);
 					break;
 
 				case 'IDENTIFIER':
@@ -405,6 +425,8 @@ class HayoParser
 				case 'STRING':
 				case 'INDENT':
 				case 'OUTDENT':
+				case 'BRACKET':
+				case 'GENERIC':
 					break;
 
 				case 'TERMINATOR':
@@ -412,6 +434,7 @@ class HayoParser
 					return False;
 
 				case 'IDENTIFIER':
+				case 'ARROW':
 					return True;
 
 				default:

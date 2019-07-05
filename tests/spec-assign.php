@@ -29,8 +29,11 @@ return [
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[new Let('num', new Val('45', 'NUMBER'))])
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[
+							new Let('num', new Symbol('45', 'NUMBER'))
+						]
+					)
 				],
 
 			["num =
@@ -49,8 +52,11 @@ return [
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[new Let('num', new Val('45', 'NUMBER'))])
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[
+							new Let('num', new Symbol('45', 'NUMBER'))
+						]
+					)
 				],
 
 			["num = 4 + 5
@@ -69,9 +75,9 @@ return [
 				],
 					new Lambda(
 						['+', 'num'],
-						[new Expr([new Val('123', 'NUMBER'), '+', 'num'])],
+						[new Expr([new Symbol('123', 'NUMBER'), '+', 'num'])],
 						[new Let('num', new Lambda([],
-							new Expr([new Val('4', 'NUMBER'), '+', new Val('5', 'NUMBER')]),
+							new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]),
 							[]))
 						]
 					)
@@ -93,9 +99,9 @@ return [
 				],
 					new Lambda(
 						['+', 'num'],
-						[new Expr([new Val('123', 'NUMBER'), '+', 'num'])],
+						[new Expr([new Symbol('123', 'NUMBER'), '+', 'num'])],
 						[new Let('num', new Lambda([],
-							new Expr([new Val('4', 'NUMBER'), '-', new Val('5', 'NUMBER')]),
+							new Expr([new Symbol('4', 'NUMBER'), '-', new Symbol('5', 'NUMBER')]),
 							[]))
 						]
 					)
@@ -121,9 +127,9 @@ return [
 				],
 					new Lambda(
 						['+', 'num'],
-						[new Expr([new Val('123', 'NUMBER'), '+', 'num'])],
+						[new Expr([new Symbol('123', 'NUMBER'), '+', 'num'])],
 						[new Let('num', new Lambda([],
-							new Expr([new Val('4', 'NUMBER'), '+', new Val('5', 'NUMBER')]),
+							new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]),
 							[]))
 						]
 					)
@@ -153,10 +159,10 @@ inc =
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[ new Let('num', new Val('45', 'NUMBER'))
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('inc', new Lambda([],
-							new Expr([new Val('2', 'NUMBER'), '+', new Val('1', 'NUMBER')]),
+							new Expr([new Symbol('2', 'NUMBER'), '+', new Symbol('1', 'NUMBER')]),
 							[]))
 						])
 				],
@@ -196,11 +202,11 @@ inc =
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[ new Let('num', new Val('45', 'NUMBER'))
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('inc', new Lambda([],
-							new Expr(['m', '+', new Val('1', 'NUMBER')]),
-							[ new Let('m', new Lambda([], new Expr([new Val('1', 'NUMBER'), '+', new Val('2', 'NUMBER')]), []))
+							new Expr(['m', '+', new Symbol('1', 'NUMBER')]),
+							[ new Let('m', new Lambda([], new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]), []))
 							]))
 						])
 				],
@@ -236,10 +242,10 @@ inc =
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
 						[ new Let('inc', new Lambda([],
-							new Expr(['m', '+', new Val('1', 'NUMBER')]),
-							[ new Let('m', new Lambda([], new Expr([new Val('1', 'NUMBER'), '+', new Val('2', 'NUMBER')]), []))
+							new Expr(['m', '+', new Symbol('1', 'NUMBER')]),
+							[ new Let('m', new Lambda([], new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]), []))
 							]))
 						])
 				],
@@ -412,21 +418,21 @@ dec =
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[ new Let('num', new Val('45', 'NUMBER'))
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('inc', new Lambda([],
-							new Expr(['m', '+', new Val('1', 'NUMBER')]),
+							new Expr(['m', '+', new Symbol('1', 'NUMBER')]),
 							[ new Let('m', new Lambda([],
-								new Expr([new Val('1', 'NUMBER'), '+', new Val('2', 'NUMBER')]),
+								new Expr([new Symbol('1', 'NUMBER'), '+', new Symbol('2', 'NUMBER')]),
 								[]))
 							]))
 						, new Let('dec', new Lambda([],
-							new Expr(['m', '-', new Val('1', 'NUMBER')]),
+							new Expr(['m', '-', new Symbol('1', 'NUMBER')]),
 							[ new Let('m', new Lambda([],
 								new Expr(['a', '+', 'x']),
-								[ new Let('x', new Val('42', 'NUMBER'))
+								[ new Let('x', new Symbol('42', 'NUMBER'))
 								, new Let('y', new Lambda([],
-								new Expr([new Val('11', 'NUMBER'), '*', new Val('22', 'NUMBER')]),
+								new Expr([new Symbol('11', 'NUMBER'), '*', new Symbol('22', 'NUMBER')]),
 									[]))
 								]))
 							]))
@@ -459,10 +465,10 @@ inc = x ->
 				, Token::eof()
 				],
 					new Lambda(['+', 'num'],
-						new Expr([new Val('123', 'NUMBER'), '+', 'num']),
-						[ new Let('num', new Val('45', 'NUMBER'))
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Val('1', 'NUMBER')]),
+							new Expr(['x', '+', new Symbol('1', 'NUMBER')]),
 							[]))
 						])
 				],
@@ -495,11 +501,11 @@ inc = x ->
 				, Token::bracket(')')
 				, Token::eof()
 				],
-			new Lambda(['+'],
-						new Expr([new Val('123', 'NUMBER'), '+', new Expr(['inc', new Val('1', 'NUMBER')])]),
-						[ new Let('num', new Val('45', 'NUMBER'))
+			new Lambda(['+', 'inc'],// @TODO inc by nemělo
+						new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['inc', new Symbol('1', 'NUMBER')])]),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Val('1', 'NUMBER')]),
+							new Expr(['x', '+', new Symbol('1', 'NUMBER')]),
 							[]))
 						])
 				],
@@ -534,12 +540,247 @@ sum = x y ->
 				, Token::bracket(')')
 				, Token::eof()
 				],
-			new Lambda(['+'],
-						new Expr([new Val('123', 'NUMBER'), '+', new Expr(['sum', new Val('1', 'NUMBER'), new Val('2', 'NUMBER')])]),
-						[ new Let('num', new Val('45', 'NUMBER'))
+			new Lambda(['+', 'sum'], // @TODO sum by nemělo
+						new Expr([new Symbol('123', 'NUMBER'), '+', new Expr(['sum', new Symbol('1', 'NUMBER'), new Symbol('2', 'NUMBER')])]),
+						[ new Let('num', new Symbol('45', 'NUMBER'))
 						, new Let('sum', new Lambda(['x', 'y'],
 							new Expr(['x', '+', 'y']),
 							[]))
 						])
 				],
+
+		["num = 4 + 5
+123 + num",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::number_('4')
+				, Token::identifier('+')
+				, Token::number_('5')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('+')
+				, Token::identifier('num')
+				, Token::eof()
+				],
+			new Lambda(['+', 'num'],
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[
+							new Let('num', new Lambda([],
+									new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]),
+									[]
+								)
+							)
+						])
+				],
+
+		// Není nutné, aby byl symbol nabindován před použitím. Musí být definován ve stejném scope.
+		["num = 4 + x
+x = 5
+123 + num",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::number_('4')
+				, Token::identifier('+')
+				, Token::identifier('x')
+				, Token::terminator("\n")
+
+				, Token::identifier('x')
+				, Token::assign_('=')
+				, Token::number_('5')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('+')
+				, Token::identifier('num')
+				, Token::eof()
+				],
+			new Lambda(['+', 'num'],
+						new Expr([new Symbol('123', 'NUMBER'), '+', 'num']),
+						[
+							//~ new Let('num', new Symbol('45', 'NUMBER'))
+							// @TODO Možná by to měl být expr, a ne lambda.
+							// Jenže ono to sice nevyžaduje žádné argumenty, ale může to šahat do proměnných v nadřazeném kontextu. A ty by měli být zafixovány.
+							new Let('num', new Lambda([],
+									new Expr([new Symbol('4', 'NUMBER'), '+', 'x']),
+									[]
+								)
+							),
+							new Let('x', new Symbol('5', 'NUMBER'))
+						])
+				],
+
+		["num = 4 + 5
+123 (hash num)",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::number_('4')
+				, Token::identifier('+')
+				, Token::number_('5')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::bracket('(')
+				, Token::identifier('hash')
+				, Token::identifier('num')
+				, Token::bracket(')')
+				, Token::eof()
+				],
+// @TODO Vytváří to podezřelý výraz.
+false/*			new Lambda([],
+						new Expr([
+							new Symbol('123', 'NUMBER'),
+							new Expr(['hash', 'num'])
+						]),
+						[
+							new Let('num', new Lambda([],
+									new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]),
+									[]
+								)
+							)
+						]) //*/
+				],
+
+		["num = 4 + 5
+123 ++ (hash num)",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::number_('4')
+				, Token::identifier('+')
+				, Token::number_('5')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('++')
+				, Token::bracket('(')
+				, Token::identifier('hash')
+				, Token::identifier('num')
+				, Token::bracket(')')
+				, Token::eof()
+				],
+			new Lambda(['++', 'hash', 'num'], // @TODO num by nemělo, schází +
+						new Expr([
+							new Symbol('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num'])
+						]),
+						[
+							new Let('num', new Lambda([],
+									new Expr([new Symbol('4', 'NUMBER'), '+', new Symbol('5', 'NUMBER')]),
+									[]
+								)
+							)
+						])
+				],
+
+		["num = [4, 5]
+123 ++ (hash num)",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::bracket('[')
+				, Token::number_('4')
+				, Token::generic(',')
+				, Token::number_('5')
+				, Token::bracket(']')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('++')
+				, Token::bracket('(')
+				, Token::identifier('hash')
+				, Token::identifier('num')
+				, Token::bracket(')')
+				, Token::eof()
+				],
+			new Lambda(['++', 'hash', 'num'], // @TODO num by nemělo
+						new Expr([
+							new Symbol('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num'])
+						]),
+						[
+							new Let('num', new StructList([
+								new Symbol('4', 'NUMBER'),
+								new Symbol('5', 'NUMBER'),
+							]))
+						])
+				],
+
+		["num = (4, 5)
+123 ++ (hash num)",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::bracket('(')
+				, Token::number_('4')
+				, Token::generic(',')
+				, Token::number_('5')
+				, Token::bracket(')')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('++')
+				, Token::bracket('(')
+				, Token::identifier('hash')
+				, Token::identifier('num')
+				, Token::bracket(')')
+				, Token::eof()
+				],
+			new Lambda(['++', 'hash', 'num'], // @TODO num by nemělo
+						new Expr([
+							new Symbol('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num'])
+						]),
+						[
+							new Let('num', new StructTuple([
+								new Symbol('4', 'NUMBER'),
+								new Symbol('5', 'NUMBER'),
+							]))
+						])
+				],
+
+		["num = {
+	a: 4
+	b: 5
+}
+123 ++ (hash num)",
+				[ Token::identifier('num')
+				, Token::assign_('=')
+				, Token::bracket('{')
+				, Token::indent(1)
+				, Token::identifier('a')
+				, Token::generic(':')
+				, Token::number_('4')
+				, Token::terminator("\n")
+				, Token::identifier('b')
+				, Token::generic(':')
+				, Token::number_('5')
+				, Token::outdent(1)
+				, Token::terminator("\n")
+				, Token::bracket('}')
+				, Token::terminator("\n")
+
+				, Token::number_('123')
+				, Token::identifier('++')
+				, Token::bracket('(')
+				, Token::identifier('hash')
+				, Token::identifier('num')
+				, Token::bracket(')')
+				, Token::eof()
+				],
+// @TODO místo tuple vytváří lambdu
+false/*			new Lambda(['++'],
+						new Expr([
+							new Symbol('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num'])
+						]),
+						[
+							new Let('num', new StructTuple([
+								new Symbol('4', 'NUMBER'),
+								new Symbol('5', 'NUMBER'),
+							]))
+						])//*/
+				],
+
 ];
