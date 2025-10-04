@@ -6,11 +6,11 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 
 
-class ExprTest extends PHPUnit_Framework_TestCase
+class ExprTest extends TestCase
 {
 
 
@@ -27,7 +27,8 @@ class ExprTest extends PHPUnit_Framework_TestCase
 
 	function testStateFail()
 	{
-		$this->setExpectedException(InvalidArgumentException::class, 'Empty definitions.');
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage('Empty definitions.');
 		new Expr([]);
 	}
 
@@ -35,13 +36,14 @@ class ExprTest extends PHPUnit_Framework_TestCase
 
 	function testIllegalSymbolFail()
 	{
-		$this->setExpectedException(InvalidArgumentException::class, 'Illegal format of symbol name: `abc def\'.');
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage('Illegal format of symbol name: `abc def\'.');
 		new Expr(['abc def']);
 	}
 
 
 
-	function dataState()
+	static function dataState()
 	{
 		return [
 			[ new Expr(['abc'])

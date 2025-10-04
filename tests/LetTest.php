@@ -6,10 +6,10 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class LetTest extends PHPUnit_Framework_TestCase
+class LetTest extends TestCase
 {
 
 	/**
@@ -22,25 +22,25 @@ class LetTest extends PHPUnit_Framework_TestCase
 
 
 
-	function dataState()
+	static function dataState()
 	{
 		return [
-			['literal' => new Let('fn', new Literal(42, 'Num'))
+			'literal' => [new Let('fn', new Literal(42, 'Num'))
 				, 'fn = 42 :: Num'
 				],
-			['literal str' => new Let('fn', new Literal('"42"', 'String'))
+			'literal str' => [new Let('fn', new Literal('"42"', 'String'))
 				, 'fn = \'"42"\' :: String'
 				],
-			['expr' => new Let('fn', new Expr(['a', 'b']))
+			'expr' => [new Let('fn', new Expr(['a', 'b']))
 				, 'fn = a b'
 				],
-			['many' => new Let('fn', new Lambda([], new Expr(['abc', 'def'])))
+			'many' => [new Let('fn', new Lambda([], new Expr(['abc', 'def'])))
 				, 'fn = {() -> abc def}'
 				],
-			['arg' => new Let('fn', new Lambda(['x'], new Expr(['abc', 'def'])))
+			'arg' => [new Let('fn', new Lambda(['x'], new Expr(['abc', 'def'])))
 				, 'fn = {(x) -> abc def}'
 				],
-			['args' => new Let('fn', new Lambda(['x', 'b'], new Expr(['abc', '.', 'def'])))
+			'args' => [new Let('fn', new Lambda(['x', 'b'], new Expr(['abc', '.', 'def'])))
 				, 'fn = {(x b) -> abc . def}'
 				],
 		];

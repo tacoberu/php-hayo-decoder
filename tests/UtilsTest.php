@@ -6,10 +6,10 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class UtilsTest extends PHPUnit_Framework_TestCase
+class UtilsTest extends TestCase
 {
 
 	/**
@@ -23,7 +23,7 @@ class UtilsTest extends PHPUnit_Framework_TestCase
 
 
 
-	function dataFormatLiteral()
+	static function dataFormatLiteral()
 	{
 		return [
 			['{"val":"1","type":"Numeric"}', new Literal(1, 'Numeric')],

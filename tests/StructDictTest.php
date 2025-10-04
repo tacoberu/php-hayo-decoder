@@ -6,11 +6,11 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 
-class StructDictTest extends PHPUnit_Framework_TestCase
+class StructDictTest extends TestCase
 {
 
 	/**
@@ -26,41 +26,41 @@ class StructDictTest extends PHPUnit_Framework_TestCase
 
 
 
-	function dataState()
+	static function dataState()
 	{
 		return [
-			['empty' => new StructDict([])
+			'empty' => [new StructDict([])
 				, '{}'
 				, []
 				, []
 				],
-			['one' => new StructDict([42])
+			'one' => [new StructDict([42])
 				, '{0: 42}'
 				, [42]
 				, []
 				],
-			['many' => new StructDict([42, 65, -88])
+			'many' => [new StructDict([42, 65, -88])
 				, '{0: 42, 1: 65, 2: -88}'
 				, [42, 65, -88]
 				, []
 				],
 
-			['one1' => new StructDict([new Literal(42, 'Number')])
+			'one1' => [new StructDict([new Literal(42, 'Number')])
 				, '{0: 42 :: Number}'
 				, [new Literal(42, 'Number')]
 				, []
 				],
-			['many1' => new StructDict([new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')])
+			'many1' => [new StructDict([new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')])
 				, '{0: 42 :: Number, 1: 65 :: Number, 2: -88 :: Number}'
 				, [new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')]
 				, []
 				],
-			['many+symbol' => new StructDict([new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')])
+			'many+symbol' => [new StructDict([new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')])
 				, '{0: 42 :: Number, 1: a, 2: -88 :: Number}'
 				, [new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')]
 				, ['a']
 				],
-			['many+symbol+expr' => new StructDict([
+			'many+symbol+expr' => [new StructDict([
 					new Literal(42, 'Number'),
 					'a',
 					new Expr([new Literal(-88, 'Number'), '+', 'a'])
@@ -69,7 +69,7 @@ class StructDictTest extends PHPUnit_Framework_TestCase
 				, [new Literal(42, 'Number'), 'a', new Expr([new Literal(-88, 'Number'), '+', 'a'])]
 				, ['a', '+']
 				],
-			['expr as key' => (new StructDict([
+			'expr as key' => [(new StructDict([
 					'x' => new Literal(42, 'Number'),
 					]))
 					->add('a', 'a')

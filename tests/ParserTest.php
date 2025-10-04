@@ -6,15 +6,16 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class ParserTest extends PHPUnit_Framework_TestCase
+class ParserTest extends TestCase
 {
 
 	private $parser;
 
-	function setUp()
+
+	function setUp(): void
 	{
 		$this->parser = new HayoParser;
 	}
@@ -39,13 +40,14 @@ class ParserTest extends PHPUnit_Framework_TestCase
 	 */
 	function testDecodeFail($ast, $msg)
 	{
-		$this->setExpectedException(HayoParserException::class, $msg);
+		$this->expectException(HayoParserException::class);
+		$this->expectExceptionMessage($msg);
 		$this->parser->decode($ast);
 	}
 
 
 
-	function dataDecode()
+	static function dataDecode()
 	{
 		return array_merge(
 			require __dir__ . '/spec-const.php',
@@ -61,7 +63,7 @@ class ParserTest extends PHPUnit_Framework_TestCase
 
 
 
-	function dataDecodeFail()
+	static function dataDecodeFail()
 	{
 		return [
 			[[]

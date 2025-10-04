@@ -6,13 +6,16 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class DecoderTest extends PHPUnit_Framework_TestCase
+class DecoderTest extends TestCase
 {
 
-	function setUp()
+	private $decoder;
+
+
+	function setUp(): void
 	{
 		$this->decoder = new HayoDecoder;
 	}
@@ -24,13 +27,14 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 	 */
 	function testDecodeFail($script, $msg)
 	{
-		$this->setExpectedException(HayoParserException::class, $msg);
+		$this->expectException(HayoParserException::class);
+		$this->expectExceptionMessage($msg);
 		$this->decoder->decode($script);
 	}
 
 
 
-	function dataDecodeFail()
+	static function dataDecodeFail()
 	{
 		return [
 			["froo\nboo\n foo\nboo",
@@ -96,7 +100,7 @@ class DecoderTest extends PHPUnit_Framework_TestCase
 
 
 
-	function dataDecode()
+	static function dataDecode()
 	{
 		return array_merge(
 			require __dir__ . '/spec-const.php',

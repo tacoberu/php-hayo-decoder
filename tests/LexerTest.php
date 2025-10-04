@@ -6,15 +6,15 @@
 
 namespace Hockej\Hayo;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class LexerTest extends PHPUnit_Framework_TestCase
+class LexerTest extends TestCase
 {
 
 	private $lexer;
 
-	function setUp()
+	function setUp(): void
 	{
 		$this->lexer = new HayoLexer;
 	}
@@ -36,7 +36,8 @@ class LexerTest extends PHPUnit_Framework_TestCase
 	 */
 	function testDecodeFail($script, $msg)
 	{
-		$this->setExpectedException(\Exception::class, $msg);
+		$this->expectException(\Exception::class);
+		$this->expectExceptionMessage($msg);
 		$this->lexer->tokenise($script);
 	}
 
@@ -70,7 +71,7 @@ c = 8
 
 
 
-	function dataDecodeFail()
+	static function dataDecodeFail()
 	{
 		return [
 			["a = 1\n{-\n\n", 'Missing closing of comment block.'],
@@ -79,7 +80,7 @@ c = 8
 
 
 
-	function dataDecode()
+	static function dataDecode()
 	{
 		return array_merge(
 			require __dir__ . '/spec-const.php',
@@ -89,15 +90,15 @@ c = 8
 			require __dir__ . '/spec-comment.php',
 			require __dir__ . '/spec-shebank.php',
 			require __dir__ . '/spec-lambdas.php',
-			$this->dataDecodeIdentifier(),
-			$this->dataDecodeTypes(),
+			self::dataDecodeIdentifier(),
+			self::dataDecodeTypes(),
 			[]
 		);
 	}
 
 
 
-	function dataMissingDraft()
+	static function dataMissingDraft()
 	{
 		return [
 			['True',
@@ -110,7 +111,7 @@ c = 8
 
 
 
-	function dataDecodeIdentifier()
+	static function dataDecodeIdentifier()
 	{
 		return [
 			["num = 45
@@ -143,7 +144,7 @@ inc x =
 
 
 
-	function dataDecodeTypes()
+	static function dataDecodeTypes()
 	{
 		return [
 			["format = (s: String 1 10) ->

@@ -19,6 +19,6 @@
 	"license": "MIT",
 	"require-dev": {
 		"tracy/tracy": "^2.4",
-		"phpunit/phpunit": "~5.0"
+		"phpunit/phpunit": "^11.5"
 	}
 }

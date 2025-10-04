@@ -147,14 +147,14 @@ class HayoLexer
 	 */
 	private function stringToken($chunk)
 	{
-		$firstChar = $chunk{0};
+		$firstChar = $chunk[0];
 		$quoted = False;
 		$nextChar = Null;
 		if ($firstChar == '"' || $firstChar == "'") {
 			// @TODO Optimalize
 			for ($i = 1; $i < strlen($chunk); $i++) {
 				if ( ! $quoted) {
-					$nextChar = $chunk{$i};
+					$nextChar = $chunk[$i];
 					if ($nextChar == "\\") {
 						$quoted = True;
 					}
@@ -366,7 +366,7 @@ class HayoLexer
 	 */
 	private static function isSymbol($m)
 	{
-		$m = ord($m{0});
+		$m = ord($m[0]);
 		return $m >= ord('A') && $m <= ord('Z');
 	}
 
