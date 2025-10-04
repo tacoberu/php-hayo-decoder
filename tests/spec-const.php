@@ -4,7 +4,7 @@
  * @author Martin Takáč <martin@takac.name>
  */
 
-namespace Hockej\Hayo;
+namespace Taco\Hayo;
 
 return [
 	['',

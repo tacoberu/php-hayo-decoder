@@ -1,5 +1,5 @@
 {
-	"name": "hockej/php-hayo-decoder",
+	"name": "tacoberu/hayo-decoder",
 	"description": "...",
 	"type": "library",
 	"require": {

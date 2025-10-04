@@ -4,7 +4,7 @@
  * @author Martin Takáč <martin@takac.name>
  */
 
-namespace Hockej\Hayo;
+namespace Taco\Hayo;
 
 return [
 /*			["pi = 3.141592", // musíme něco vrátit, nějaký výraz
