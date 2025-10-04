@@ -310,6 +310,7 @@ a:hover {
 
 code {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.85rem;
 }
 
 
@@ -549,4 +550,3 @@ code.comming-soon {
   border-radius: 6px;
   -webkit-text-size-adjust: none;
 }
-
