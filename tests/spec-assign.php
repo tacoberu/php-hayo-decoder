@@ -778,6 +778,33 @@ x = 5
 						])
 				],
 
+		['a = 12
+{a: a, b: "abc"}',
+				[ Token::identifier('a', 1)
+				, Token::assign_('=', 1)
+				, Token::number_('12', 1)
+				, Token::terminator("\n", 1)
+
+				, Token::bracket('{', 2)
+				, Token::identifier('a', 2)
+				, Token::generic(':', 2)
+				, Token::identifier('a', 2)
+				, Token::generic(',', 2)
+				, Token::identifier('b', 2)
+				, Token::generic(':', 2)
+				, Token::string_('"abc"', 2)
+				, Token::bracket('}', 2)
+
+				, Token::eof()
+				],
+					new Expr([new StructDict([
+							'a' => 'a',
+							'b' => new Literal('"abc"', 'STRING'),
+							])],
+						[ new Let('a', new Literal('12', 'NUMBER'))
+							])
+				],//*/
+
 		'bug-0001: Přepisuje se x' => ['x = 14
 foo = prelude.echo "done, line: " x
 log = x -> prelude.echo (prelude.dump x)

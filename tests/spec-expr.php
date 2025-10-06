@@ -96,4 +96,68 @@ return [
 			new Expr(['say', new Literal('"hallo"', 'STRING')]),
 		],
 
+	["{
+	a: 1
+	b: 2
+	c: x
+}",
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::terminator("\n", 3)
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+			, Token::identifier('x', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
+		, Token::eof()
+		],
+			new StructDict([
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Literal('2', 'NUMBER'),
+				'c' => 'x'
+			])
+		],
+
+	["{
+	a: 1
+	b: 2 + 999
+	c: x
+}",
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::identifier('a', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::terminator("\n", 2)
+
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::identifier('+', 3)
+			, Token::number_('999', 3)
+			, Token::terminator("\n", 3)
+
+			, Token::identifier('c', 4)
+			, Token::generic(':', 4)
+			, Token::identifier('x', 4)
+			, Token::outdent(1, 4)
+		, Token::terminator("\n", 4)
+		, Token::bracket('}', 5)
+		, Token::eof()
+		],
+			new StructDict([
+				'a' => new Literal('1', 'NUMBER'),
+				'b' => new Expr([new Literal('2', 'NUMBER'), '+', new Literal('999', 'NUMBER')]),
+				'c' => 'x'
+			])
+		],
+
 ];

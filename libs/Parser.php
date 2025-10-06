@@ -124,7 +124,12 @@ class HayoParser
 		}
 
 		if ($lets && $expr) {
-			$expr = new Expr($expr->getItems(), $lets);
+			if ($expr instanceof Expr) {
+				$expr = new Expr($expr->getItems(), $lets);
+			}
+			else {
+				$expr = new Expr([$expr], $lets);
+			}
 		}
 
 		return [$expr, $src];

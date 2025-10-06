@@ -16,7 +16,7 @@ class StructDictTest extends TestCase
 	/**
 	 * @dataProvider dataState
 	 */
-	function testState($expr, $str, $items, $refs)
+	function testState(StructDict $expr, string $str, $items, $refs)
 	{
 		$this->assertSame($str, (string)$expr);
 		$this->assertSame('DICT', $expr->type());
