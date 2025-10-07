@@ -48,7 +48,7 @@ class Literal implements Term
 
 	function __construct($val, $type)
 	{
-		Validators::assert($val, 'string|number');
+		Validators::assert($val, 'string|number|bool|null');
 		Validators::assert($type, 'string:1..255');
 		$this->val = $val;
 		$this->type = $type;

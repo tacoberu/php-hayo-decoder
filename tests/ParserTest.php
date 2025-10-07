@@ -84,4 +84,17 @@ class ParserTest extends TestCase
 		];
 	}
 
+
+
+	function _testDevelp()
+	{
+		$code = "{}";
+		$code = "a = 12\n{a: 5}";
+		//~ $code = "a = 12\n{}";
+		//~ $code = "a = 12\na + 5";
+		$ast = (new HayoLexer)->tokenise($code);
+		dump($ast);
+		dump($this->parser->decode($ast));
+	}
+
 }

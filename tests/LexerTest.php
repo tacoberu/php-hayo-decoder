@@ -203,4 +203,12 @@ format 'A'
 	}
 
 
+
+	function _testDevelp()
+	{
+		$code = "{}";
+		$code = "a = 12\n{}";
+		dump($this->lexer->tokenise($code));
+	}
+
 }

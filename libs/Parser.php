@@ -185,6 +185,7 @@ class HayoParser
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
+				case 'SYMBOL':
 					$xs[] = self::buildLiteral($token);
 					break;
 
@@ -350,6 +351,7 @@ class HayoParser
 				case 'IDENTIFIER':
 				case 'NUMBER':
 				case 'STRING':
+				case 'SYMBOL':
 				case 'BRACKET':
 					// val
 					array_unshift($src, $token);
@@ -410,6 +412,7 @@ class HayoParser
 				case 'IDENTIFIER':
 				case 'NUMBER':
 				case 'STRING':
+				case 'SYMBOL':
 				case 'BRACKET':
 					// val
 					array_unshift($src, $token);
@@ -469,6 +472,7 @@ class HayoParser
 				case 'IDENTIFIER':
 				case 'NUMBER':
 				case 'STRING':
+				case 'SYMBOL':
 					// key
 					$key = $token->val;
 					if ($token->type !== 'IDENTIFIER') {
@@ -551,6 +555,7 @@ class HayoParser
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
+				case 'SYMBOL':
 				case 'INDENT':
 				case 'OUTDENT':
 				case 'BRACKET':

@@ -113,4 +113,13 @@ class DecoderTest extends TestCase
 		);
 	}
 
+
+
+	function _testDevelp()
+	{
+		$code = "{}";
+		$code = "a = 12\n{}";
+		dump($this->decoder->decode($code));
+	}
+
 }

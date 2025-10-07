@@ -134,6 +134,16 @@ return [
 				new Literal('4', 'NUMBER')
 			])
 		],
+	["(\"Sinead O'Connor\")",
+		[ Token::bracket('(', 1)
+		, Token::string_('"Sinead O\'Connor"', 1)
+		, Token::bracket(')', 1)
+		, Token::eof()
+		],
+			new StructTuple([
+				new Literal('"Sinead O\'Connor"', 'STRING')
+			])
+		],
 	["(111, \"Sinead O'Connor\")",
 		[ Token::bracket('(', 1)
 		, Token::number_('111', 1)
@@ -277,6 +287,16 @@ return [
 					new Literal('2', 'NUMBER'),
 					new Literal('4', 'NUMBER')
 				]),
+			])
+		],
+	["[\"Sinead O'Connor\"]",
+		[ Token::bracket('[', 1)
+		, Token::string_('"Sinead O\'Connor"', 1)
+		, Token::bracket(']', 1)
+		, Token::eof()
+		],
+			new StructList([
+				new Literal('"Sinead O\'Connor"', 'STRING')
 			])
 		],
 
