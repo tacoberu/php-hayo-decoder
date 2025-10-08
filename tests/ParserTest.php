@@ -86,15 +86,25 @@ class ParserTest extends TestCase
 
 
 
-	function _testDevelp()
+	function _testDevelp1()
 	{
 		$code = "{}";
 		$code = "a = 12\n{a: 5}";
 		//~ $code = "a = 12\n{}";
 		//~ $code = "a = 12\na + 5";
 		$ast = (new HayoLexer)->tokenise($code);
-		dump($ast);
+		//~ dump($ast);
 		dump($this->parser->decode($ast));
+	}
+
+
+
+	function testDevelp2()
+	{
+		$code = "a = 12\n{a: a, b: (list.first xs)}";
+		$ast = (new HayoLexer)->tokenise($code);
+		$this->assertEquals(['list.first', 'xs'], $this->parser->decode($ast)->refs());
+		$this->assertEquals(['a', 'list.first', 'xs'], $this->parser->decode($ast)->getItems()[0]->refs());
 	}
 
 }

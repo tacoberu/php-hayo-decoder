@@ -94,7 +94,7 @@ class ExprTest extends TestCase
 				, "abc = 45 :: NUMBER\n"
 					."fn = {(x) -> prelude.foo x}\n"
 					. 'abc fn \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
-				, ['prelude.echo', 'prelude.foo']],
+				, ['prelude.echo', 'prelude.foo', 'x']],
 		];
 	}
 

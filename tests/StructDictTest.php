@@ -82,6 +82,19 @@ class StructDictTest extends TestCase
 					]
 				, ['a', '+']
 				],
+			'bug 1' => [(new StructDict([
+					'a' => new Literal(42, 'Number'),
+					'b' => new Lambda(['x'], new Expr(['list.first', 'x', 'xs'])),
+					]))
+				, '{a: 42 :: Number, b: {(x) -> list.first x xs}}'
+				, [
+					'a' => new Literal(42, 'Number'),
+					'b' => new Lambda(['x'], new Expr(['list.first', 'x', 'xs'])),
+					]
+				, ['list.first', 'xs', 'x']
+				],
+				//*/
+
 		];
 	}
 

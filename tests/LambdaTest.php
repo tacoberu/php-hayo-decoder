@@ -42,10 +42,13 @@ class LambdaTest extends TestCase
 				, ['abc', 'def']],
 			'many+args' => [new Lambda(['x'], new Expr(['x', 'def']))
 				, '{(x) -> x def}'
-				, ['def']],
+				, ['def', 'x']],
 			'many+args 2' => [new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Literal(3.14, 'NUMERIC'))]))
 				, "{(x) -> pi = 3.14 :: NUMERIC\nx pi}"
-				, []],
+				, ['x']],
+			'many+args 3' => [new Lambda([new Lambda([], new Expr(['strings.split'])), 'y'], new Expr(['list.first']))
+				, "{({() -> strings.split} y) -> list.first}"
+				, ['list.first', 'strings.split', 'y']],
 		];
 	}
 

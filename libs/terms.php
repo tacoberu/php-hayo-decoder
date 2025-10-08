@@ -159,6 +159,14 @@ class Lambda implements Term
 				$xs[] = $x;
 			}
 		}
+		foreach ($this->getArgs() as $x) {
+			if (is_string($x)) {
+				$xs[] = $x;
+			}
+			else {
+				$xs = array_merge($xs, $x->refs());
+			}
+		}
 		return $xs;
 	}
 
