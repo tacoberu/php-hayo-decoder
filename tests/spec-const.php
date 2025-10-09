@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -6,73 +7,74 @@
 
 namespace Taco\Hayo;
 
+// phpcs:ignore SlevomatCodingStandard.Arrays.DisallowPartiallyKeyed
 return [
 	['',
-		[ Token::eof()
+		[ Token::eof(),
 		],
-		Null
+		Null,
 		],
 	["1",
 		[ Token::number_('1', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-		new Literal('1', 'NUMBER')
+		new Literal('1', 'NUMBER'),
 		],
 	["42",
 		[ Token::number_('42', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('42', 'NUMBER')
+			new Literal('42', 'NUMBER'),
 		],
 	["3.141592",
 		[ Token::number_('3.141592', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('3.141592', 'NUMBER')
+			new Literal('3.141592', 'NUMBER'),
 		],
 	['"text"',
 		[ Token::string_('"text"', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('"text"', 'STRING')
+			new Literal('"text"', 'STRING'),
 		],
 	["'text'",
 		[ Token::string_("'text'", 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal("'text'", 'STRING')
+			new Literal("'text'", 'STRING'),
 		],
 	["'\"text\"'",
 		[ Token::string_('\'"text"\'', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('\'"text"\'', 'STRING')
+			new Literal('\'"text"\'', 'STRING'),
 		],
 	['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('"t@xtč你好 🐶"', 'STRING')
+			new Literal('"t@xtč你好 🐶"', 'STRING'),
 		],
 
 	// Special
 	["true",
 		[ Token::identifier('true', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			'true'
+			'true',
 		],
 
 	["==",
 		[ Token::identifier('==', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			'=='
+			'==',
 		],
 
 	['True',
 		[ Token::symbol_('True', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Literal('True', 'SYMBOL'),
 		],
@@ -86,13 +88,13 @@ return [
 		, Token::generic(',', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 	["(1, 2, 4,)",
 		[ Token::bracket('(', 1)
@@ -103,13 +105,13 @@ return [
 		, Token::number_('4', 1)
 		, Token::generic(',', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 	["(
 	1
@@ -126,23 +128,23 @@ return [
 		, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(')', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 	["(\"Sinead O'Connor\")",
 		[ Token::bracket('(', 1)
 		, Token::string_('"Sinead O\'Connor"', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
-				new Literal('"Sinead O\'Connor"', 'STRING')
-			])
+				new Literal('"Sinead O\'Connor"', 'STRING'),
+			]),
 		],
 	["(111, \"Sinead O'Connor\")",
 		[ Token::bracket('(', 1)
@@ -150,40 +152,40 @@ return [
 		, Token::generic(',', 1)
 		, Token::string_('"Sinead O\'Connor"', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('111', 'NUMBER'),
-				new Literal('"Sinead O\'Connor"', 'STRING')
-			])
+				new Literal('"Sinead O\'Connor"', 'STRING'),
+			]),
 		],
 	["()",
 		[ Token::bracket('(', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new StructTuple([])
+			new StructTuple([]),
 		],
 	["(1)",
 		[ Token::bracket('(', 1)
 		, Token::number_('1', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('1', 'NUMBER'),
-			])
+			]),
 		],
 	["(1,)",
 		[ Token::bracket('(', 1)
 		, Token::number_('1', 1)
 		, Token::generic(',', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructTuple([
 				new Literal('1', 'NUMBER'),
-			])
+			]),
 		],
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
 	["(1 2 4)",
@@ -192,13 +194,13 @@ return [
 		, Token::number_('2', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["[1, 2, 4]",
@@ -209,13 +211,13 @@ return [
 		, Token::generic(',', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 	["[
 	1
@@ -232,13 +234,13 @@ return [
 		, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 	["[1, 2,]",
 		[ Token::bracket('[', 1)
@@ -247,29 +249,29 @@ return [
 		, Token::number_('2', 1)
 		, Token::generic(',', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-			])
+			]),
 		],
 	["[1]",
 		[ Token::bracket('[', 1)
 		, Token::number_('1', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
-			])
+			]),
 		],
 	["[]",
 		[ Token::bracket('[', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new StructList([])
+			new StructList([]),
 		],
 
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
@@ -279,25 +281,25 @@ return [
 		, Token::number_('2', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Expr([
 					new Literal('1', 'NUMBER'),
 					new Literal('2', 'NUMBER'),
-					new Literal('4', 'NUMBER')
+					new Literal('4', 'NUMBER'),
 				]),
-			])
+			]),
 		],
 	["[\"Sinead O'Connor\"]",
 		[ Token::bracket('[', 1)
 		, Token::string_('"Sinead O\'Connor"', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
-				new Literal('"Sinead O\'Connor"', 'STRING')
-			])
+				new Literal('"Sinead O\'Connor"', 'STRING'),
+			]),
 		],
 
 	["[1 + 4]",
@@ -306,15 +308,15 @@ return [
 		, Token::identifier('+', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Expr([
 					new Literal('1', 'NUMBER'),
 					'+',
-					new Literal('4', 'NUMBER')
+					new Literal('4', 'NUMBER'),
 				]),
-			])
+			]),
 		],
 
 	// dicts
@@ -332,20 +334,20 @@ return [
 		, Token::generic(':', 1)
 		, Token::number_('4', 1)
 		, Token::bracket('}', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 	["{}",
 		[ Token::bracket('{', 1)
 		, Token::bracket('}', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new StructDict([])
+			new StructDict([]),
 		],
 
 	["{a: 1, b: [4,2,4], c: 4}",
@@ -368,7 +370,7 @@ return [
 		, Token::generic(':', 1)
 		, Token::number_('4', 1)
 		, Token::bracket('}', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -377,8 +379,8 @@ return [
 					new Literal('2', 'NUMBER'),
 					new Literal('4', 'NUMBER'),
 				]),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["{
@@ -404,13 +406,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	'klíčem nemusí být symbol' => ["{
@@ -436,13 +438,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'{"val":"1","type":"NUMBER"}' => new Literal('1', 'NUMBER'),
 				'{"val":"\'b\'","type":"STRING"}' => new Literal('2', 'NUMBER'),
-				'_' => new Literal('4', 'NUMBER')
-			])
+				'_' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["{
@@ -466,13 +468,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["[
@@ -492,13 +494,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["[
@@ -516,13 +518,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["[
@@ -540,13 +542,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal("'Une'", 'STRING'),
 				new Literal("'Deux'", 'STRING'),
-				new Literal("'Trois'", 'STRING')
-			])
+				new Literal("'Trois'", 'STRING'),
+			]),
 		],
 
 	'Přiřazení symbolů' => ["[
@@ -564,13 +566,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				'une',
 				'deux',
 				'trois',
-			])
+			]),
 		],
 
 	["{
@@ -594,13 +596,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('"Deux"', 'STRING'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	["{
@@ -625,13 +627,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('"Deux"', 'STRING'),
-				'c' => new StructList([])
-			])
+				'c' => new StructList([]),
+			]),
 		],
 
 	["{
@@ -658,13 +660,13 @@ return [
 			, Token::outdent(1, 5)
 		, Token::terminator("\n", 5)
 		, Token::bracket('}', 6)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('"Deux"', 'STRING'),
-				'c' => new StructList([])
-			])
+				'c' => new StructList([]),
+			]),
 		],
 
 	'Vertikální mezera mezi prvky' => ["{
@@ -687,12 +689,12 @@ return [
 			, Token::outdent(1, 5)
 		, Token::terminator("\n", 5)
 		, Token::bracket('}', 6)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'c' => new StructList([])
-			])
+				'c' => new StructList([]),
+			]),
 		],
 
 	["{
@@ -723,15 +725,15 @@ return [
 			, Token::outdent(1, 6)
 		, Token::terminator("\n", 6)
 		, Token::bracket('}', 7)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('"Deux"', 'STRING'),
 				'c' => new StructList([
 					new Literal('111', 'NUMBER'),
-				])
-			])
+				]),
+			]),
 		],
 
 	["{
@@ -765,7 +767,7 @@ return [
 			, Token::outdent(1, 7)
 		, Token::terminator("\n", 7)
 		, Token::bracket('}', 8)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -773,8 +775,8 @@ return [
 				'c' => new StructTuple([
 					new Literal('111', 'NUMBER'),
 					new Literal('"Sinead O\'Connor"', 'STRING'),
-				])
-			])
+				]),
+			]),
 		],
 
 	["{
@@ -809,7 +811,7 @@ return [
 			, Token::outdent(1, 6)
 		, Token::terminator("\n", 6)
 		, Token::bracket('}', 7)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -820,7 +822,7 @@ return [
 						new Literal('"Sinead O\'Connor"', 'STRING'),
 					]),
 				]),
-			])
+			]),
 		],
 
 	["{
@@ -862,7 +864,7 @@ return [
 			, Token::outdent(1, 7)
 		, Token::terminator("\n", 7)
 		, Token::bracket('}', 8)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -877,7 +879,7 @@ return [
 						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
-			])
+			]),
 		],
 
 	];

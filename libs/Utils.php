@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
  */
 
 namespace Taco\Hayo;
-
 
 class Utils
 {
@@ -17,7 +17,7 @@ class Utils
 	{
 		return json_encode((object)[
 			'val' => (string) $x->getValue(),
-			'type' => $x->type()
+			'type' => $x->type(),
 		]);
 	}
 

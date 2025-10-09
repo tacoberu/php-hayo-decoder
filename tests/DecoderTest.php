@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -14,10 +15,9 @@ class DecoderTest extends TestCase
 
 	private $decoder;
 
-
 	function setUp(): void
 	{
-		$this->decoder = new HayoDecoder;
+		$this->decoder = new HayoDecoder();
 	}
 
 
@@ -34,11 +34,30 @@ class DecoderTest extends TestCase
 
 
 
+	/**
+	 * @dataProvider dataDecode
+	 */
+	function testDecode($script, $ast, $expected)
+	{
+		$this->assertEquals($expected, $this->decoder->decode($script));
+	}
+
+
+
+	function _testDevelp()
+	{
+		$code = "{}";
+		$code = "a = 12\n{}";
+		dump($this->decoder->decode($code));
+	}
+
+
+
 	static function dataDecodeFail()
 	{
 		return [
 			["froo\nboo\n foo\nboo",
-				'Unexpected (INDENT: 1).'
+				'Unexpected (INDENT: 1).',
 				],
 			/*
 			["say\nhay",
@@ -51,7 +70,7 @@ class DecoderTest extends TestCase
 				],
 				*/
 			["{dump {a : b}}",
-				'Required delimiter between key and value: (BRACKET: {).'
+				'Required delimiter between key and value: (BRACKET: {).',
 				],
 			/*
 			["{dump {a :b}}",
@@ -90,16 +109,6 @@ class DecoderTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecode
-	 */
-	function testDecode($script, $ast, $expected)
-	{
-		$this->assertEquals($expected, $this->decoder->decode($script));
-	}
-
-
-
 	static function dataDecode()
 	{
 		return array_merge(
@@ -111,15 +120,6 @@ class DecoderTest extends TestCase
 			require __dir__ . '/spec-lambdas.php',
 			[]
 		);
-	}
-
-
-
-	function _testDevelp()
-	{
-		$code = "{}";
-		$code = "a = 12\n{}";
-		dump($this->decoder->decode($code));
 	}
 
 }

@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -7,6 +8,7 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 
 class LexerTest extends TestCase
@@ -16,7 +18,7 @@ class LexerTest extends TestCase
 
 	function setUp(): void
 	{
-		$this->lexer = new HayoLexer;
+		$this->lexer = new HayoLexer();
 	}
 
 
@@ -36,7 +38,7 @@ class LexerTest extends TestCase
 	 */
 	function testDecodeFail($script, $msg)
 	{
-		$this->expectException(\Exception::class);
+		$this->expectException(Throwable::class);
 		$this->expectExceptionMessage($msg);
 		$this->lexer->tokenise($script);
 	}
@@ -63,10 +65,19 @@ c = 8
 			, Token::assign_('=', 3)
 			, Token::number_('8', 3)
 			, Token::terminator("\n", 3)
-			, Token::eof()
+			, Token::eof(),
 			];
 
 		$this->assertEquals($tokens, $this->lexer->tokenise($script));
+	}
+
+
+
+	function _testDevelp()
+	{
+		$code = "{}";
+		$code = "a = 12\n{}";
+		dump($this->lexer->tokenise($code));
 	}
 
 
@@ -103,8 +114,8 @@ c = 8
 		return [
 			['True',
 				[ Token::identifier('True')
-				, Token::eof()
-				]
+				, Token::eof(),
+				],
 				],
 			];
 	}
@@ -136,8 +147,8 @@ inc x =
 				, Token::number_('123', 4)
 				, Token::identifier('+', 4)
 				, Token::identifier('num', 4)
-				, Token::eof()
-				]
+				, Token::eof(),
+				],
 				],
 			];
 	}
@@ -170,8 +181,8 @@ format
 				, Token::terminator("\n", 2)
 				, Token::identifier('format', 3)
 				, Token::terminator("\n", 3)
-				, Token::eof()
-				]
+				, Token::eof(),
+				],
 				],
 
 			["format = (s: String) ->
@@ -196,19 +207,10 @@ format 'A'
 				, Token::identifier('format', 3)
 				, Token::string_("'A'", 3)
 				, Token::terminator("\n", 3)
-				, Token::eof()
-				]
+				, Token::eof(),
+				],
 				],
 		];
-	}
-
-
-
-	function _testDevelp()
-	{
-		$code = "{}";
-		$code = "a = 12\n{}";
-		dump($this->lexer->tokenise($code));
 	}
 
 }

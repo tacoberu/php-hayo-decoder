@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -6,8 +7,10 @@
 
 namespace Taco\Hayo;
 
+use Exception;
 
-class HayoParserException extends \Exception
+
+class HayoParserException extends Exception
 {
 
 	/**
@@ -15,10 +18,10 @@ class HayoParserException extends \Exception
 	 */
 	private $codeline;
 
-
-	function __construct($message, $codeline = Null, $code = 0, Throwable $previous = NULL)
+	function __construct($message, $codeline = Null, $code = 0, ?Throwable $previous = NULL)
 	{
 		parent::__construct($message, $code, $previous);
+
 		$this->codeline = $codeline;
 	}
 
@@ -50,10 +53,9 @@ class HayoParserException extends \Exception
 class HayoParser
 {
 
-
 	/**
-	 * @param array of Token
-	 * @return Expr
+	 * @param list<Token> $src
+	 * @return Term | string | null
 	 */
 	function decode(array $src)
 	{
@@ -74,11 +76,13 @@ class HayoParser
 
 	/**
 	 * Blok je sekce vzniknuvší po odsazení.
-	 * @return [Expr, [<string>]]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: Expr, 1: array<string>}>
 	 */
 	private static function buildBlock(array $src, array $ns = [])
 	{
-		if ($src[0] && $src[0]->type == 'OUTDENT') {
+		if ($src[0] && $src[0]->type === 'OUTDENT') {
 			throw HayoParserException::createUnexpectedToken($src[0]);
 		}
 
@@ -124,12 +128,7 @@ class HayoParser
 		}
 
 		if ($lets && $expr) {
-			if ($expr instanceof Expr) {
-				$expr = new Expr($expr->getItems(), $lets);
-			}
-			else {
-				$expr = new Expr([$expr], $lets);
-			}
+			$expr = $expr instanceof Expr ? new Expr($expr->getItems(), $lets) : new Expr([$expr], $lets);
 		}
 
 		return [$expr, $src];
@@ -140,7 +139,9 @@ class HayoParser
 	/**
 	 * Přiřazení nějaké hodnoty symbolu. `x = ...`
 	 * Přiřazujeme buď hodnotu, nebo funkci, nebo typ.
-	 * @return [Let, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: Let, 1: list<Token>}>
 	 */
 	private static function buildAssign(array $src, array $ns = [])
 	{
@@ -174,7 +175,9 @@ class HayoParser
 	 * definice, může vyžadovat argumenty = pak se tedy jedná o funkci.
 	 * Curly bracket slouží ke dvoum věcem. Jednak k definici closure, a druhak
 	 * k definici slovníku.
-	 * @return [Lambda, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: Term, 1: list<Token>}>
 	 */
 	private static function buildClosure(array $src, array $ns = [])
 	{
@@ -257,12 +260,9 @@ class HayoParser
 		}
 
 		if ($args) {
-			if (count($xs) > 1 || $lets || is_string($xs[0])) {
-				$val = new Expr($xs, $lets);
-			}
-			else {
-				$val = reset($xs);
-			}
+			$val = count($xs) > 1 || $lets || is_string($xs[0])
+				? new Expr($xs, $lets)
+				: reset($xs);
 			return [new Lambda($args, $val), $src];
 		}
 		elseif (count($xs) === 1) {
@@ -276,7 +276,9 @@ class HayoParser
 
 
 	/**
-	 * @return [Expr, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: Term, 1: list<Token>}>
 	 */
 	private static function buildExpression(array $src, array $ns = [])
 	{
@@ -338,7 +340,9 @@ class HayoParser
 
 
 	/**
-	 * @return [Expr, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: StructTuple, 1: list<Token>>
 	 */
 	private static function buildStructTuple(array $src, array $ns = [])
 	{
@@ -398,8 +402,9 @@ class HayoParser
 
 
 	/**
-	 * [Expr, *]
-	 * @return [Expr, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: StructList, 1: list<Token>}>
 	 */
 	private static function buildStructList(array $src, array $ns = [])
 	{
@@ -459,7 +464,9 @@ class HayoParser
 
 
 	/**
-	 * @return [Expr, array]
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: StructDict, 1: list<Token>}>
 	 */
 	private static function buildStructDict(array $src, array $ns = [])
 	{
@@ -520,7 +527,7 @@ class HayoParser
 
 
 
-	private static function buildLiteral(Token $token)
+	private static function buildLiteral(Token $token): Literal
 	{
 		return new Literal($token->val, $token->type);
 	}
@@ -528,7 +535,8 @@ class HayoParser
 
 
 	/**
-	 * @return [Expr, array]
+	 * @param list<Token> $src
+	 * @return array<{0: Token, 1: list<Token>>
 	 */
 	private static function buildNamespace(array $src)
 	{
@@ -549,7 +557,10 @@ class HayoParser
 
 
 
-	private static function isLambda(array $src)
+	/**
+	 * @param list<Token> $src
+	 */
+	private static function isLambda(array $src): bool
 	{
 		foreach ($src as $token) {
 			switch ($token->type) {
@@ -584,9 +595,9 @@ class HayoParser
 	/**
 	 * Rozlišení, zda přiřazujeme jednoduchý výraz, nebo closure, které si táhne závislosti
 	 * na dalších symbolech.
-	 * @return bool
+	 * @param list<Token> $src
 	 */
-	private static function isClosure(Token $token, array $src)
+	private static function isClosure(Token $token, array $src): bool
 	{
 		array_unshift($src, $token);
 		foreach ($src as $token) {
@@ -618,7 +629,10 @@ class HayoParser
 
 
 
-	private static function buildIdentifier($name, array $ns = [])
+	/**
+	 * @param list<string> $ns
+	 */
+	private static function buildIdentifier(string $name, array $ns = [])
 	{
 		if ($ns && strpos($name, '.')) {
 			list($suffix, $key) = explode('.', $name, 2);
@@ -633,7 +647,10 @@ class HayoParser
 
 
 
-	private static function assertTokenValue(Token $token, array $vals, $label)
+	/**
+	 * @param list<string> $vals
+	 */
+	private static function assertTokenValue(Token $token, array $vals, string $label)
 	{
 		if ( ! in_array($token->val, $vals, True)) {
 			throw HayoParserException::createMissingRequiredToken($token, $label);
@@ -644,12 +661,9 @@ class HayoParser
 
 	/**
 	 * Ends the $haystack string with the suffix $needle?
-	 * @param  string
-	 * @param  string
-	 * @return bool
 	 * @credits Nette Foundation
 	 */
-	private static function endsWith($haystack, $needle)
+	private static function endsWith(string $haystack, string $needle): bool
 	{
 		return strlen($needle) === 0 || substr($haystack, -strlen($needle)) === $needle;
 	}

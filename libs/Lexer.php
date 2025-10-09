@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -6,12 +7,15 @@
 
 namespace Taco\Hayo;
 
+use Exception;
+
 
 /**
  * Zpracuje zdrojový surový text na tokeny, teprve ze kterých vytváříme AST.
  */
 class HayoLexer
 {
+
 	const IDENTIFIER = '~^[a-zA-Z$_][a-zA-Z0-9$_.]*~';
 	const IDENTIFIER_SPECIAL = '!#$%&*+-.:;<=>?@^_|~';
 	const NUMBER = '~^-?[0-9]+(\.[0-9]+)?~';
@@ -50,7 +54,7 @@ class HayoLexer
 				?: $this->lineToken($chunk)
 				?: $this->literalToken($chunk);
 			if ( ! $diff) {
-				throw new \Exception("Couldn't tokenise: `" . substr($chunk, 0, strpos($chunk, "\n")) . "'.");
+				throw new Exception("Couldn't tokenise: `" . substr($chunk, 0, strpos($chunk, "\n")) . "'.");
 			}
 			$i += $diff;
 		}
@@ -93,12 +97,9 @@ class HayoLexer
 					break;
 */
 				default:
-					if (self::isSymbol($matches[0])) {
-						$type = 'SYMBOL';
-					}
-					else {
-						$type = 'IDENTIFIER';
-					}
+					$type = self::isSymbol($matches[0])
+						? 'SYMBOL'
+						: 'IDENTIFIER';
 			}
 			$this->tokens[] = new Token($type, $matches[0], $this->lines);
 			return strlen($matches[0]);
@@ -150,15 +151,15 @@ class HayoLexer
 		$firstChar = $chunk[0];
 		$quoted = False;
 		$nextChar = Null;
-		if ($firstChar == '"' || $firstChar == "'") {
+		if ($firstChar === '"' || $firstChar === "'") {
 			// @TODO Optimalize
 			for ($i = 1; $i < strlen($chunk); $i++) {
 				if ( ! $quoted) {
 					$nextChar = $chunk[$i];
-					if ($nextChar == "\\") {
+					if ($nextChar === "\\") {
 						$quoted = True;
 					}
-					else if ($nextChar == $firstChar) {
+					else if ($nextChar === $firstChar) {
 						$this->tokens[] = Token::string_(substr($chunk, 0, $i + 1), $this->lines);
 						return $i + 1;
 					}
@@ -249,12 +250,9 @@ class HayoLexer
 					while ($size < $last) {
 						$this->tokens[] = Token::outdent($last - $size, $this->lines);
 						array_pop($this->indents);
-						if (count($this->indents)) {
-							$last = @$this->indents[count($this->indents) - 1];
-						}
-						else {
-							$last = 0; // Null?
-						}
+						$last = count($this->indents)
+							? @$this->indents[count($this->indents) - 1]
+							: 0; // Null?
 					}
 				}
 				$chunk = substr($matches[0], 0, $lastNewline);
@@ -339,7 +337,7 @@ class HayoLexer
 	{
 		while (True) {
 			if ( ! $close = strpos($chunk, '-}', $offset)) {
-				throw new \Exception("Missing closing of comment block.");
+				throw new Exception("Missing closing of comment block.");
 			}
 			$open = strpos($chunk, '{-', $offset);
 
@@ -356,7 +354,7 @@ class HayoLexer
 
 	private static function isLiteral($m)
 	{
-		return (strpos(self::IDENTIFIER_SPECIAL, $m) !== False);
+		return strpos(self::IDENTIFIER_SPECIAL, $m) !== False;
 	}
 
 
@@ -376,7 +374,21 @@ class HayoLexer
 
 class Token
 {
-	public $type, $val, $line;
+
+	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
+	public $type;
+	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
+	public $val;
+	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
+	public $line;
+
+	function __construct($type, $val, $line = Null)
+	{
+		$this->type = $type;
+		$this->val = $val;
+		$this->line = $line;
+	}
+
 
 
 	static function comment($val, $line = Null)
@@ -466,15 +478,6 @@ class Token
 	static function symbol_($val, $line = Null)
 	{
 		return new static('SYMBOL', $val, $line);
-	}
-
-
-
-	function __construct($type, $val, $line = Null)
-	{
-		$this->type = $type;
-		$this->val = $val;
-		$this->line = $line;
 	}
 
 

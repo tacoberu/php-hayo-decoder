@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -17,9 +18,9 @@ return [
 		, Token::terminator("\n", 2)
 		, Token::number_('44', 3)
 		, Token::terminator("\n", 3)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER')
+			new Literal('44', 'NUMBER'),
 		],
 
 	'blokový komentář - je možno zanořovat' => ["{- 42
@@ -34,9 +35,9 @@ return [
 		, Token::terminator("\n", 6)
 		, Token::number_('44', 7)
 		, Token::terminator("\n", 7)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER')
+			new Literal('44', 'NUMBER'),
 		],
 
 	'céčkovské komentáře ignoruje' => ["{- 42
@@ -51,9 +52,9 @@ return [
 		, Token::terminator("\n", 6)
 		, Token::number_('44', 7)
 		, Token::terminator("\n", 7)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER')
+			new Literal('44', 'NUMBER'),
 		],
 
 	'komentář uvnitř konstrukce' => [
@@ -77,12 +78,12 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	'odsazený komentář uvnitř slovníku' => [
@@ -105,12 +106,12 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER')
-			])
+				'c' => new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	'odsazený komentář uvnitř seznamu' => [
@@ -129,12 +130,12 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket(']', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
-				new Literal('4', 'NUMBER')
-			])
+				new Literal('4', 'NUMBER'),
+			]),
 		],
 
 	'odsazený komentář uvnitř seznamu na konci' => [
@@ -150,11 +151,11 @@ return [
 			, Token::outdent(1, 3)
 		, Token::terminator("\n", 3)
 		, Token::bracket(']', 4)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructList([
 				new Literal('1', 'NUMBER'),
-			])
+			]),
 		],
 
 	'blokový komentář ve složité struktuře' => ["{
@@ -192,7 +193,7 @@ return [
 			, Token::outdent(1, 7)
 		, Token::terminator("\n", 7)
 		, Token::bracket('}', 8)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -203,7 +204,7 @@ return [
 						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
-			])
+			]),
 		],
 
 	'blokový komentář uvnitř' => ["{
@@ -246,7 +247,7 @@ return [
 			, Token::outdent(1, 7)
 		, Token::terminator("\n", 7)
 		, Token::bracket('}', 8)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
@@ -261,7 +262,7 @@ return [
 						new Literal('"Lewis Carrol"', 'STRING'),
 					]),
 				]),
-			])
+			]),
 		],
 
 	'blokový komentář v textu se nepočítá' => ["{
@@ -286,13 +287,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('"De{- non -}ux"', 'STRING'),
 				'c' => new StructList([]),
-			])
+			]),
 		],
 
 	'a' => ['prelude.do [
@@ -334,7 +335,7 @@ return [
 			, Token::string_('"\n"', 7)
 			, Token::terminator("\n", 7)
 		, Token::bracket(']', 8)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['prelude.do', new StructList([
 				new Expr([

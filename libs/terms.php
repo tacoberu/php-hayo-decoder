@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -9,33 +10,7 @@ namespace Taco\Hayo;
 use Nette\Utils\Validators;
 use InvalidArgumentException;
 use ArrayAccess;
-
-
-interface HasRefs
-{
-	/**
-	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
-	 * @return array of string
-	 */
-	function refs();
-
-}
-
-
-
-/**
- * Hodnota. Možná přejmenovat na Val.
- */
-interface Term extends HasRefs
-{
-
-	/**
-	 * @return string
-	 */
-	function type();
-
-}
-
+use BadMethodCallException;
 
 
 /**
@@ -64,6 +39,34 @@ class Literal implements Term
 
 
 
+	function type(): string
+	{
+		return $this->type;
+	}
+
+
+
+	/**
+	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @return list<string>
+	 */
+	function refs(): array
+	{
+		return [];
+	}
+
+
+
+	/**
+	 * @return mixed
+	 */
+	function getValue()
+	{
+		return $this->val;
+	}
+
+
+
 	function __toString()
 	{
 		switch (strtoupper($this->type)) {
@@ -76,50 +79,22 @@ class Literal implements Term
 		return (string) $val . ' :: ' . $this->type;
 	}
 
-
-
-	/**
-	 * @return string
-	 */
-	function type()
-	{
-		return $this->type;
-	}
-
-
-
-	/**
-	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
-	 */
-	function refs()
-	{
-		return [];
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function getValue()
-	{
-		return $this->val;
-	}
-
 }
 
 
 
 /**
- * Výraz obsahující vlastní lokální definice a definující argumenty.
+ * Výraz obsahující vlastní lokální definice a definující argumenty. Neobsahuje
+ * jméno, protože to se týká přiřazení.
  * (x) -> x + 41
+ * () -> print 41
  */
 class Lambda implements Term
 {
 
 	/**
 	 * Lambda vyžaduje doplnit argumenty.
-	 * @var array<string>
+	 * @var list<string>
 	 */
 	private $args;
 
@@ -129,7 +104,9 @@ class Lambda implements Term
 	 */
 	private $expr;
 
-
+	/**
+	 * @param list<string> $args
+	 */
 	function __construct(array $args, Term $expr)
 	{
 		foreach ($args as $i => $x) {
@@ -142,28 +119,17 @@ class Lambda implements Term
 
 
 
-	function __toString()
-	{
-		$args = [];
-		foreach ($this->args as $x) {
-			$args[] = (string) $x;
-		}
-		return '{(' . implode(' ', $args) . ') -> ' . $this->expr . '}';
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function type()
+	function type(): string
 	{
 		return '?';
 	}
 
 
 
-	function refs()
+	/**
+	 * @return list<string>
+	 */
+	function refs(): array
 	{
 		$xs = [];
 		foreach ($this->getExpr()->refs() as $x) {
@@ -184,26 +150,43 @@ class Lambda implements Term
 
 
 
-	function getExpr()
+	function getExpr(): Term
 	{
 		return $this->expr;
 	}
 
 
 
-	function getArgs()
+	/**
+	 * @return list<string>
+	 */
+	function getArgs(): array
 	{
 		return $this->args;
 	}
 
 
 
-	function getSymbols()
+	/**
+	 * @return array<string, Term>
+	 */
+	function getSymbols(): array
 	{
 		if ($this->getExpr() instanceof Expr) {
 			return $this->getExpr()->getLets();
 		}
 		return [];
+	}
+
+
+
+	function __toString()
+	{
+		$args = [];
+		foreach ($this->args as $x) {
+			$args[] = (string) $x;
+		}
+		return '{(' . implode(' ', $args) . ') -> ' . $this->expr . '}';
 	}
 
 }
@@ -221,18 +204,20 @@ class Expr implements Term, ArrayAccess
 {
 
 	/**
-	 * @var array of Expr | Val | String
+	 * @var list<Expr | Val | string>
 	 */
 	private $items = [];
 
-
 	/**
 	 * Interní symboly a lambdy.
-	 * @var array of Let
+	 * @var array<string, Let>
 	 */
 	private $lets = [];
 
-
+	/**
+	 * @param list<Expr | Val | string> $xs
+	 * @param array<string, Let> $lets
+	 */
 	function __construct(array $xs, array $lets = [])
 	{
 		if (empty($xs)) {
@@ -250,31 +235,7 @@ class Expr implements Term, ArrayAccess
 
 
 
-	function __toString()
-	{
-		$exprs = [];
-		foreach ($this->items as $x) {
-			if ($x instanceof self) {
-				$exprs[] = "({$x})";
-			}
-			else {
-				$exprs[] = "{$x}";
-			}
-		}
-		$lets = [];
-		foreach ($this->lets as $x) {
-			$lets[] = "{$x}";
-		}
-		$lets[] = implode(' ', $exprs);
-		return implode("\n", $lets);
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function type()
+	function type(): string
 	{
 		return '?';
 	}
@@ -283,8 +244,9 @@ class Expr implements Term, ArrayAccess
 
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @return list<string>
 	 */
-	function refs()
+	function refs(): array
 	{
 		$xs = [];
 		foreach ($this->items as $x) {
@@ -315,14 +277,20 @@ class Expr implements Term, ArrayAccess
 
 
 
-	function getItems()
+	/**
+	 * @return list<Expr | Val | string>
+	 */
+	function getItems(): array
 	{
 		return $this->items;
 	}
 
 
 
-	function getLets()
+	/**
+	 * @return array<string, Lets>
+	 */
+	function getLets(): array
 	{
 		return $this->lets;
 	}
@@ -331,8 +299,9 @@ class Expr implements Term, ArrayAccess
 
 	function offsetSet($offset, $value): void
 	{
-		throw new \BadMethodCallException("Read-only");
+		throw new BadMethodCallException("Read-only");
 	}
+
 
 
 	function offsetExists($offset): bool
@@ -344,7 +313,7 @@ class Expr implements Term, ArrayAccess
 
 	function offsetUnset($offset): void
 	{
-		throw new \BadMethodCallException("Read-only");
+		throw new BadMethodCallException("Read-only");
 	}
 
 
@@ -358,11 +327,29 @@ class Expr implements Term, ArrayAccess
 
 
 
-	private static function assertExpr($m)
+	private static function assertExpr($m): void
 	{
 		if (is_string($m) && strpos($m, ' ')) {
 			throw new InvalidArgumentException("Illegal format of symbol name: `$m'.");
 		}
+	}
+
+
+
+	function __toString()
+	{
+		$exprs = [];
+		foreach ($this->items as $x) {
+			$exprs[] = $x instanceof self
+				? "({$x})"
+				: "{$x}";
+		}
+		$lets = [];
+		foreach ($this->lets as $x) {
+			$lets[] = "{$x}";
+		}
+		$lets[] = implode(' ', $exprs);
+		return implode("\n", $lets);
 	}
 
 }
@@ -375,9 +362,14 @@ class Expr implements Term, ArrayAccess
 class StructTuple implements Term
 {
 
-	private $items;
+	/**
+	 * @var list<Expr | Val | string>
+	 */
+	private array $items;
 
-
+	/**
+	 * @param list<Expr | Val | string> $items
+	 */
 	function __construct(array $items)
 	{
 		$this->items = $items;
@@ -385,28 +377,17 @@ class StructTuple implements Term
 
 
 
-	function getItems()
+	/**
+	 * @return list<Expr | Val | string>
+	 */
+	function getItems(): array
 	{
 		return $this->items;
 	}
 
 
 
-	function __toString()
-	{
-		$xs = [];
-		foreach ($this->items as $k => $v) {
-			$xs[] = "{$v}";
-		}
-		return '(' . implode(', ', $xs) . ')';
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function type()
+	function type(): string
 	{
 		return 'TUPLE';
 	}
@@ -416,10 +397,22 @@ class StructTuple implements Term
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
 	 * @TODO
+	 * @return list<string>
 	 */
-	function refs()
+	function refs(): array
 	{
 		return [];
+	}
+
+
+
+	function __toString()
+	{
+		$xs = [];
+		foreach ($this->items as $x) {
+			$xs[] = "{$x}";
+		}
+		return '(' . implode(', ', $xs) . ')';
 	}
 
 }
@@ -432,9 +425,14 @@ class StructTuple implements Term
 class StructList implements Term
 {
 
-	private $items;
+	/**
+	 * @var list<Expr | Val | string>
+	 */
+	private array $items;
 
-
+	/**
+	 * @param list<Expr | Val | string> $items
+	 */
 	function __construct(array $items)
 	{
 		$this->items = $items;
@@ -442,28 +440,17 @@ class StructList implements Term
 
 
 
-	function getItems()
+	/**
+	 * @return list<Expr | Val | string>
+	 */
+	function getItems(): array
 	{
 		return $this->items;
 	}
 
 
 
-	function __toString()
-	{
-		$xs = [];
-		foreach ($this->items as $v) {
-			$xs[] = "{$v}";
-		}
-		return '[' . implode(', ', $xs) . ']';
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function type()
+	function type(): string
 	{
 		return 'LIST';
 	}
@@ -472,8 +459,9 @@ class StructList implements Term
 
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @return list<string>
 	 */
-	function refs()
+	function refs(): array
 	{
 		$xs = [];
 		foreach ($this->items as $v) {
@@ -485,6 +473,17 @@ class StructList implements Term
 			}
 		}
 		return array_unique($xs);
+	}
+
+
+
+	function __toString()
+	{
+		$xs = [];
+		foreach ($this->items as $x) {
+			$xs[] = "{$x}";
+		}
+		return '[' . implode(', ', $xs) . ']';
 	}
 
 }
@@ -497,9 +496,14 @@ class StructList implements Term
 class StructDict implements Term
 {
 
-	private $items;
+	/**
+	 * @var array<string, Expr | Val | string>
+	 */
+	private array $items;
 
-
+	/**
+	 * @param array<string, Expr | Val | string> $items
+	 */
 	function __construct(array $items)
 	{
 		$this->items = $items;
@@ -507,7 +511,11 @@ class StructDict implements Term
 
 
 
-	function add($key, $val)
+	/**
+	 * @param string | Literal $key
+	 * @param Expr | Val | string $val
+	 */
+	function add($key, $val): self
 	{
 		$this->items[self::castToString($key)] = $val;
 		return $this;
@@ -515,28 +523,17 @@ class StructDict implements Term
 
 
 
-	function getItems()
+	/**
+	 * @return array<string, Expr | Val | string>
+	 */
+	function getItems(): array
 	{
 		return $this->items;
 	}
 
 
 
-	function __toString()
-	{
-		$xs = [];
-		foreach ($this->items as $k => $v) {
-			$xs[] = "{$k}: {$v}";
-		}
-		return '{' . implode(', ', $xs) . '}';
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	function type()
+	function type(): string
 	{
 		return 'DICT';
 	}
@@ -545,8 +542,9 @@ class StructDict implements Term
 
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @return list<string>
 	 */
-	function refs()
+	function refs(): array
 	{
 		$xs = [];
 		foreach ($this->items as $v) {
@@ -562,12 +560,23 @@ class StructDict implements Term
 
 
 
-	private static function castToString($x)
+	private static function castToString($x): string
 	{
 		if (is_scalar($x)) {
 			return (string) $x;
 		}
 		return json_encode((object)['val' => $x->getValue(), 'type' => $x->type()]);
+	}
+
+
+
+	function __toString()
+	{
+		$xs = [];
+		foreach ($this->items as $k => $v) {
+			$xs[] = "{$k}: {$v}";
+		}
+		return '{' . implode(', ', $xs) . '}';
 	}
 
 }

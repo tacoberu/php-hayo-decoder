@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -7,7 +8,6 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 
 class StructListTest extends TestCase
@@ -32,42 +32,43 @@ class StructListTest extends TestCase
 			'empty' => [new StructList([])
 				, '[]'
 				, []
-				, []
+				, [],
 				],
 			'one' => [new StructList([42])
 				, '[42]'
 				, [42]
-				, []
+				, [],
 				],
 			'many' => [new StructList([42, 65, -88])
 				, '[42, 65, -88]'
 				, [42, 65, -88]
-				, []
+				, [],
 				],
 			'one1' => [new StructList([new Literal(42, 'Number')])
 				, '[42 :: Number]'
 				, [new Literal(42, 'Number')]
-				, []
+				, [],
 				],
 			'many1' => [new StructList([new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')])
 				, '[42 :: Number, 65 :: Number, -88 :: Number]'
 				, [new Literal(42, 'Number'), new Literal(65, 'Number'), new Literal(-88, 'Number')]
-				, []
+				, [],
 				],
 			'many+symbol' => [new StructList([new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')])
 				, '[42 :: Number, a, -88 :: Number]'
 				, [new Literal(42, 'Number'), 'a', new Literal(-88, 'Number')]
-				, ['a']
+				, ['a'],
 				],
 			'many+symbol+expr' => [new StructList([
 					new Literal(42, 'Number'),
 					'a',
-					new Expr([new Literal(-88, 'Number'), '+', 'a'])
+					new Expr([new Literal(-88, 'Number'), '+', 'a']),
 					])
 				, '[42 :: Number, a, -88 :: Number + a]'
 				, [new Literal(42, 'Number'), 'a', new Expr([new Literal(-88, 'Number'), '+', 'a'])]
-				, ['a', '+']
+				, ['a', '+'],
 				],
 		];
 	}
+
 }

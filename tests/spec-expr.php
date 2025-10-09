@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -6,12 +7,13 @@
 
 namespace Taco\Hayo;
 
+// phpcs:ignore SlevomatCodingStandard.Arrays.DisallowPartiallyKeyed
 return [
 	["42 + 3",
 		[ Token::number_('42', 1)
 		, Token::identifier('+', 1)
 		, Token::number_('3', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
 		],
@@ -22,7 +24,7 @@ return [
 		, Token::identifier('+', 1)
 		, Token::number_('3', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
 		],
@@ -31,7 +33,7 @@ return [
 		[ Token::number_('42', 1)
 		, Token::identifier('+', 1)
 		, Token::identifier('m', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([new Literal('42', 'NUMBER'), '+', 'm']),
 		],
@@ -42,7 +44,7 @@ return [
 		, Token::number_('42', 1)
 		, Token::identifier('+', 1)
 		, Token::identifier('m', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['x', '*', new Literal('42', 'NUMBER'), '+', 'm']),
 		],
@@ -55,7 +57,7 @@ return [
 		, Token::identifier('*', 1)
 		, Token::number_('3', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([new Literal('42', 'NUMBER'), '+', new Expr([new Literal('3', 'NUMBER'), '*', new Literal('3', 'NUMBER')])]),
 		],
@@ -67,7 +69,7 @@ return [
 		, Token::identifier('inc', 1)
 		, Token::number_('1', 1)
 		, Token::bracket(')', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])]),
 		],
@@ -91,7 +93,7 @@ return [
 	'jednoduché volání funkce' => ["say \"hallo\"",
 		[ Token::identifier('say', 1)
 		, Token::string_('"hallo"', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['say', new Literal('"hallo"', 'STRING')]),
 		],
@@ -117,13 +119,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Literal('2', 'NUMBER'),
-				'c' => 'x'
-			])
+				'c' => 'x',
+			]),
 		],
 
 	["{
@@ -151,13 +153,13 @@ return [
 			, Token::outdent(1, 4)
 		, Token::terminator("\n", 4)
 		, Token::bracket('}', 5)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
 				'b' => new Expr([new Literal('2', 'NUMBER'), '+', new Literal('999', 'NUMBER')]),
-				'c' => 'x'
-			])
+				'c' => 'x',
+			]),
 		],
 
 ];

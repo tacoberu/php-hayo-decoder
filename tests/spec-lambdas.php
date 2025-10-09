@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -18,13 +19,13 @@ return [
 		, Token::generic(',', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['prelude.map', 'x', new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
 				new Literal('4', 'NUMBER'),
-			])])
+			])]),
 		],
 
 	'lambda zapsaná inline' => ["prelude.map (x -> x + 1) [1, 2, 4]",
@@ -43,13 +44,13 @@ return [
 		, Token::generic(',', 1)
 		, Token::number_('4', 1)
 		, Token::bracket(']', 1)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['prelude.map', new Lambda(['x'], new Expr(['x', '+', new Literal('1', 'NUMBER')])), new StructList([
 				new Literal('1', 'NUMBER'),
 				new Literal('2', 'NUMBER'),
 				new Literal('4', 'NUMBER'),
-			])])
+			])]),
 		],
 
 	'bug 1' => ["source = x -> [ 1, 5, 8]\nsource 5\n",
@@ -68,14 +69,14 @@ return [
 		, Token::identifier('source', 2)
 		, Token::number_(5, 2)
 		, Token::terminator("\n", 2)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['source', new Literal('5', 'NUMBER')], [
 				new Let('source', new Lambda(['x'], new StructList([
 					new Literal('1', 'NUMBER'),
 					new Literal('5', 'NUMBER'),
 					new Literal('8', 'NUMBER'),
-				])))
+				]))),
 			]),
 		],
 
@@ -100,14 +101,14 @@ return [
 		, Token::identifier('source', 3)
 		, Token::number_(5, 3)
 		, Token::terminator("\n", 3)
-		, Token::eof()
+		, Token::eof(),
 		],
 			new Expr(['source', new Literal('5', 'NUMBER')], [
 				new Let('source', new Lambda(['x'], new StructList([
 					new Literal('1', 'NUMBER'),
 					new Literal('5', 'NUMBER'),
 					new Literal('8', 'NUMBER'),
-				])))
+				]))),
 			]),
 		],
 

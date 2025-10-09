@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -14,8 +15,8 @@ return [
 		, Token::terminator("\n", 1)
 		, Token::number_('44', 2)
 		, Token::terminator("\n", 2)
-		, Token::eof()
+		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER')
+			new Literal('44', 'NUMBER'),
 		],
 	];

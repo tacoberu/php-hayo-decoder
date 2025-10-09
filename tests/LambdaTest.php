@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 /**
  * Copyright (c) since 2004 Martin Takáč
  * @author Martin Takáč <martin@takac.name>
@@ -7,7 +8,6 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 
@@ -19,6 +19,14 @@ class LambdaTest extends TestCase
 	{
 		$this->assertSame($str, (string)$expr);
 		$this->assertSame($refs, $expr->refs());
+	}
+
+
+
+	function _testCreate()
+	{
+		$inst = new Lambda(['x'], null);
+dump($inst);
 	}
 
 
@@ -51,14 +59,6 @@ class LambdaTest extends TestCase
 				, ['list.first', 'strings.split', 'y']],
 				*/
 		];
-	}
-
-
-
-	function _testCreate()
-	{
-		$inst = new Lambda(['x'], null);
-dump($inst);
 	}
 
 }
