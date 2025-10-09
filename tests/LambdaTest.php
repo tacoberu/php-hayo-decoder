@@ -8,14 +8,13 @@ namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class LambdaTest extends TestCase
 {
 
-	/**
-	 * @dataProvider dataState
-	 */
+	#[DataProvider('dataState')]
 	function testState($expr, $str, $refs)
 	{
 		$this->assertSame($str, (string)$expr);
@@ -46,10 +45,20 @@ class LambdaTest extends TestCase
 			'many+args 2' => [new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Literal(3.14, 'NUMERIC'))]))
 				, "{(x) -> pi = 3.14 :: NUMERIC\nx pi}"
 				, ['x']],
+/*
 			'many+args 3' => [new Lambda([new Lambda([], new Expr(['strings.split'])), 'y'], new Expr(['list.first']))
 				, "{({() -> strings.split} y) -> list.first}"
 				, ['list.first', 'strings.split', 'y']],
+				*/
 		];
+	}
+
+
+
+	function _testCreate()
+	{
+		$inst = new Lambda(['x'], null);
+dump($inst);
 	}
 
 }

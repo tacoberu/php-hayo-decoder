@@ -8,18 +8,26 @@ namespace Taco\Hayo;
 
 use Nette\Utils\Validators;
 use InvalidArgumentException;
+use ArrayAccess;
 
 
-/**
- * Hodnota. Možná přejmenovat na Val.
- */
-interface Term
+interface HasRefs
 {
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
 	 * @return array of string
 	 */
 	function refs();
+
+}
+
+
+
+/**
+ * Hodnota. Možná přejmenovat na Val.
+ */
+interface Term extends HasRefs
+{
 
 	/**
 	 * @return string
@@ -111,7 +119,7 @@ class Lambda implements Term
 
 	/**
 	 * Lambda vyžaduje doplnit argumenty.
-	 * @var array of string
+	 * @var array<string>
 	 */
 	private $args;
 
@@ -124,6 +132,10 @@ class Lambda implements Term
 
 	function __construct(array $args, Term $expr)
 	{
+		foreach ($args as $i => $x) {
+			Validators::assert($i, 'int');
+			Validators::assert($x, 'string:1..255');
+		}
 		$this->args = $args;
 		$this->expr = $expr;
 	}
@@ -205,7 +217,7 @@ class Lambda implements Term
  * print 1
  * print x
  */
-class Expr implements Term
+class Expr implements Term, ArrayAccess
 {
 
 	/**
@@ -279,7 +291,7 @@ class Expr implements Term
 			if (is_string($x)) {
 				$xs[] = $x;
 			}
-			else if ($x instanceof Term) {
+			else if ($x instanceof HasRefs) {
 				$xs = array_merge($xs, $x->refs());
 			}
 		}
@@ -287,7 +299,7 @@ class Expr implements Term
 			if (is_string($x->getTerm())) {
 				$xs[] = $x->getTerm();
 			}
-			else if ($x->getTerm() instanceof Term) {
+			else if ($x->getTerm() instanceof HasRefs) {
 				$xs = array_merge($xs, $x->getTerm()->refs());
 			}
 		}
@@ -313,6 +325,35 @@ class Expr implements Term
 	function getLets()
 	{
 		return $this->lets;
+	}
+
+
+
+	function offsetSet($offset, $value): void
+	{
+		throw new \BadMethodCallException("Read-only");
+	}
+
+
+	function offsetExists($offset): bool
+	{
+		return isset($this->items[$offset]);
+	}
+
+
+
+	function offsetUnset($offset): void
+	{
+		throw new \BadMethodCallException("Read-only");
+	}
+
+
+
+	function offsetGet($offset)
+	{
+		return $this->offsetExists($offset)
+			? $this->items[$offset]
+			: null;
 	}
 
 
@@ -374,6 +415,7 @@ class StructTuple implements Term
 
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+	 * @TODO
 	 */
 	function refs()
 	{
@@ -438,7 +480,7 @@ class StructList implements Term
 			if (is_string($v)) {
 				$xs[] = $v;
 			}
-			elseif ($v instanceof Term) {
+			elseif ($v instanceof HasRefs) {
 				$xs = array_merge($xs, $v->refs());
 			}
 		}
@@ -511,7 +553,7 @@ class StructDict implements Term
 			if (is_string($v)) {
 				$xs[] = $v;
 			}
-			elseif ($v instanceof Term) {
+			elseif ($v instanceof HasRefs) {
 				$xs = array_merge($xs, $v->refs());
 			}
 		}
