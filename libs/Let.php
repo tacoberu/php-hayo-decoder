@@ -21,10 +21,7 @@ use Nette\Utils\Validators;
 class Let
 {
 
-	/**
-	 * @var string
-	 */
-	private $symbol;
+	private string $symbol;
 
 	/**
 	 * Výraz, na který byl symbol nabindován.
@@ -41,7 +38,7 @@ class Let
 
 
 
-	function getSymbol()
+	function getSymbol(): string
 	{
 		return $this->symbol;
 	}

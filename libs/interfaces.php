@@ -23,9 +23,40 @@ interface HasRefs
 /**
  * Hodnota. Možná přejmenovat na Val.
  */
-interface Term extends HasRefs
+interface Term
 {
 
 	function type(): string;
+
+}
+
+
+
+/**
+ * Buildin funkce musí implemetovat toto rozhraní.
+ */
+interface BuildinFunc extends Term
+{
+
+	/**
+	 * Návratová hodnota funkce.
+	 */
+	//~ function getTypeName(): string;
+
+
+	/**
+	 * Které argumenty to vyžaduje.
+	 * @return list<BindVal>
+	 */
+	function getBinds(): array;
+
+
+
+	/**
+	 * Předáme požadované argumenty a vypočítáme výsledek. Argumenty už musí
+	 * být finální hodnoty.
+	 * @param array<string, Term> $args
+	 */
+	function apply(array $args): Term;
 
 }

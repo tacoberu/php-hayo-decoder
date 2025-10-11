@@ -47,17 +47,6 @@ class Literal implements Term
 
 
 	/**
-	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
-	 * @return list<string>
-	 */
-	function refs(): array
-	{
-		return [];
-	}
-
-
-
-	/**
 	 * @return mixed
 	 */
 	function getValue()
@@ -89,7 +78,7 @@ class Literal implements Term
  * (x) -> x + 41
  * () -> print 41
  */
-class Lambda implements Term
+class Lambda implements Term, HasRefs
 {
 
 	/**
@@ -132,9 +121,11 @@ class Lambda implements Term
 	function refs(): array
 	{
 		$xs = [];
-		foreach ($this->getExpr()->refs() as $x) {
-			if ( ! in_array($x, $this->args, True)) {
-				$xs[] = $x;
+		if ($this->getExpr() instanceof HasRefs) {
+			foreach ($this->getExpr()->refs() as $x) {
+				if ( ! in_array($x, $this->args, True)) {
+					$xs[] = $x;
+				}
 			}
 		}
 		foreach ($this->getArgs() as $x) {
@@ -199,8 +190,11 @@ class Lambda implements Term
  * n + x
  * print 1
  * print x
+ * print (x + 1)
+ * print (x + (1 + 1))
+ * print x + x where x = 1
  */
-class Expr implements Term, ArrayAccess
+class Expr implements Term, ArrayAccess, HasRefs
 {
 
 	/**
@@ -237,6 +231,14 @@ class Expr implements Term, ArrayAccess
 
 	function type(): string
 	{
+		// func
+		if ($this->items[0] instanceof BuildinFunc) {
+			return $this->items[0]->type();
+		}
+		// operator
+		elseif (isset($this->items[1]) && $this->items[1] instanceof BuildinFunc) {
+			return $this->items[1]->type();
+		}
 		return '?';
 	}
 
@@ -248,8 +250,32 @@ class Expr implements Term, ArrayAccess
 	 */
 	function refs(): array
 	{
+		$items = $this->items;
+
+		// Pokud známe, tak je resolvneme
+		foreach ($items as $i => $def) {
+			if (is_string($def) && isset($this->lets[$def])) {
+				$items[$i] = $this->lets[$def]->getTerm();
+			}
+		}
+
+		// func
+		if ($items[0] instanceof BuildinFunc) {
+			$fn = array_shift($items);
+		}
+		// operator
+		elseif (isset($items[1]) && $items[1] instanceof BuildinFunc) {
+			$fn1 = array_shift($items);
+			$fn = array_shift($items);
+			$items = array_merge([$fn1], $items);
+		}
+		else {
+			$fn = Null;
+		}
+
 		$xs = [];
-		foreach ($this->items as $x) {
+
+		foreach ($items as $x) {
 			if (is_string($x)) {
 				$xs[] = $x;
 			}
@@ -257,11 +283,12 @@ class Expr implements Term, ArrayAccess
 				$xs = array_merge($xs, $x->refs());
 			}
 		}
+
 		foreach ($this->lets as $x) {
 			if (is_string($x->getTerm())) {
 				$xs[] = $x->getTerm();
 			}
-			else if ($x->getTerm() instanceof HasRefs) {
+			else if ($x->getTerm() instanceof HasRefs && $x->getTerm() !== $fn) {
 				$xs = array_merge($xs, $x->getTerm()->refs());
 			}
 		}
@@ -288,7 +315,7 @@ class Expr implements Term, ArrayAccess
 
 
 	/**
-	 * @return array<string, Lets>
+	 * @return array<string, Let>
 	 */
 	function getLets(): array
 	{
@@ -359,7 +386,7 @@ class Expr implements Term, ArrayAccess
 /**
  * Heterogenní struktura kde záleží na pořadí.
  */
-class StructTuple implements Term
+class StructTuple implements Term, HasRefs
 {
 
 	/**
@@ -422,7 +449,7 @@ class StructTuple implements Term
 /**
  * Struktura má vlastnosti Val, páč je to hodnota, a zároveň Expr, páč může obsahovat reference. Homogenní, záleží na pořadí.
  */
-class StructList implements Term
+class StructList implements Term, HasRefs
 {
 
 	/**
@@ -493,7 +520,7 @@ class StructList implements Term
 /**
  * Struktura s klíči, nezáleží na pořadí.
  */
-class StructDict implements Term
+class StructDict implements Term, HasRefs
 {
 
 	/**

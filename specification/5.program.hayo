@@ -1,0 +1,25 @@
+{--
+ - Vytvoření lokálního scope
+ -
+ - podstata je expression, které vrátíme, že k tomu potřebujeme nějaké lokální věci, je druhořadé.
+ -}
+
+x * x
+where
+	x = 5
+
+--
+
+{a: 5, b: x, c: x}
+where
+	x = 5
+
+
+-- nebo se prostě prohlásí, že poslední musí být výraz
+
+x = 5
+x * x
+
+--
+x = 5
+{a: 5, b: x, c: x}

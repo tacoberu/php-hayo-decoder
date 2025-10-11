@@ -10,6 +10,7 @@ namespace Taco\Hayo;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use LogicException;
 
 
 class ExprTest extends TestCase
@@ -38,6 +39,107 @@ class ExprTest extends TestCase
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Illegal format of symbol name: `abc def\'.');
 		new Expr(['abc def']);
+	}
+
+
+
+	function testExprOperatpr()
+	{
+		$inst = new Expr([new Literal(1, 'NUMBER'), '+', new Literal(2, 'NUMBER')]);
+		$this->assertEquals(['+'], $inst->refs());
+		$this->assertEquals('?', $inst->type());
+	}
+
+
+
+	function testExprOperatpr_2()
+	{
+		$inst = new Expr([new Literal(1, 'NUMBER'), $this->createFunction("+"), new Literal(2, 'NUMBER')]);
+		$this->assertEquals([], $inst->refs());
+		$this->assertEquals('Int', $inst->type());
+	}
+
+
+
+	function testExprOperatpr_3()
+	{
+		$inst = new Expr([new Literal(1, 'NUMBER'), "+", new Literal(2, 'NUMBER')]
+			, ['+' => new Let('+', $this->createFunction("+")),
+				]);
+		$this->assertEquals([], $inst->refs());
+		$this->assertEquals('?', $inst->type());
+	}
+
+
+
+	function testExprFunc()
+	{
+		$inst = new Expr(['+', new Literal(1, 'NUMBER'), new Literal(2, 'NUMBER')]);
+		$this->assertEquals(['+'], $inst->refs());
+		$this->assertEquals('?', $inst->type());
+	}
+
+
+
+	function testExprFunc_2()
+	{
+		$inst = new Expr([$this->createFunction("+"), new Literal(1, 'NUMBER'), new Literal(2, 'NUMBER')]);
+		$this->assertEquals([], $inst->refs());
+		$this->assertEquals('Int', $inst->type());
+	}
+
+
+
+	function testExprFunc_3()
+	{
+		$inst = new Expr([$this->createFunction("+"), new Literal(1, 'NUMBER'), 'a']);
+		$this->assertEquals(['a'], $inst->refs());
+		$this->assertEquals('Int', $inst->type());
+	}
+
+
+
+	function createFunction(string $m)
+	{
+		return new class implements BuildinFunc {
+
+			function type(): string
+			{
+				return "Int";
+			}
+
+
+
+			/**
+			 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
+			 * @return list<string>
+			 */
+			function refs(): array
+			{
+				return ['a', 'b'];
+			}
+
+
+
+			/**
+			 * @return list<Bind>
+			 */
+			function getBinds(): array
+			{
+				return [];
+			}
+
+
+
+			/**
+			 * @param array<string, Term> $args
+			 */
+			function apply(array $args): Term
+			{
+				throw new LogicException("Comming soon...");
+			}
+
+};
 	}
 
 
@@ -93,7 +195,7 @@ class ExprTest extends TestCase
 				, "abc = 45 :: NUMBER\n"
 					."fn = {(x) -> prelude.foo x}\n"
 					. 'abc fn \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
-				, ['prelude.echo', 'prelude.foo', 'x']],
+				, ['prelude.foo', 'x', 'prelude.echo', ]],
 		];
 	}
 
