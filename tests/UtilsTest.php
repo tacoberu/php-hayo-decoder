@@ -29,7 +29,7 @@ class UtilsTest extends TestCase
 		return [
 			['{"val":"1","type":"Numeric"}', new Literal(1, 'Numeric')],
 			['{"val":"1","type":"Numeric"}', new Literal('1', 'Numeric')],
-			['{"val":"\"1\"","type":"String"}', new Literal('"1"', 'String')],
+			['{"val":"1","type":"String"}', new Literal('1', 'String')],
 		];
 	}
 

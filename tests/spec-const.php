@@ -36,25 +36,25 @@ return [
 		[ Token::string_('"text"', 1)
 		, Token::eof(),
 		],
-			new Literal('"text"', 'STRING'),
+			new Literal('text', 'STRING'),
 		],
 	["'text'",
 		[ Token::string_("'text'", 1)
 		, Token::eof(),
 		],
-			new Literal("'text'", 'STRING'),
+			new Literal("text", 'STRING'),
 		],
 	["'\"text\"'",
 		[ Token::string_('\'"text"\'', 1)
 		, Token::eof(),
 		],
-			new Literal('\'"text"\'', 'STRING'),
+			new Literal('"text"', 'STRING'),
 		],
 	['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"', 1)
 		, Token::eof(),
 		],
-			new Literal('"t@xtč你好 🐶"', 'STRING'),
+			new Literal('t@xtč你好 🐶', 'STRING'),
 		],
 
 	// Special
@@ -143,7 +143,7 @@ return [
 		, Token::eof(),
 		],
 			new StructTuple([
-				new Literal('"Sinead O\'Connor"', 'STRING'),
+				new Literal('Sinead O\'Connor', 'STRING'),
 			]),
 		],
 	["(111, \"Sinead O'Connor\")",
@@ -156,7 +156,7 @@ return [
 		],
 			new StructTuple([
 				new Literal('111', 'NUMBER'),
-				new Literal('"Sinead O\'Connor"', 'STRING'),
+				new Literal('Sinead O\'Connor', 'STRING'),
 			]),
 		],
 	["()",
@@ -298,7 +298,7 @@ return [
 		, Token::eof(),
 		],
 			new StructList([
-				new Literal('"Sinead O\'Connor"', 'STRING'),
+				new Literal('Sinead O\'Connor', 'STRING'),
 			]),
 		],
 
@@ -442,7 +442,7 @@ return [
 		],
 			new StructDict([
 				'{"val":"1","type":"NUMBER"}' => new Literal('1', 'NUMBER'),
-				'{"val":"\'b\'","type":"STRING"}' => new Literal('2', 'NUMBER'),
+				'{"val":"b","type":"STRING"}' => new Literal('2', 'NUMBER'),
 				'_' => new Literal('4', 'NUMBER'),
 			]),
 		],
@@ -545,9 +545,9 @@ return [
 		, Token::eof(),
 		],
 			new StructList([
-				new Literal("'Une'", 'STRING'),
-				new Literal("'Deux'", 'STRING'),
-				new Literal("'Trois'", 'STRING'),
+				new Literal("Une", 'STRING'),
+				new Literal("Deux", 'STRING'),
+				new Literal("Trois", 'STRING'),
 			]),
 		],
 
@@ -600,7 +600,7 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new Literal('4', 'NUMBER'),
 			]),
 		],
@@ -631,7 +631,7 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([]),
 			]),
 		],
@@ -664,7 +664,7 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([]),
 			]),
 		],
@@ -729,7 +729,7 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([
 					new Literal('111', 'NUMBER'),
 				]),
@@ -771,10 +771,10 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructTuple([
 					new Literal('111', 'NUMBER'),
-					new Literal('"Sinead O\'Connor"', 'STRING'),
+					new Literal('Sinead O\'Connor', 'STRING'),
 				]),
 			]),
 		],
@@ -815,11 +815,11 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
 						new Literal('111', 'NUMBER'),
-						new Literal('"Sinead O\'Connor"', 'STRING'),
+						new Literal('Sinead O\'Connor', 'STRING'),
 					]),
 				]),
 			]),
@@ -868,15 +868,15 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
 						new Literal('111', 'NUMBER'),
-						new Literal('"Sinead O\'Connor"', 'STRING'),
+						new Literal('Sinead O\'Connor', 'STRING'),
 					]),
 					new StructTuple([
 						new Literal('222', 'NUMBER'),
-						new Literal('"Lewis Carrol"', 'STRING'),
+						new Literal('Lewis Carrol', 'STRING'),
 					]),
 				]),
 			]),

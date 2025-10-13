@@ -801,7 +801,7 @@ x = 5
 				],
 					new Expr([new StructDict([
 							'a' => 'a',
-							'b' => new Literal('"abc"', 'STRING'),
+							'b' => new Literal('abc', 'STRING'),
 							])],
 						[ new Let('a', new Literal('12', 'NUMBER')),
 							]),
@@ -844,7 +844,7 @@ log 11
 					new Let('x', new Literal('14', 'NUMBER')),
 					new Let('foo', new Expr([
 						'prelude.echo',
-						new Literal('"done, line: "', 'STRING'),
+						new Literal('done, line: ', 'STRING'),
 						'x',
 						])),
 					new Let('log', new Lambda(['x'], new Expr([

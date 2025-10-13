@@ -197,11 +197,11 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
 						new Literal('222', 'NUMBER'),
-						new Literal('"Lewis Carrol"', 'STRING'),
+						new Literal('Lewis Carrol', 'STRING'),
 					]),
 				]),
 			]),
@@ -251,15 +251,15 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"Deux"', 'STRING'),
+				'b' => new Literal('Deux', 'STRING'),
 				'c' => new StructList([
 					new StructTuple([
 						new Literal('111', 'NUMBER'),
-						new Literal('"non"', 'STRING'),
+						new Literal('non', 'STRING'),
 					]),
 					new StructTuple([
 						new Literal('222', 'NUMBER'),
-						new Literal('"Lewis Carrol"', 'STRING'),
+						new Literal('Lewis Carrol', 'STRING'),
 					]),
 				]),
 			]),
@@ -291,7 +291,7 @@ return [
 		],
 			new StructDict([
 				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('"De{- non -}ux"', 'STRING'),
+				'b' => new Literal('De{- non -}ux', 'STRING'),
 				'c' => new StructList([]),
 			]),
 		],
@@ -340,15 +340,15 @@ return [
 			new Expr(['prelude.do', new StructList([
 				new Expr([
 					'prelude.echo',
-					new Literal('"dict: "', 'STRING'),
+					new Literal('dict: ', 'STRING'),
 					new Expr([
 						'prelude.dump', new StructDict([
 							'num' => new Literal('42', 'NUMBER'),
 							'real' => new Literal('3.12', 'NUMBER'),
-							'text' => new Literal('"Lorem ipsum doler ist"', 'STRING'),
+							'text' => new Literal('Lorem ipsum doler ist', 'STRING'),
 						]),
 					]),
-					new Literal('"\n"', 'STRING'),
+					new Literal('\n', 'STRING'),
 				]),
 			])]),
 		],

@@ -95,7 +95,7 @@ return [
 		, Token::string_('"hallo"', 1)
 		, Token::eof(),
 		],
-			new Expr(['say', new Literal('"hallo"', 'STRING')]),
+			new Expr(['say', new Literal('hallo', 'STRING')]),
 		],
 
 	["{
