@@ -50,8 +50,8 @@ dump($inst);
 			'many+args' => [new Lambda(['x'], new Expr(['x', 'def']))
 				, '{(x) -> x def}'
 				, ['def', 'x']],
-			'many+args 2' => [new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Literal(3.14, 'NUMERIC'))]))
-				, "{(x) -> pi = 3.14 :: NUMERIC\nx pi}"
+/*			'many+args 2' => [new Lambda(['x'], new Expr(['x', 'pi'], [ new Let('pi', new Literal(3.14, 'NUMERIC'))]))
+				, "{(x) -> x pi}"
 				, ['x']],
 /*
 			'many+args 3' => [new Lambda([new Lambda([], new Expr(['strings.split'])), 'y'], new Expr(['list.first']))

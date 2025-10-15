@@ -61,17 +61,6 @@ class ExprTest extends TestCase
 
 
 
-	function testExprOperatpr_3()
-	{
-		$inst = new Expr([new Literal(1, 'NUMBER'), "+", new Literal(2, 'NUMBER')]
-			, ['+' => new Let('+', $this->createFunction("+")),
-				]);
-		$this->assertEquals([], $inst->refs());
-		$this->assertEquals('?', $inst->type());
-	}
-
-
-
 	function testExprFunc()
 	{
 		$inst = new Expr(['+', new Literal(1, 'NUMBER'), new Literal(2, 'NUMBER')]);
@@ -149,20 +138,24 @@ class ExprTest extends TestCase
 		return [
 			0 => [ new Expr(['abc'])
 				, 'abc'
-				, ['abc']],
+				, ['abc'],
+				],
+
 			1 => [ new Expr(['abc', 'def'])
 				, 'abc def'
-				, ['abc', 'def']],
+				, ['abc', 'def'],
+				],
+
 			2 => [ new Expr(['abc', 'def', new Expr([new Literal('1', 'NUMERIC'), '+', new Literal('2', 'NUMERIC')])])
 				, 'abc def (1 :: NUMERIC + 2 :: NUMERIC)'
-				, ['abc', 'def', '+']],
+				, ['abc', 'def', '+'],
+				],
+
 			3 => [ new Expr(['abc', new Literal('def', 'STRING')])
 				, 'abc \'def\' :: STRING'
-				, ['abc']],
-			4 => [ new Expr(['x', '+', new Expr([new Literal('1', 'NUMERIC'), '+', new Literal('2', 'NUMERIC')])]
-					, [ new Let('x', new Literal(41, 'NUMERIC'))])
-				, "x = 41 :: NUMERIC\nx + (1 :: NUMERIC + 2 :: NUMERIC)"
-				, ['+']],
+				, ['abc'],
+				],
+
 			'transitivní refs' => [ new Expr([
 					'abc',
 					new Literal('def', 'STRING'),
@@ -174,28 +167,8 @@ class ExprTest extends TestCase
 					]),
 				])
 				, 'abc \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
-				, ['abc', 'prelude.echo']],
-			'transitivní refs i do lets' => [ new Expr([
-					'abc',
-					'fn',
-					new Literal('def', 'STRING'),
-					new StructList([
-						new Expr([
-							'prelude.echo',
-							new Literal('Caou', 'STRING'),
-						]),
-					]),
-				], [
-					new Let('abc', new Literal(45, 'NUMBER')),
-					new Let('fn', new Lambda(['x'], new Expr([
-						'prelude.foo',
-						'x',
-					]))),
-				])
-				, "abc = 45 :: NUMBER\n"
-					."fn = {(x) -> prelude.foo x}\n"
-					. 'abc fn \'def\' :: STRING [prelude.echo \'Caou\' :: STRING]'
-				, ['prelude.foo', 'x', 'prelude.echo', ]],
+				, ['abc', 'prelude.echo'],
+				],
 		];
 	}
 

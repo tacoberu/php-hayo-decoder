@@ -8,6 +8,7 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class ParserTest extends TestCase
@@ -22,9 +23,7 @@ class ParserTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecode
-	 */
+	#[DataProvider('dataDecode')]
 	function testDecode($script, $ast, $expected)
 	{
 		if ($expected === False) {
@@ -35,9 +34,7 @@ class ParserTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecodeFail
-	 */
+	#[DataProvider('dataDecodeFail')]
 	function testDecodeFail($ast, $msg)
 	{
 		$this->expectException(HayoParserException::class);
@@ -60,12 +57,13 @@ class ParserTest extends TestCase
 
 
 
-	function testDevelp2()
+	function testScope()
 	{
 		$code = "a = 12\n{a: a, b: (list.first xs)}";
 		$ast = (new HayoLexer())->tokenise($code);
 		$this->assertEquals(['list.first', 'xs'], $this->parser->decode($ast)->refs());
-		$this->assertEquals(['a', 'list.first', 'xs'], $this->parser->decode($ast)->getItems()[0]->refs());
+		$this->assertSame('a', $this->parser->decode($ast)->getLets()['a']->getSymbol());
+		$this->assertEquals(['a', 'list.first', 'xs'], $this->parser->decode($ast)->getTerm()->refs());
 	}
 
 

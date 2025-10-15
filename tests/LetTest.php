@@ -8,14 +8,13 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class LetTest extends TestCase
 {
 
-	/**
-	 * @dataProvider dataState
-	 */
+	#[DataProvider('dataState')]
 	function testState($expr, $str)
 	{
 		$this->assertSame($str, (string) $expr);

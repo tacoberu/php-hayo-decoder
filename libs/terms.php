@@ -11,6 +11,8 @@ use Nette\Utils\Validators;
 use InvalidArgumentException;
 use ArrayAccess;
 use BadMethodCallException;
+use LogicException;
+use ReturnTypeWillChange;
 
 
 /**
@@ -184,6 +186,125 @@ class Lambda implements Term, HasRefs
 
 
 
+class Scope implements Term, HasRefs
+{
+
+	/**
+	 * @var no-empty-array<string, Let>
+	 */
+	private $lets = [];
+
+	private Term $term;
+
+	/**
+	 * @param no-empty-list<Let> $lets
+	 */
+	function __construct(array $lets, Term $term)
+	{
+		if (empty($lets)) {
+			throw new InvalidArgumentException("Empty definitions.");
+		}
+		foreach ($lets as $x) {
+			$this->lets[$x->getSymbol()] = $x;
+		}
+		$this->term = $term;
+	}
+
+
+
+	/**
+	 * @return no-empty-array<string, Let>
+	 */
+	function getLets(): array
+	{
+		return $this->lets;
+	}
+
+
+
+	function requireSymbol(string $m): Term
+	{
+		if (!isset($this->lets[$m])) {
+			throw new LogicException("Symbol '{$m}' is not found.");
+		}
+		return $this->lets[$m]->getTerm();
+	}
+
+
+
+	function selectSymbol(string $m): ?Term
+	{
+		if (!isset($this->lets[$m])) {
+			return Null;
+		}
+		return $this->lets[$m]->getTerm();
+	}
+
+
+
+	function getTerm(): Term
+	{
+		return $this->term;
+	}
+
+
+
+	/**
+	 * Vrátí všechny symboly, které jsou vyžadovány, a které nejsou obsaženy v $lets
+	 * Takže ty v Expr ano.
+	 * Symboly z $lets sice ne, ale tyto symboly mohou mít samy o sobě závislosti, a ty ano.
+	 * @return list<string>
+	 */
+	function refs(): array
+	{
+		$xs = [];
+
+		foreach ($this->term->refs() as $x) {
+			if (isset($this->lets[$x])) {
+				continue;
+			}
+			$xs[] = $x;
+		}
+
+		foreach ($this->lets as $let) {
+			if ($let->getTerm() instanceof HasRefs) {
+				foreach ($let->getTerm()->refs() as $x) {
+					if (isset($this->lets[$x])) {
+						continue;
+					}
+					$xs[] = $x;
+				}
+			}
+		}
+
+		return $xs;
+	}
+
+
+
+	function type(): string
+	{
+		return is_string($this->term)
+			? '?'
+			: $this->term->type();
+	}
+
+
+
+	function __toString()
+	{
+		$xs = [];
+		foreach ($this->lets as $x) {
+			$xs[] = (string) $x;
+		}
+		$xs[] = (string) $this->term;
+		return implode("\n", $xs);
+	}
+
+}
+
+
+
 /**
  * 1 + 2
  * 1 + m
@@ -203,16 +324,10 @@ class Expr implements Term, ArrayAccess, HasRefs
 	private $items = [];
 
 	/**
-	 * Interní symboly a lambdy.
-	 * @var array<string, Let>
-	 */
-	private $lets = [];
-
-	/**
 	 * @param list<Expr | Val | string> $xs
 	 * @param array<string, Let> $lets
 	 */
-	function __construct(array $xs, array $lets = [])
+	function __construct(array $xs)
 	{
 		if (empty($xs)) {
 			throw new InvalidArgumentException("Empty definitions.");
@@ -221,9 +336,6 @@ class Expr implements Term, ArrayAccess, HasRefs
 		foreach ($xs as $x) {
 			self::assertExpr($x);
 			$this->items[] = $x;
-		}
-		foreach ($lets as $x) {
-			$this->lets[$x->getSymbol()] = $x;
 		}
 	}
 
@@ -252,29 +364,18 @@ class Expr implements Term, ArrayAccess, HasRefs
 	{
 		$items = $this->items;
 
-		// Pokud známe, tak je resolvneme
-		foreach ($items as $i => $def) {
-			if (is_string($def) && isset($this->lets[$def])) {
-				$items[$i] = $this->lets[$def]->getTerm();
-			}
-		}
-
 		// func
 		if ($items[0] instanceof BuildinFunc) {
-			$fn = array_shift($items);
+			array_shift($items);
 		}
 		// operator
 		elseif (isset($items[1]) && $items[1] instanceof BuildinFunc) {
 			$fn1 = array_shift($items);
-			$fn = array_shift($items);
+			array_shift($items);
 			$items = array_merge([$fn1], $items);
-		}
-		else {
-			$fn = Null;
 		}
 
 		$xs = [];
-
 		foreach ($items as $x) {
 			if (is_string($x)) {
 				$xs[] = $x;
@@ -284,22 +385,7 @@ class Expr implements Term, ArrayAccess, HasRefs
 			}
 		}
 
-		foreach ($this->lets as $x) {
-			if (is_string($x->getTerm())) {
-				$xs[] = $x->getTerm();
-			}
-			else if ($x->getTerm() instanceof HasRefs && $x->getTerm() !== $fn) {
-				$xs = array_merge($xs, $x->getTerm()->refs());
-			}
-		}
-		$xs = array_unique($xs);
-
-		if ($this->lets) {
-			$lets = array_keys($this->lets);
-			$xs = array_values(array_diff($xs, $lets));
-		}
-
-		return $xs;
+		return array_unique($xs);
 	}
 
 
@@ -310,16 +396,6 @@ class Expr implements Term, ArrayAccess, HasRefs
 	function getItems(): array
 	{
 		return $this->items;
-	}
-
-
-
-	/**
-	 * @return array<string, Let>
-	 */
-	function getLets(): array
-	{
-		return $this->lets;
 	}
 
 
@@ -345,6 +421,7 @@ class Expr implements Term, ArrayAccess, HasRefs
 
 
 
+	#[ReturnTypeWillChange]
 	function offsetGet($offset)
 	{
 		return $this->offsetExists($offset)
@@ -371,12 +448,7 @@ class Expr implements Term, ArrayAccess, HasRefs
 				? "({$x})"
 				: "{$x}";
 		}
-		$lets = [];
-		foreach ($this->lets as $x) {
-			$lets[] = "{$x}";
-		}
-		$lets[] = implode(' ', $exprs);
-		return implode("\n", $lets);
+		return implode(' ', $exprs);
 	}
 
 }
@@ -423,12 +495,20 @@ class StructTuple implements Term, HasRefs
 
 	/**
 	 * Závisí na nějakých symbolech, které se nám nepodařilo získat.
-	 * @TODO
 	 * @return list<string>
 	 */
 	function refs(): array
 	{
-		return [];
+		$xs = [];
+		foreach ($this->items as $v) {
+			if (is_string($v)) {
+				$xs[] = $v;
+			}
+			elseif ($v instanceof HasRefs) {
+				$xs = array_merge($xs, $v->refs());
+			}
+		}
+		return array_unique($xs);
 	}
 
 

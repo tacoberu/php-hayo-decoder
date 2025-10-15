@@ -8,14 +8,13 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class StructDictTest extends TestCase
 {
 
-	/**
-	 * @dataProvider dataState
-	 */
+	#[DataProvider('dataState')]
 	function testState(StructDict $expr, string $str, $items, $refs)
 	{
 		$this->assertSame($str, (string)$expr);

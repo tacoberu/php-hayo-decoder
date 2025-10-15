@@ -29,7 +29,10 @@ class Let
 	 */
 	private $term;
 
-	function __construct($symbol, /*Term*/ $term)
+	/**
+	 * @param Term $term
+	 */
+	function __construct(string $symbol, $term)
 	{
 		Validators::assert($symbol, 'string:1..');
 		$this->symbol = $symbol;
@@ -45,6 +48,9 @@ class Let
 
 
 
+	/**
+	 * @return Term
+	 */
 	function getTerm()
 	{
 		return $this->term;
@@ -54,7 +60,7 @@ class Let
 
 	function __toString()
 	{
-		return $this->symbol . ' = ' . $this->term;
+		return "{$this->symbol} = {$this->term}"; // @phpstan-ignore encapsedStringPart.nonString
 	}
 
 }

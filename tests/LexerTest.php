@@ -8,6 +8,7 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 
 
@@ -23,9 +24,7 @@ class LexerTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecode
-	 */
+	#[DataProvider('dataDecode')]
 	function testDecode($script, $expected)
 	{
 		$this->assertEquals($expected, $this->lexer->tokenise($script));
@@ -33,9 +32,7 @@ class LexerTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecodeFail
-	 */
+	#[DataProvider('dataDecodeFail')]
 	function testDecodeFail($script, $msg)
 	{
 		$this->expectException(Throwable::class);

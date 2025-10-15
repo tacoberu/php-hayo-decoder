@@ -17,6 +17,9 @@ class HayoDecoder
 
 
 
+	/**
+	 * @return Term | string | null
+	 */
 	function decode(string $src)
 	{
 		$lexer = new HayoLexer();

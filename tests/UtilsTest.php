@@ -8,14 +8,13 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class UtilsTest extends TestCase
 {
 
-	/**
-	 * @dataProvider dataFormatLiteral
-	 */
+	#[DataProvider('dataFormatLiteral')]
 	function testFormatLiteral($encoded, $obj)
 	{
 		$this->assertEquals($encoded, Utils::formatLiteral($obj));

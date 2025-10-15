@@ -8,6 +8,7 @@
 namespace Taco\Hayo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 
 class DecoderTest extends TestCase
@@ -22,9 +23,7 @@ class DecoderTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecodeFail
-	 */
+	#[DataProvider('dataDecodeFail')]
 	function testDecodeFail($script, $msg)
 	{
 		$this->expectException(HayoParserException::class);
@@ -34,9 +33,7 @@ class DecoderTest extends TestCase
 
 
 
-	/**
-	 * @dataProvider dataDecode
-	 */
+	#[DataProvider('dataDecode')]
 	function testDecode($script, $ast, $expected)
 	{
 		$this->assertEquals($expected, $this->decoder->decode($script));

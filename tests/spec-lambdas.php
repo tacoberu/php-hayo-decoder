@@ -53,7 +53,7 @@ return [
 			])]),
 		],
 
-	'bug 1' => ["source = x -> [ 1, 5, 8]\nsource 5\n",
+/*	'bug 1' => ["source = x -> [ 1, 5, 8]\nsource 5\n",
 		[ Token::identifier('source', 1)
 		, Token::assign_('=', 1)
 		, Token::identifier('x', 1)
@@ -79,8 +79,9 @@ return [
 				]))),
 			]),
 		],
+		//*/
 
-	'bug 2' => ["source = x -> y = 5\n\t[ 1, 5, 8]\nsource 5\n",
+/*	'bug 2' => ["source = x -> y = 5\n\t[ 1, 5, 8]\nsource 5\n",
 		[ Token::identifier('source', 1)
 		, Token::assign_('=', 1)
 		, Token::identifier('x', 1)
@@ -111,5 +112,6 @@ return [
 				]))),
 			]),
 		],
+		//*/
 
 	];

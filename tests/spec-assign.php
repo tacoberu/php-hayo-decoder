@@ -30,9 +30,10 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Literal('45', 'NUMBER')),
-						]),
+					new Scope(
+						[ new Let('num', new Literal('45', 'NUMBER'))],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			2 => ["num =
@@ -50,9 +51,10 @@ return [
 				, Token::identifier('num', 3)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Literal('45', 'NUMBER')),
-						]),
+					new Scope(
+						[ new Let('num', new Literal('45', 'NUMBER'))],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			3 => ["num = 4 + 5
@@ -69,9 +71,10 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
-						]),
+					new Scope(
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			4 => ["num = 4 - 5
@@ -88,9 +91,10 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '-', new Literal('5', 'NUMBER')])),
-						]),
+				   new Scope(
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '-', new Literal('5', 'NUMBER')])) ],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
   			["num =
@@ -111,9 +115,10 @@ return [
 				, Token::identifier('num', 4)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
-						]),
+					new Scope(
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			["num = 45
@@ -139,10 +144,12 @@ inc =
 				, Token::identifier('num', 4)
 				, Token::eof(),
 				],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+					new Scope(
 						[ new Let('num', new Literal('45', 'NUMBER'))
 						, new Let('inc', new Expr([new Literal('2', 'NUMBER'), '+', new Literal('1', 'NUMBER')])),
-						]),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			["num = 45
@@ -179,12 +186,15 @@ inc =
 				, Token::identifier('num', 6)
 				, Token::eof(),
 				],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
+					new Scope(
 						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc', new Expr(['m', '+', new Literal('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])),
-							])),
-						]),
+						, new Let('inc', new Scope(
+							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])) ],
+							new Expr(['m', '+', new Literal('1', 'NUMBER')])
+						)),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			'assign-8' => ["
@@ -217,12 +227,14 @@ inc =
 				, Token::identifier('num', 6)
 				, Token::eof(),
 				],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('inc',
-							new Expr(['m', '+', new Literal('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])),
-							])),
-						]),
+					new Scope(
+						[ new Let('inc', new Scope(
+							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])) ],
+							new Expr(['m', '+', new Literal('1', 'NUMBER')])
+						)),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 /*
 			// Asi nechci umožnit, aby přiřazení bylo po výrazu.
@@ -393,20 +405,29 @@ dec =
 				, Token::identifier('num', 14)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc',
-							new Expr(['m', '+', new Literal('1', 'NUMBER')],
-							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')]
-								)),
-							]))
-						, new Let('dec', new Expr(['m', '-', new Literal('1', 'NUMBER')],
-							[ new Let('m', new Expr(['a', '+', 'x'],
-								[ new Let('x', new Literal('42', 'NUMBER'))
-								, new Let('y', new Expr([new Literal('11', 'NUMBER'), '*', new Literal('22', 'NUMBER')])),
-								])),
-							])),
-						]),
+					new Scope([
+							new Let('num', new Literal('45', 'NUMBER')),
+							new Let('inc', new Scope(
+								[
+									new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])),
+								],
+								new Expr(['m', '+', new Literal('1', 'NUMBER')])
+							)),
+							new Let('dec', new Scope(
+								[
+									new Let('m', new Scope(
+										[
+											new Let('x', new Literal('42', 'NUMBER')),
+											new Let('y', new Expr([new Literal('11', 'NUMBER'), '*', new Literal('22', 'NUMBER')])),
+										],
+										new Expr(['a', '+', 'x'])
+									)),
+								],
+								new Expr(['m', '-', new Literal('1', 'NUMBER')])
+							)),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			'assign-11' => ["num = 45
@@ -434,12 +455,14 @@ inc = x ->
 				, Token::identifier('num', 4)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Literal('1', 'NUMBER')])
+					new Scope([
+							new Let('num', new Literal('45', 'NUMBER')),
+							new Let('inc', new Lambda(['x'],
+								new Expr(['x', '+', new Literal('1', 'NUMBER')])
 							)),
-						]),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 			'assign-12' => ["num = 45
@@ -470,12 +493,14 @@ inc = x ->
 				, Token::bracket(')', 4)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])],
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc', new Lambda(['x'],
-							new Expr(['x', '+', new Literal('1', 'NUMBER')])
+					new Scope([
+							new Let('num', new Literal('45', 'NUMBER')),
+							new Let('inc', new Lambda(['x'],
+								new Expr(['x', '+', new Literal('1', 'NUMBER')])
 							)),
-						]),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])])
+					),
 				],
 
 			'assign-13' => ["num = 45
@@ -508,12 +533,14 @@ sum = x y ->
 				, Token::bracket(')', 4)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])],
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('sum', new Lambda(['x', 'y'],
-							new Expr(['x', '+', 'y'])
+					new Scope([
+							new Let('num', new Literal('45', 'NUMBER')),
+							new Let('sum', new Lambda(['x', 'y'],
+								new Expr(['x', '+', 'y'])
 							)),
-						]),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])])
+					),
 				],
 
 		["sum = x y -> x + y
@@ -537,11 +564,13 @@ sum = x y ->
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])],
-						[ new Let('sum', new Lambda(['x', 'y'],
-							new Expr(['x', '+', 'y'])
+					new Scope([
+							new Let('sum', new Lambda(['x', 'y'],
+								new Expr(['x', '+', 'y'])
 							)),
-						]),
+						],
+						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])])
+					),
 				],
 
 		["num = 4 + 5
@@ -558,9 +587,10 @@ sum = x y ->
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
-						]),
+					new Scope(
+						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 		// Není nutné, aby byl symbol nabindován před použitím. Musí být definován ve stejném scope.
@@ -584,11 +614,14 @@ x = 5
 				, Token::identifier('num', 3)
 				, Token::eof(),
 				],
-					new Expr([new Literal('123', 'NUMBER'), '+', 'num'],
-							// Jenže ono to sice nevyžaduje žádné argumenty, ale může to šahat do proměnných v nadřazeném kontextu. A ty by měli být zafixovány.
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', 'x']))
-						, new Let('x', new Literal('5', 'NUMBER')),
-						]),
+					new Scope([
+							// Pole Let deklarací (původní druhý argument Expr)
+							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', 'x'])),
+							new Let('x', new Literal('5', 'NUMBER')),
+						],
+						// Vlastní výraz (původní první argument Expr)
+						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					),
 				],
 
 		["num = 4 + 5
@@ -607,12 +640,14 @@ x = 5
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([
+					new Scope([
+							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
+						],
+						new Expr([
 							new Literal('123', 'NUMBER'),
 							new Expr(['hash', 'num']),
-						],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
-						]),
+						])
+					),
 				],
 
 		["num = 4 + 5
@@ -632,13 +667,15 @@ x = 5
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([
+					new Scope([
+							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
+						],
+						new Expr([
 							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num']),
-						],
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
-						]),
+						])
+					),
 				],
 
 		["num = [4, 5]
@@ -660,16 +697,18 @@ x = 5
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([
-							new Literal('123', 'NUMBER'),
-							'++',
-							new Expr(['hash', 'num']),
-						],
-						[ new Let('num', new StructList([
+					new Scope([
+							new Let('num', new StructList([
 								new Literal('4', 'NUMBER'),
 								new Literal('5', 'NUMBER'),
 							])),
-						]),
+						],
+						new Expr([
+							new Literal('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num']),
+						])
+					),
 				],
 
 		["num = (4, 5)
@@ -691,17 +730,18 @@ x = 5
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([
-							new Literal('123', 'NUMBER'),
-							'++',
-							new Expr(['hash', 'num']),
-						],
-						[
+					new Scope([
 							new Let('num', new StructTuple([
 								new Literal('4', 'NUMBER'),
 								new Literal('5', 'NUMBER'),
 							])),
-						]),
+						],
+						new Expr([
+							new Literal('123', 'NUMBER'),
+							'++',
+							new Expr(['hash', 'num']),
+						])
+					),
 				],
 
 		["num = {a: 4, b: 5}
@@ -727,16 +767,18 @@ x = 5
 				, Token::bracket(')', 2)
 				, Token::eof(),
 				],
-					new Expr([
+					new Scope([
+							new Let('num', new StructDict([
+								'a' => new Literal('4', 'NUMBER'),
+								'b' => new Literal('5', 'NUMBER'),
+							])),
+						],
+						new Expr([
 							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num']),
-						],
-						[ new Let('num', new StructDict([
-							'a' => new Literal('4', 'NUMBER'),
-							'b' => new Literal('5', 'NUMBER'),
-							])),
-						]),
+						])
+					),
 				],
 
 		["num = {
@@ -768,16 +810,18 @@ x = 5
 				, Token::bracket(')', 5)
 				, Token::eof(),
 				],
-					new Expr([
+					new Scope([
+							new Let('num', new StructDict([
+								'a' => new Literal('4', 'NUMBER'),
+								'b' => new Literal('5', 'NUMBER'),
+							])),
+						],
+						new Expr([
 							new Literal('123', 'NUMBER'),
 							'++',
 							new Expr(['hash', 'num']),
-						],
-						[ new Let('num', new StructDict([
-							'a' => new Literal('4', 'NUMBER'),
-							'b' => new Literal('5', 'NUMBER'),
-							])),
-						]),
+						])
+					),
 				],
 
 		['a = 12
@@ -799,13 +843,16 @@ x = 5
 
 				, Token::eof(),
 				],
-					new Expr([new StructDict([
+					new Scope([
+							new Let('a', new Literal('12', 'NUMBER')),
+						],
+						new StructDict([
 							'a' => 'a',
 							'b' => new Literal('abc', 'STRING'),
-							])],
-						[ new Let('a', new Literal('12', 'NUMBER')),
-							]),
-				],//*/
+						])
+					),
+				],
+
 
 		'bug-0001: Přepisuje se x' => ['x = 14
 foo = prelude.echo "done, line: " x
@@ -837,20 +884,22 @@ log 11
 				, Token::terminator("\n", 4)
 				, Token::eof(),
 				],
-			new Expr([
-				'log',
-				new Literal('11', 'NUMBER'),
-				], [
-					new Let('x', new Literal('14', 'NUMBER')),
-					new Let('foo', new Expr([
-						'prelude.echo',
-						new Literal('done, line: ', 'STRING'),
-						'x',
+				new Scope([
+						new Let('x', new Literal('14', 'NUMBER')),
+						new Let('foo', new Expr([
+							'prelude.echo',
+							new Literal('done, line: ', 'STRING'),
+							'x',
 						])),
-					new Let('log', new Lambda(['x'], new Expr([
-						'prelude.echo',
-						new Expr(['prelude.dump', 'x']),
+						new Let('log', new Lambda(['x'], new Expr([
+							'prelude.echo',
+							new Expr(['prelude.dump', 'x']),
 						]))),
-				]),
+					],
+					new Expr([
+						'log',
+						new Literal('11', 'NUMBER'),
+					])
+				),
 			],
 ];

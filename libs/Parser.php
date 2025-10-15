@@ -128,7 +128,15 @@ class HayoParser
 		}
 
 		if ($lets && $expr) {
-			$expr = $expr instanceof Expr ? new Expr($expr->getItems(), $lets) : new Expr([$expr], $lets);
+			if (is_string($expr)) {
+				foreach ($lets as $x) {
+					if ($x->getSymbol() === $expr) {
+						$expr = $x->getTerm();
+						break;
+					}
+				}
+			}
+			$expr = new Scope($lets, $expr);
 		}
 
 		return [$expr, $src];

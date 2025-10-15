@@ -2,9 +2,12 @@
 
 <phpunit backupGlobals="false"
          colors="true"
+         cacheResult="false"
          processIsolation="false"
          stopOnFailure="false"
-         cacheResult="false"
+         failOnDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         failOnWarning="true"
          bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite name="PHPUnit DOM Assertions Test Suite">
