@@ -37,4 +37,25 @@ return [
 			new Literal('Nil', 'SYMBOL'),
 		],
 
+	["Any",
+		[ Token::symbol_('Any', 1)
+		, Token::eof(),
+		],
+			new Literal('Any', 'SYMBOL'),
+		],
+
+	["any",
+		[ Token::identifier('any', 1)
+		, Token::eof(),
+		],
+			'any',
+		],
+
+	["&&",
+		[ Token::identifier('&&', 1)
+		, Token::eof(),
+		],
+			'&&',
+		],
+
 	];

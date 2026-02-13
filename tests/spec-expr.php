@@ -162,4 +162,19 @@ return [
 			]),
 		],
 
+	["True && not (True || False)",
+		[ Token::symbol_('True', 1)
+		, Token::identifier('&&', 1)
+		, Token::identifier('not', 1)
+		, Token::bracket('(', 1)
+		, Token::symbol_('True', 1)
+		, Token::identifier('||', 1)
+		, Token::symbol_('False', 1)
+		, Token::bracket(')', 1)
+		, Token::eof(),
+		],
+			new Expr([new Literal('True', 'SYMBOL'), '&&', 'not'
+				, new Expr([new Literal('True', 'SYMBOL'), '||', new Literal('False', 'SYMBOL')])]),
+		],
+
 ];
