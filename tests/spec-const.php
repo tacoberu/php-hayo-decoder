@@ -32,6 +32,8 @@ return [
 		],
 			new Literal('3.141592', 'NUMBER'),
 		],
+
+	// Texts
 	['"text"',
 		[ Token::string_('"text"', 1)
 		, Token::eof(),
@@ -44,17 +46,63 @@ return [
 		],
 			new Literal("text", 'STRING'),
 		],
-	["'\"text\"'",
+	'escaping' => ["'\"text\"'",
 		[ Token::string_('\'"text"\'', 1)
 		, Token::eof(),
 		],
 			new Literal('"text"', 'STRING'),
 		],
-	['"t@xtč你好 🐶"',
+	'unicode' => ['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"', 1)
 		, Token::eof(),
 		],
 			new Literal('t@xtč你好 🐶', 'STRING'),
+		],
+	'multi-line string' => ["\"\"\"abc\ncde\nefg\n\"\"\"",
+		[ Token::string_("\"\"\"abc\ncde\nefg\n\"\"\"", 1)
+		, Token::eof(),
+		],
+			new Literal("abc\ncde\nefg\n", 'STRING'),
+		],
+	'multi-line string 2' => ["\"\"\"abc\nc\"d\"e\nefg\n\"\"\"",
+		[ Token::string_("\"\"\"abc\nc\"d\"e\nefg\n\"\"\"", 1)
+		, Token::eof(),
+		],
+			new Literal("abc\nc\"d\"e\nefg\n", 'STRING'),
+		],
+	'multi-line string 3' => ["\"\"\"abcc\"d\"eefg\"\"\"",
+		[ Token::string_("\"\"\"abcc\"d\"eefg\"\"\"", 1)
+		, Token::eof(),
+		],
+			new Literal("abcc\"d\"eefg", 'STRING'),
+		],
+	'multi-line string 4' => ["\"\"\"abc\nc\"d\"e\nefg\n\"\"\"\n42",
+		[ Token::string_("\"\"\"abc\nc\"d\"e\nefg\n\"\"\"", 1)
+		, Token::terminator("\n", 4)
+		, Token::number_('42', 5)
+		, Token::eof(),
+		],
+			new Literal('42', 'NUMBER'),
+		],
+	'multi-line string 5' => ["\"\"\"abcc\"d\"eefg\"\"\"\n42",
+		[ Token::string_("\"\"\"abcc\"d\"eefg\"\"\"", 1)
+		, Token::terminator("\n", 1)
+		, Token::number_('42', 2)
+		, Token::eof(),
+		],
+			new Literal('42', 'NUMBER'),
+		],
+	'multi-line string 6' => ['"""' . "\n"
+			. 'This is useful for holding JSON or other' . "\n"
+			. 'content that has "quotation marks".' . "\n"
+			. '"""'
+			. "\n42",
+		[ Token::string_("\"\"\"\nThis is useful for holding JSON or other\ncontent that has \"quotation marks\".\n\"\"\"", 1)
+		, Token::terminator("\n", 4)
+		, Token::number_('42', 5)
+		, Token::eof(),
+		],
+			new Literal('42', 'NUMBER'),
 		],
 
 	// Special

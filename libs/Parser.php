@@ -538,7 +538,10 @@ class HayoParser
 	private static function buildLiteral(Token $token): Literal
 	{
 		if ($token->type === 'STRING') {
-			return new Literal(substr($token->val, 1, -1), $token->type);
+			// Multiline string
+			return (substr($token->val, 0, 3) === '"""')
+				? new Literal(substr($token->val, 3, -3), $token->type)
+				: new Literal(substr($token->val, 1, -1), $token->type);
 		}
 		return new Literal($token->val, $token->type);
 	}

@@ -49,6 +49,7 @@ class HayoLexer
 				?: $this->assignToken($chunk)
 				?: $this->bracketToken($chunk)
 				?: $this->numberToken($chunk)
+				?: $this->stringmultilineToken($chunk)
 				?: $this->stringToken($chunk)
 				?: $this->whitespaceToken($chunk)
 				?: $this->lineToken($chunk)
@@ -137,6 +138,26 @@ class HayoLexer
 			return strlen($matches[0]);
 		}
 
+		return False;
+	}
+
+
+
+	/**
+	 * @param string
+	 * @return Int | False
+	 */
+	private function stringmultilineToken($chunk)
+	{
+		if (substr($chunk, 0, 3) === '"""') {
+			$end = strpos($chunk, '"""', 3);
+			// Blok textu sice může začínat, ale nemusí končit. A tak ho nebudeme považovat za úspěch.
+			if ($end !== False) {
+				$this->tokens[] = Token::string_(substr($chunk, 0, $end + 3), $this->lines);
+				$this->lines += (int) substr_count($chunk, "\n", 0, $end);
+				return $end + 3;
+			}
+		}
 		return False;
 	}
 
