@@ -230,26 +230,6 @@ c2 = ((++) xs) ys
 
 
 
-                <h3 id="modules">Modules</h3>
-                <pre><code class="lang-hayo">version = 4
-name = "package"
-
-export "package.name.foo#1@vendor" {
-	version: verson
-	name: name
-}
-
-</code></pre>
-                <p>Qualified imports are preferred.</p>
-                <pre><code class="lang-hayo">dump package.name.foo#1@vendor.version
-
--- or make shortcut
-pn = package.name.foo#1@vendor
-dump pn.version
-</code></pre>
-
-
-
                 <h3 id="type-annotations">Type Annotations</h3>
                 <pre><code class="lang-hayo comming-soon">answer = -- this is alias
   42
