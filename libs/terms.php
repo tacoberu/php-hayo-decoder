@@ -232,7 +232,10 @@ class Scope implements Term, HasRefs
 
 
 
-	function selectSymbol(string $m): ?Term
+	/**
+	 * @return null | Term | string
+	 */
+	function selectSymbol(string $m)
 	{
 		if (!isset($this->lets[$m])) {
 			return Null;
