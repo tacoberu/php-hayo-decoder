@@ -42,7 +42,7 @@ class HayoLexer
 		$this->tokens = [];
 
 		$i = 0;
-		while ($chunk = substr($src, $i)) {
+		while (($chunk = substr($src, $i)) !== '') {
 			$diff = $this->shebangToken($chunk)
 				?: $this->commentToken($chunk)
 				?: $this->identifierToken($chunk)
@@ -242,8 +242,7 @@ class HayoLexer
 	private function whitespaceToken($chunk)
 	{
 		if (preg_match(self::WHITESPACE, $chunk, $matches)) {
-			//~ dump($matches[0]);
-			$this->lines += strpos($matches[0], "\n");
+			$this->lines += (int) strpos($matches[0], "\n");
 			return strlen($matches[0]);
 		}
 
