@@ -8,6 +8,7 @@
 namespace Taco\Hayo;
 
 use Exception;
+use LogicException;
 
 
 class HayoParserException extends Exception
@@ -108,8 +109,8 @@ class HayoParser
 				// Přiřazení
 				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
 					array_unshift($src, $token);
-					list($def, $src) = self::buildAssign($src, $ns);
-					$lets[] = $def;
+					list($symbol, $def, $src) = self::buildAssign($src, $ns);
+					$lets[$symbol] = $def;
 					break;
 
 				// Výraz
@@ -149,7 +150,7 @@ class HayoParser
 	 * Přiřazujeme buď hodnotu, nebo funkci, nebo typ.
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: Let, 1: list<Token>}>
+	 * @return array<{0: string, 1: Value, 1: list<Token>}>
 	 */
 	private static function buildAssign(array $src, array $ns = [])
 	{
@@ -162,7 +163,7 @@ class HayoParser
 
 		if (self::isClosure($token, $src)) {
 			array_unshift($src, $token);
-			list($body, $src) = self::buildClosure($src, $ns);
+			list($body, $src) = self::buildLambda($src, $ns);
 		}
 		// Definice na dalším řádku
 		elseif ($token->type === 'INDENT') {
@@ -173,7 +174,7 @@ class HayoParser
 			list($body, $src) = self::buildExpression($src, $ns);
 		}
 
-		return [new Let($symbol, $body), $src];
+		return [$symbol, $body, $src];
 	}
 
 
@@ -187,7 +188,7 @@ class HayoParser
 	 * @param list<string> $ns
 	 * @return array<{0: Term, 1: list<Token>}>
 	 */
-	private static function buildClosure(array $src, array $ns = [])
+	private static function buildLambda(array $src, array $ns = [])
 	{
 		$args = [];
 		$xs = [];
@@ -197,14 +198,14 @@ class HayoParser
 				case 'NUMBER':
 				case 'STRING':
 				case 'SYMBOL':
-					$xs[] = self::buildLiteral($token);
+					$xs[] = self::buildScalar($token);
 					break;
 
 				// Přiřazení lokálního symbolu
 				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
 					array_unshift($src, $token);
-					list($def, $src) = self::buildAssign($src, $ns);
-					$lets[] = $def;
+					list($symbol, $def, $src) = self::buildAssign($src, $ns);
+					$lets[$symbol] = $def;
 					break;
 
 				case 'IDENTIFIER':
@@ -267,18 +268,62 @@ class HayoParser
 			}
 		}
 
-		if ($args) {
-			$val = count($xs) > 1 || $lets || is_string($xs[0])
-				? new Expr($xs, $lets)
-				: reset($xs);
-			return [new Lambda($args, $val), $src];
+
+		return [self::makeLambda($args, $lets,$xs, $ns), $src];
+	}
+
+
+
+	/**
+	 * @param list<string> $args
+	 * @param array<string, Value> $lets
+	 * @param list<Value> $body
+	 * @return Value
+	 */
+	private static function makeLambda(array $args, array $lets, array $body)
+	{
+		if (empty($body)) {
+			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
 		}
-		elseif (count($xs) === 1) {
-			return [reset($xs), $src];
+
+		if (count($body) === 1) {
+			return reset($body);
 		}
-		else {
-			return [new Expr($xs, $lets), $src];
+
+		if (empty($args) && empty($lets)) {
+			return self::isInfix($body)
+				? Expr::Bin_($body[0], $body[1], $body[2])
+				: Expr::Func_($body[0], array_slice($body, 1));
 		}
+
+		if (count($args) && empty($lets)) {
+			return new Lambda($args, self::makeLambdaBody($body));
+		}
+		throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+	}
+
+
+
+	/**
+	 * @param list<Value> $body
+	 * @return string | Value
+	 */
+	private static function makeLambdaBody(array $body)
+	{
+		// `(x) -> x`
+		// `() -> 42`
+		if (count($body) === 1) {
+			return reset($body);
+		}
+		// `(x) -> x + x`
+		// `(x) -> inc x`
+		// `(x) -> inc x x`
+		return self::isInfix($body)
+			? Expr::Bin_($body[0], $body[1], $body[2])
+			: Expr::Func_($body[0], array_slice($body, 1));
+
+		// @TODO A tohle?
+		// `(x) -> (y) -> x + y`
 	}
 
 
@@ -296,7 +341,7 @@ class HayoParser
 				case 'NUMBER':
 				case 'STRING':
 				case 'SYMBOL':
-					$xs[] = self::buildLiteral($token);
+					$xs[] = self::buildScalar($token);
 					break;
 
 				case 'IDENTIFIER':
@@ -304,7 +349,7 @@ class HayoParser
 					break;
 
 				case 'BRACKET' && $token->val === '(' && self::isLambda($src):
-					list($body, $src) = self::buildClosure($src, $ns);
+					list($body, $src) = self::buildLambda($src, $ns);
 					$xs[] = $body;
 					break;
 
@@ -342,7 +387,9 @@ class HayoParser
 			throw HayoParserException::createMissingRequiredToken($token, "closing bracked");
 		}
 
-		return [new Expr($xs), $src];
+		return [self::isInfix($xs)
+			? Expr::Bin_($xs[0], $xs[1], $xs[2])
+			: Expr::Func_($xs[0], array_slice($xs, 1)), $src];
 	}
 
 
@@ -404,7 +451,7 @@ class HayoParser
 			}
 		}
 
-		return [new StructTuple($xs), $src];
+		return [Composite::Tuple_($xs), $src];
 	}
 
 
@@ -466,7 +513,7 @@ class HayoParser
 			}
 		}
 
-		return [new StructList($xs), $src];
+		return [Composite::List_($xs), $src];
 	}
 
 
@@ -491,7 +538,7 @@ class HayoParser
 					// key
 					$key = $token->val;
 					if ($token->type !== 'IDENTIFIER') {
-						$key = Utils::formatLiteral(self::buildLiteral($token));
+						$key = self::formatScalar(self::buildScalar($token));
 					}
 
 					// ':'
@@ -530,20 +577,31 @@ class HayoParser
 			}
 		}
 
-		return [new StructDict($xs), $src];
+		return [Composite::Dict_($xs), $src];
 	}
 
 
 
-	private static function buildLiteral(Token $token): Literal
+	private static function buildScalar(Token $token): Scalar
 	{
-		if ($token->type === 'STRING') {
-			// Multiline string
-			return (substr($token->val, 0, 3) === '"""')
-				? new Literal(substr($token->val, 3, -3), $token->type)
-				: new Literal(substr($token->val, 1, -1), $token->type);
+		switch ($token->type) {
+			case 'STRING':
+				// Multiline string
+				return substr($token->val, 0, 3) === '"""'
+					? Scalar::Str_(substr($token->val, 3, -3), $token->type)
+					: Scalar::Str_(substr($token->val, 1, -1), $token->type);
+
+			case 'NUMBER':
+				return strpos($token->val, '.')
+					? Scalar::Real_((float) $token->val)
+					: Scalar::Int_((int) $token->val);
+
+			case 'SYMBOL':
+				return Scalar::Symbol_((string) $token->val);
+
+			default:
+				throw new LogicException("Comming soon... (2026.02.15 02:55:05 CET): '{$token->type}'");
 		}
-		return new Literal($token->val, $token->type);
 	}
 
 
@@ -662,6 +720,21 @@ class HayoParser
 
 
 	/**
+	 * @param list<string> $xs
+	 */
+	private static function isInfix(array $xs): bool
+	{
+		if (count($xs) === 3
+				&& is_string($xs[1])
+				&& in_array($xs[1], ['+', '-', '*', '/', 'div', 'mod', '^', '&&', 'and', '||', 'or', '%', '++', '**',], True)) {
+			return True;
+		}
+		return False;
+	}
+
+
+
+	/**
 	 * @param list<string> $vals
 	 */
 	private static function assertTokenValue(Token $token, array $vals, string $label)
@@ -680,6 +753,31 @@ class HayoParser
 	private static function endsWith(string $haystack, string $needle): bool
 	{
 		return strlen($needle) === 0 || substr($haystack, -strlen($needle)) === $needle;
+	}
+
+
+
+	/**
+	 * @return String
+	 */
+	private static function formatScalar(Scalar $x)
+	{
+		return json_encode((object)[
+			'val' => (string) $x->getValue(),
+			'type' => $x->type(),
+		]);
+	}
+
+
+
+	/**
+	 * @param String
+	 * @return Scalar
+	 */
+	private static function parseScalar($str)
+	{
+		$def = (object)json_decode($str);
+		return new Scalar($def->val, $def->type);
 	}
 
 }

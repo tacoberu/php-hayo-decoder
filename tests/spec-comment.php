@@ -20,7 +20,7 @@ return [
 		, Token::terminator("\n", 3)
 		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER'),
+			Scalar::Int_(44),
 		],
 
 	'blokový komentář - je možno zanořovat' => ["{- 42
@@ -37,7 +37,7 @@ return [
 		, Token::terminator("\n", 7)
 		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER'),
+			Scalar::Int_(44),
 		],
 
 	'céčkovské komentáře ignoruje' => ["{- 42
@@ -54,7 +54,7 @@ return [
 		, Token::terminator("\n", 7)
 		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER'),
+			Scalar::Int_(44),
 		],
 
 	'komentář uvnitř konstrukce' => [
@@ -80,9 +80,9 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -108,9 +108,9 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -132,9 +132,9 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(4),
 			]),
 		],
 
@@ -153,8 +153,8 @@ return [
 		, Token::bracket(']', 4)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
 			]),
 		],
 
@@ -195,13 +195,13 @@ return [
 		, Token::bracket('}', 8)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([
-					new StructTuple([
-						new Literal('222', 'NUMBER'),
-						new Literal('Lewis Carrol', 'STRING'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([
+					Composite::Tuple_([
+						Scalar::Int_(222),
+						Scalar::Str_('Lewis Carrol'),
 					]),
 				]),
 			]),
@@ -249,17 +249,17 @@ return [
 		, Token::bracket('}', 8)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([
-					new StructTuple([
-						new Literal('111', 'NUMBER'),
-						new Literal('non', 'STRING'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([
+					Composite::Tuple_([
+						Scalar::Int_(111),
+						Scalar::Str_('non'),
 					]),
-					new StructTuple([
-						new Literal('222', 'NUMBER'),
-						new Literal('Lewis Carrol', 'STRING'),
+					Composite::Tuple_([
+						Scalar::Int_(222),
+						Scalar::Str_('Lewis Carrol'),
 					]),
 				]),
 			]),
@@ -289,10 +289,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('De{- non -}ux', 'STRING'),
-				'c' => new StructList([]),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('De{- non -}ux'),
+				'c' => Composite::List_([]),
 			]),
 		],
 
@@ -337,18 +337,16 @@ return [
 		, Token::bracket(']', 8)
 		, Token::eof(),
 		],
-			new Expr(['prelude.do', new StructList([
-				new Expr([
-					'prelude.echo',
-					new Literal('dict: ', 'STRING'),
-					new Expr([
-						'prelude.dump', new StructDict([
-							'num' => new Literal('42', 'NUMBER'),
-							'real' => new Literal('3.12', 'NUMBER'),
-							'text' => new Literal('Lorem ipsum doler ist', 'STRING'),
+			Expr::Func_('prelude.do', [Composite::List_([
+				Expr::Func_('prelude.echo', [
+					Scalar::Str_('dict: '),
+					Expr::Func_('prelude.dump', [Composite::Dict_([
+							'num' => Scalar::Int_(42),
+							'real' => Scalar::Real_(3.12),
+							'text' => Scalar::Str_('Lorem ipsum doler ist'),
 						]),
 					]),
-					new Literal('\n', 'STRING'),
+					Scalar::Str_('\n'),
 				]),
 			])]),
 		],

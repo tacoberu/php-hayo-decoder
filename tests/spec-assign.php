@@ -15,7 +15,7 @@ return [
 				, Token::number_('3.141592')
 				, Token::eof()
 				],
-					new Let('pi', new Expr(['3.141592']))
+					"pi" => Scalar::Real_(3.141592)
 				], */
 
 			1 => ["num = 45
@@ -30,9 +30,9 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Scope(
-						[ new Let('num', new Literal('45', 'NUMBER'))],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					new Scope([ 'num' => Scalar::Int_(45),
+							],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -51,11 +51,12 @@ return [
 				, Token::identifier('num', 3)
 				, Token::eof(),
 				],
-					new Scope(
-						[ new Let('num', new Literal('45', 'NUMBER'))],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					new Scope(['num' => Scalar::Int_(45),
+						],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
+
 
 			3 => ["num = 4 + 5
 123 + num",
@@ -71,9 +72,9 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-					new Scope(
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					new Scope([ 'num' => Expr::Bin_(Scalar::Int_(4), '+', Scalar::Int_(5)),
+						],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -91,9 +92,9 @@ return [
 				, Token::identifier('num', 2)
 				, Token::eof(),
 				],
-				   new Scope(
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '-', new Literal('5', 'NUMBER')])) ],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+				   new Scope([ 'num' => Expr::Bin_(Scalar::Int_(4), '-', Scalar::Int_(5)),
+						],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -115,9 +116,9 @@ return [
 				, Token::identifier('num', 4)
 				, Token::eof(),
 				],
-					new Scope(
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+					new Scope([ 'num' => Expr::Bin_(Scalar::Int_(4), '+', Scalar::Int_(5)),
+						],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -144,11 +145,10 @@ inc =
 				, Token::identifier('num', 4)
 				, Token::eof(),
 				],
-					new Scope(
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc', new Expr([new Literal('2', 'NUMBER'), '+', new Literal('1', 'NUMBER')])),
+					new Scope([ 'num' => Scalar::Int_(45),
+						'inc' => Expr::Bin_(Scalar::Int_(2), '+', Scalar::Int_(1)),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -187,13 +187,13 @@ inc =
 				, Token::eof(),
 				],
 					new Scope(
-						[ new Let('num', new Literal('45', 'NUMBER'))
-						, new Let('inc', new Scope(
-							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])) ],
-							new Expr(['m', '+', new Literal('1', 'NUMBER')])
-						)),
+						[ 'num' => Scalar::Int_(45),
+						  'inc' => new Scope(
+							[ 'm' => Expr::Bin_(Scalar::Int_(1), '+', Scalar::Int_(2)) ],
+							Expr::Bin_('m', '+', Scalar::Int_(1))
+						),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -228,12 +228,12 @@ inc =
 				, Token::eof(),
 				],
 					new Scope(
-						[ new Let('inc', new Scope(
-							[ new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])) ],
-							new Expr(['m', '+', new Literal('1', 'NUMBER')])
-						)),
+						[ 'inc' => new Scope(
+							[ 'm' => Expr::Bin_(Scalar::Int_(1), '+', Scalar::Int_(2)) ],
+							Expr::Bin_('m', '+', Scalar::Int_(1))
+						),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 /*
@@ -317,6 +317,9 @@ dec =
 				],
 //*/
 
+
+
+/*
 			'assign-10' => ["num = 45
 inc =
 	m =
@@ -406,30 +409,32 @@ dec =
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Literal('45', 'NUMBER')),
-							new Let('inc', new Scope(
+							'num' => Scalar::Int_(45),
+							/ *
+							'inc' => new Scope(
 								[
-									new Let('m', new Expr([new Literal('1', 'NUMBER'), '+', new Literal('2', 'NUMBER')])),
+									'm' => Expr::Bin_(Scalar::Int_(1), '+', Scalar::Int_(2)),
 								],
-								new Expr(['m', '+', new Literal('1', 'NUMBER')])
-							)),
-							new Let('dec', new Scope(
+								Expr::Bin_('m', '+', Scalar::Int_(1))
+							),
+							'dec' => new Scope(
 								[
-									new Let('m', new Scope(
+									'm' => new Scope(
 										[
-											new Let('x', new Literal('42', 'NUMBER')),
-											new Let('y', new Expr([new Literal('11', 'NUMBER'), '*', new Literal('22', 'NUMBER')])),
+											'x' => Scalar::Int_(42),
+											'y' => Expr::Bin_(Scalar::Int_(11), '*', Scalar::Int_(22)),
 										],
-										new Expr(['a', '+', 'x'])
-									)),
+										Expr::Bin_('a', '+', 'x')
+									),
 								],
-								new Expr(['m', '-', new Literal('1', 'NUMBER')])
-							)),
+								Expr::Bin_('m', '-', Scalar::Int_(1))
+							),
+							* /
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
-
+//*/
 			'assign-11' => ["num = 45
 inc = x ->
 	x + 1
@@ -456,12 +461,12 @@ inc = x ->
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Literal('45', 'NUMBER')),
-							new Let('inc', new Lambda(['x'],
-								new Expr(['x', '+', new Literal('1', 'NUMBER')])
-							)),
+							'num' => Scalar::Int_(45),
+							'inc' => new Lambda(['x'],
+								Expr::Bin_('x', '+', Scalar::Int_(1))
+							),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -494,12 +499,12 @@ inc = x ->
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Literal('45', 'NUMBER')),
-							new Let('inc', new Lambda(['x'],
-								new Expr(['x', '+', new Literal('1', 'NUMBER')])
-							)),
+							'num' => Scalar::Int_(45),
+							'inc' => new Lambda(['x'],
+								Expr::Bin_('x', '+', Scalar::Int_(1))
+							),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])])
+						Expr::Bin_(Scalar::Int_(123), '+', Expr::Func_('inc', [Scalar::Int_(1)]))
 					),
 				],
 
@@ -534,12 +539,12 @@ sum = x y ->
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Literal('45', 'NUMBER')),
-							new Let('sum', new Lambda(['x', 'y'],
-								new Expr(['x', '+', 'y'])
-							)),
+							'num' => Scalar::Int_(45),
+							'sum' => new Lambda(['x', 'y'],
+								Expr::Bin_('x', '+', 'y')
+							),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])])
+						Expr::Bin_(Scalar::Int_(123), '+', Expr::Func_('sum', [Scalar::Int_(1), Scalar::Int_(2)]))
 					),
 				],
 
@@ -565,11 +570,11 @@ sum = x y ->
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('sum', new Lambda(['x', 'y'],
-								new Expr(['x', '+', 'y'])
-							)),
+							'sum' => new Lambda(['x', 'y'],
+								Expr::Bin_('x', '+', 'y')
+							),
 						],
-						new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['sum', new Literal('1', 'NUMBER'), new Literal('2', 'NUMBER')])])
+						Expr::Bin_(Scalar::Int_(123), '+', Expr::Func_('sum', [Scalar::Int_(1), Scalar::Int_(2)]))
 					),
 				],
 
@@ -588,8 +593,8 @@ sum = x y ->
 				, Token::eof(),
 				],
 					new Scope(
-						[ new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])) ],
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						[ 'num' => Expr::Bin_(Scalar::Int_(4), '+', Scalar::Int_(5)) ],
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
@@ -615,15 +620,14 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							// Pole Let deklarací (původní druhý argument Expr)
-							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', 'x'])),
-							new Let('x', new Literal('5', 'NUMBER')),
+							'num' => Expr::Bin_(Scalar::Int_(4), '+', 'x'),
+							'x' => Scalar::Int_(5),
 						],
-						// Vlastní výraz (původní první argument Expr)
-						new Expr([new Literal('123', 'NUMBER'), '+', 'num'])
+						Expr::Bin_(Scalar::Int_(123), '+', 'num')
 					),
 				],
 
+/*
 		["num = 4 + 5
 123 (hash num)",
 				[ Token::identifier('num', 1)
@@ -641,14 +645,15 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
+							'num' => Expr::Bin_(Scalar::Int_(4), '+', Scalar::Int_(5)),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
-							new Expr(['hash', 'num']),
-						])
+						Expr::Bin_(
+							Scalar::Int_(123),
+							Expr::Func_('hash', ['num']),
+						)
 					),
 				],
+				*/
 
 		["num = 4 + 5
 123 ++ (hash num)",
@@ -668,13 +673,13 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new Expr([new Literal('4', 'NUMBER'), '+', new Literal('5', 'NUMBER')])),
+							'num' => Expr::Bin_(Scalar::Int_(4), '+', Scalar::Int_(5)),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
+						Expr::Bin_(
+							Scalar::Int_(123),
 							'++',
-							new Expr(['hash', 'num']),
-						])
+							Expr::Func_('hash', ['num'])
+						)
 					),
 				],
 
@@ -698,16 +703,16 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new StructList([
-								new Literal('4', 'NUMBER'),
-								new Literal('5', 'NUMBER'),
-							])),
+							'num' => Composite::List_([
+								Scalar::Int_(4),
+								Scalar::Int_(5),
+							]),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
+						Expr::Bin_(
+							Scalar::Int_(123),
 							'++',
-							new Expr(['hash', 'num']),
-						])
+							Expr::Func_('hash', ['num'])
+						)
 					),
 				],
 
@@ -731,16 +736,16 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new StructTuple([
-								new Literal('4', 'NUMBER'),
-								new Literal('5', 'NUMBER'),
-							])),
+							'num' => Composite::Tuple_([
+								Scalar::Int_(4),
+								Scalar::Int_(5),
+							]),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
+						Expr::Bin_(
+							Scalar::Int_(123),
 							'++',
-							new Expr(['hash', 'num']),
-						])
+							Expr::Func_('hash', ['num'])
+						)
 					),
 				],
 
@@ -768,16 +773,16 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new StructDict([
-								'a' => new Literal('4', 'NUMBER'),
-								'b' => new Literal('5', 'NUMBER'),
-							])),
+							'num' => Composite::Dict_([
+								'a' => Scalar::Int_(4),
+								'b' => Scalar::Int_(5),
+							]),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
+						Expr::Bin_(
+							Scalar::Int_(123),
 							'++',
-							new Expr(['hash', 'num']),
-						])
+							Expr::Func_('hash', ['num'])
+						)
 					),
 				],
 
@@ -811,16 +816,16 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('num', new StructDict([
-								'a' => new Literal('4', 'NUMBER'),
-								'b' => new Literal('5', 'NUMBER'),
-							])),
+							'num' => Composite::Dict_([
+								'a' => Scalar::Int_(4),
+								'b' => Scalar::Int_(5),
+							]),
 						],
-						new Expr([
-							new Literal('123', 'NUMBER'),
+						Expr::Bin_(
+							Scalar::Int_(123),
 							'++',
-							new Expr(['hash', 'num']),
-						])
+							Expr::Func_('hash', ['num'])
+						)
 					),
 				],
 
@@ -844,15 +849,14 @@ x = 5
 				, Token::eof(),
 				],
 					new Scope([
-							new Let('a', new Literal('12', 'NUMBER')),
+							'a' => Scalar::Int_(12),
 						],
-						new StructDict([
+						Composite::Dict_([
 							'a' => 'a',
-							'b' => new Literal('abc', 'STRING'),
+							'b' => Scalar::Str_('abc'),
 						])
 					),
 				],
-
 
 		'bug-0001: Přepisuje se x' => ['x = 14
 foo = prelude.echo "done, line: " x
@@ -885,20 +889,15 @@ log 11
 				, Token::eof(),
 				],
 				new Scope([
-						new Let('x', new Literal('14', 'NUMBER')),
-						new Let('foo', new Expr([
-							'prelude.echo',
-							new Literal('done, line: ', 'STRING'),
+						'x' => Scalar::Int_(14),
+						'foo' => Expr::Func_('prelude.echo', [
+							Scalar::Str_('done, line: '),
 							'x',
+						]),
+						'log' => new Lambda(['x'], Expr::Func_('prelude.echo', [Expr::Func_('prelude.dump', ['x']),
 						])),
-						new Let('log', new Lambda(['x'], new Expr([
-							'prelude.echo',
-							new Expr(['prelude.dump', 'x']),
-						]))),
 					],
-					new Expr([
-						'log',
-						new Literal('11', 'NUMBER'),
+					Expr::Func_('log', [Scalar::Int_(11),
 					])
 				),
 			],

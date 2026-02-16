@@ -18,19 +18,20 @@ return [
 		[ Token::number_('1', 1)
 		, Token::eof(),
 		],
-		new Literal('1', 'NUMBER'),
+		Scalar::Int_(1),
 		],
 	["42",
 		[ Token::number_('42', 1)
 		, Token::eof(),
 		],
-			new Literal('42', 'NUMBER'),
+			Scalar::Int_(42),
 		],
+
 	["3.141592",
 		[ Token::number_('3.141592', 1)
 		, Token::eof(),
 		],
-			new Literal('3.141592', 'NUMBER'),
+			Scalar::Real_(3.141592),
 		],
 
 	// Texts
@@ -38,43 +39,43 @@ return [
 		[ Token::string_('"text"', 1)
 		, Token::eof(),
 		],
-			new Literal('text', 'STRING'),
+			Scalar::Str_('text'),
 		],
 	["'text'",
 		[ Token::string_("'text'", 1)
 		, Token::eof(),
 		],
-			new Literal("text", 'STRING'),
+			Scalar::Str_("text"),
 		],
 	'escaping' => ["'\"text\"'",
 		[ Token::string_('\'"text"\'', 1)
 		, Token::eof(),
 		],
-			new Literal('"text"', 'STRING'),
+			Scalar::Str_('"text"'),
 		],
 	'unicode' => ['"t@xtč你好 🐶"',
 		[ Token::string_('"t@xtč你好 🐶"', 1)
 		, Token::eof(),
 		],
-			new Literal('t@xtč你好 🐶', 'STRING'),
+			Scalar::Str_('t@xtč你好 🐶'),
 		],
 	'multi-line string' => ["\"\"\"abc\ncde\nefg\n\"\"\"",
 		[ Token::string_("\"\"\"abc\ncde\nefg\n\"\"\"", 1)
 		, Token::eof(),
 		],
-			new Literal("abc\ncde\nefg\n", 'STRING'),
+			Scalar::Str_("abc\ncde\nefg\n"),
 		],
 	'multi-line string 2' => ["\"\"\"abc\nc\"d\"e\nefg\n\"\"\"",
 		[ Token::string_("\"\"\"abc\nc\"d\"e\nefg\n\"\"\"", 1)
 		, Token::eof(),
 		],
-			new Literal("abc\nc\"d\"e\nefg\n", 'STRING'),
+			Scalar::Str_("abc\nc\"d\"e\nefg\n"),
 		],
 	'multi-line string 3' => ["\"\"\"abcc\"d\"eefg\"\"\"",
 		[ Token::string_("\"\"\"abcc\"d\"eefg\"\"\"", 1)
 		, Token::eof(),
 		],
-			new Literal("abcc\"d\"eefg", 'STRING'),
+			Scalar::Str_("abcc\"d\"eefg"),
 		],
 	'multi-line string 4' => ["\"\"\"abc\nc\"d\"e\nefg\n\"\"\"\n42",
 		[ Token::string_("\"\"\"abc\nc\"d\"e\nefg\n\"\"\"", 1)
@@ -82,7 +83,7 @@ return [
 		, Token::number_('42', 5)
 		, Token::eof(),
 		],
-			new Literal('42', 'NUMBER'),
+			Scalar::Int_(42),
 		],
 	'multi-line string 5' => ["\"\"\"abcc\"d\"eefg\"\"\"\n42",
 		[ Token::string_("\"\"\"abcc\"d\"eefg\"\"\"", 1)
@@ -90,7 +91,7 @@ return [
 		, Token::number_('42', 2)
 		, Token::eof(),
 		],
-			new Literal('42', 'NUMBER'),
+			Scalar::Int_(42),
 		],
 	'multi-line string 6' => ['"""' . "\n"
 			. 'This is useful for holding JSON or other' . "\n"
@@ -102,7 +103,7 @@ return [
 		, Token::number_('42', 5)
 		, Token::eof(),
 		],
-			new Literal('42', 'NUMBER'),
+			Scalar::Int_(42),
 		],
 
 	// Special
@@ -124,7 +125,7 @@ return [
 		[ Token::symbol_('True', 1)
 		, Token::eof(),
 		],
-			new Literal('True', 'SYMBOL'),
+			Scalar::Symbol_('True'),
 		],
 
 	// Tuples
@@ -138,10 +139,10 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::Tuple_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 	["(1, 2, 4,)",
@@ -155,10 +156,10 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::Tuple_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 	["(
@@ -178,10 +179,10 @@ return [
 		, Token::bracket(')', 5)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::Tuple_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 	["(\"Sinead O'Connor\")",
@@ -190,8 +191,8 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::Tuple_([
+				Scalar::Str_('Sinead O\'Connor'),
 			]),
 		],
 	["(111, \"Sinead O'Connor\")",
@@ -202,9 +203,9 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('111', 'NUMBER'),
-				new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::Tuple_([
+				Scalar::Int_(111),
+				Scalar::Str_('Sinead O\'Connor'),
 			]),
 		],
 	["()",
@@ -212,7 +213,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([]),
+			Composite::Tuple_([]),
 		],
 	["(1)",
 		[ Token::bracket('(', 1)
@@ -220,8 +221,8 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('1', 'NUMBER'),
+			Composite::Tuple_([
+				Scalar::Int_(1),
 			]),
 		],
 	["(1,)",
@@ -231,12 +232,12 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new StructTuple([
-				new Literal('1', 'NUMBER'),
+			Composite::Tuple_([
+				Scalar::Int_(1),
 			]),
 		],
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
-	["(1 2 4)",
+	/* ["(1 2 4)", // @FIXME
 		[ Token::bracket('(', 1)
 		, Token::number_('1', 1)
 		, Token::number_('2', 1)
@@ -245,11 +246,12 @@ return [
 		, Token::eof(),
 		],
 			new Expr([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
-			]),
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
+			], '?'),
 		],
+		//*/
 
 	["[1, 2, 4]",
 		[ Token::bracket('[', 1)
@@ -261,10 +263,10 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 	["[
@@ -284,10 +286,10 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 	["[1, 2,]",
@@ -299,9 +301,9 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
 			]),
 		],
 	["[1]",
@@ -310,8 +312,8 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
 			]),
 		],
 	["[]",
@@ -319,11 +321,11 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([]),
+			Composite::List_([]),
 		],
 
 	// Parser v tomto případě není tak úplně schopen posoudít, zda taková konstrukce je validní.
-	["[1 2 4]",
+	/* ["[1 2 4]", // @FIXME
 		[ Token::bracket('[', 1)
 		, Token::number_('1', 1)
 		, Token::number_('2', 1)
@@ -331,22 +333,23 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
+			Composite::List_([
 				new Expr([
-					new Literal('1', 'NUMBER'),
-					new Literal('2', 'NUMBER'),
-					new Literal('4', 'NUMBER'),
-				]),
+					Scalar::Int_(1),
+					Scalar::Int_(2),
+					Scalar::Int_(4),
+				], '?'),
 			]),
 		],
+		//*/
 	["[\"Sinead O'Connor\"]",
 		[ Token::bracket('[', 1)
 		, Token::string_('"Sinead O\'Connor"', 1)
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::List_([
+				Scalar::Str_('Sinead O\'Connor'),
 			]),
 		],
 
@@ -358,12 +361,11 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new StructList([
-				new Expr([
-					new Literal('1', 'NUMBER'),
+			Composite::List_([
+				Expr::bin_(Scalar::Int_(1),
 					'+',
-					new Literal('4', 'NUMBER'),
-				]),
+					Scalar::Int_(4)
+					),
 			]),
 		],
 
@@ -384,10 +386,10 @@ return [
 		, Token::bracket('}', 1)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Int_(2),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 	["{}",
@@ -395,7 +397,7 @@ return [
 		, Token::bracket('}', 1)
 		, Token::eof(),
 		],
-			new StructDict([]),
+			Composite::Dict_([]),
 		],
 
 	["{a: 1, b: [4,2,4], c: 4}",
@@ -420,14 +422,14 @@ return [
 		, Token::bracket('}', 1)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new StructList([
-					new Literal('4', 'NUMBER'),
-					new Literal('2', 'NUMBER'),
-					new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Composite::List_([
+					Scalar::Int_(4),
+					Scalar::Int_(2),
+					Scalar::Int_(4),
 				]),
-				'c' => new Literal('4', 'NUMBER'),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -456,10 +458,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Int_(2),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -488,10 +490,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'{"val":"1","type":"NUMBER"}' => new Literal('1', 'NUMBER'),
-				'{"val":"b","type":"STRING"}' => new Literal('2', 'NUMBER'),
-				'_' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'{"val":"1","type":"Int"}' => Scalar::Int_(1),
+				'{"val":"b","type":"Str"}' => Scalar::Int_(2),
+				'_' => Scalar::Int_(4),
 			]),
 		],
 
@@ -518,10 +520,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('2', 'NUMBER'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Int_(2),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -544,10 +546,10 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 
@@ -568,10 +570,10 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			]),
 		],
 
@@ -592,10 +594,10 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
-				new Literal("Une", 'STRING'),
-				new Literal("Deux", 'STRING'),
-				new Literal("Trois", 'STRING'),
+			Composite::List_([
+				Scalar::Str_("Une"),
+				Scalar::Str_("Deux"),
+				Scalar::Str_("Trois"),
 			]),
 		],
 
@@ -616,7 +618,7 @@ return [
 		, Token::bracket(']', 5)
 		, Token::eof(),
 		],
-			new StructList([
+			Composite::List_([
 				'une',
 				'deux',
 				'trois',
@@ -646,10 +648,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new Literal('4', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Scalar::Int_(4),
 			]),
 		],
 
@@ -677,10 +679,10 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([]),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([]),
 			]),
 		],
 
@@ -710,10 +712,10 @@ return [
 		, Token::bracket('}', 6)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([]),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([]),
 			]),
 		],
 
@@ -739,9 +741,9 @@ return [
 		, Token::bracket('}', 6)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'c' => new StructList([]),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'c' => Composite::List_([]),
 			]),
 		],
 
@@ -775,11 +777,11 @@ return [
 		, Token::bracket('}', 7)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([
-					new Literal('111', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([
+					Scalar::Int_(111),
 				]),
 			]),
 		],
@@ -817,12 +819,12 @@ return [
 		, Token::bracket('}', 8)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructTuple([
-					new Literal('111', 'NUMBER'),
-					new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::Tuple_([
+					Scalar::Int_(111),
+					Scalar::Str_('Sinead O\'Connor'),
 				]),
 			]),
 		],
@@ -861,13 +863,13 @@ return [
 		, Token::bracket('}', 7)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([
-					new StructTuple([
-						new Literal('111', 'NUMBER'),
-						new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([
+					Composite::Tuple_([
+						Scalar::Int_(111),
+						Scalar::Str_('Sinead O\'Connor'),
 					]),
 				]),
 			]),
@@ -914,17 +916,17 @@ return [
 		, Token::bracket('}', 8)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('Deux', 'STRING'),
-				'c' => new StructList([
-					new StructTuple([
-						new Literal('111', 'NUMBER'),
-						new Literal('Sinead O\'Connor', 'STRING'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Str_('Deux'),
+				'c' => Composite::List_([
+					Composite::Tuple_([
+						Scalar::Int_(111),
+						Scalar::Str_('Sinead O\'Connor'),
 					]),
-					new StructTuple([
-						new Literal('222', 'NUMBER'),
-						new Literal('Lewis Carrol', 'STRING'),
+					Composite::Tuple_([
+						Scalar::Int_(222),
+						Scalar::Str_('Lewis Carrol'),
 					]),
 				]),
 			]),

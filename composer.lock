@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3a7dfc52661b68a49795094c291c51bf",
+    "content-hash": "370f51d3e5f9d791f7b76c0a62a787c1",
     "packages": [
         {
             "name": "nette/utils",
@@ -87,6 +87,66 @@
                 "validation"
             ],
             "time": "2018-05-02T17:16:08+00:00"
+        },
+        {
+            "name": "tacoberu/hayo-ast",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@gitlab.com:tacoberu/php-hayo-ast.git",
+                "reference": "d5486084fbe1bd79568ddecc84fb1d9e121e71b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/tacoberu%2Fphp-hayo-ast/repository/archive.zip?sha=d5486084fbe1bd79568ddecc84fb1d9e121e71b9",
+                "reference": "d5486084fbe1bd79568ddecc84fb1d9e121e71b9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.5",
+                "slevomat/coding-standard": "^8.24",
+                "spaze/phpstan-disallowed-calls": "^4.6",
+                "tracy/tracy": "^2.4"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "libs/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "vendor/bin/phpunit"
+                ],
+                "phpcs": [
+                    "vendor/bin/phpcs"
+                ],
+                "phpcbf": [
+                    "vendor/bin/phpcbf"
+                ],
+                "phpstan": [
+                    "vendor/bin/phpstan analyse --memory-limit=512M"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Takáč",
+                    "email": "martin@takac.name"
+                }
+            ],
+            "description": "...",
+            "support": {
+                "source": "https://gitlab.com/tacoberu/php-hayo-ast/-/tree/v0.1.0",
+                "issues": "https://gitlab.com/tacoberu/php-hayo-ast/-/issues"
+            },
+            "time": "2026-02-17T00:09:59+01:00"
         }
     ],
     "packages-dev": [
@@ -2339,7 +2399,7 @@
     "prefer-lowest": false,
     "platform": {
         "ext-json": "*",
-        "php": ">=5.3.3"
+        "php": ">=7.4"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

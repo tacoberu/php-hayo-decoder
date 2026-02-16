@@ -4,7 +4,8 @@
 	"type": "library",
 	"require": {
 		"ext-json": "*",
-		"php" : ">=5.3.3",
+		"php" : ">=7.4",
+		"tacoberu/hayo-ast": "~0.1.0",
 		"nette/utils": ">=2"
 	},
 	"authors": [
@@ -24,6 +25,12 @@
 		"phpstan/phpstan": "^2.1",
 		"spaze/phpstan-disallowed-calls": "^4.6"
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "git@gitlab.com:tacoberu/php-hayo-ast.git"
+		}
+	],
 	"config": {
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true

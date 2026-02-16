@@ -13,35 +13,35 @@ return [
 		[ Token::symbol_('True', 1)
 		, Token::eof(),
 		],
-			new Literal('True', 'SYMBOL'),
+			Scalar::Symbol_('True'),
 		],
 
 	["False",
 		[ Token::symbol_('False', 1)
 		, Token::eof(),
 		],
-			new Literal('False', 'SYMBOL'),
+			Scalar::Symbol_('False'),
 		],
 
 	["Null",
 		[ Token::symbol_('Null', 1)
 		, Token::eof(),
 		],
-			new Literal('Null', 'SYMBOL'),
+			Scalar::Symbol_('Null'),
 		],
 
 	["Nil",
 		[ Token::symbol_('Nil', 1)
 		, Token::eof(),
 		],
-			new Literal('Nil', 'SYMBOL'),
+			Scalar::Symbol_('Nil'),
 		],
 
 	["Any",
 		[ Token::symbol_('Any', 1)
 		, Token::eof(),
 		],
-			new Literal('Any', 'SYMBOL'),
+			Scalar::Symbol_('Any'),
 		],
 
 	["any",

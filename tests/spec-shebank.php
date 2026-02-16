@@ -17,6 +17,6 @@ return [
 		, Token::terminator("\n", 2)
 		, Token::eof(),
 		],
-			new Literal('44', 'NUMBER'),
+			Scalar::Int_(44),
 		],
 	];

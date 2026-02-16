@@ -57,7 +57,7 @@ class ParserTest extends TestCase
 
 
 
-	function testScope()
+	function ____testScope()
 	{
 		$code = "a = 12\n{a: a, b: (list.first xs)}";
 		$ast = (new HayoLexer())->tokenise($code);

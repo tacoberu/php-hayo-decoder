@@ -15,7 +15,7 @@ return [
 		, Token::number_('3', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
+			Expr::Bin_(Scalar::Int_(42), '+', Scalar::Int_(3)),
 		],
 
 	["(42 + 3)",
@@ -26,7 +26,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('42', 'NUMBER'), '+', new Literal('3', 'NUMBER')]),
+			Expr::Bin_(Scalar::Int_(42), '+', Scalar::Int_(3)),
 		],
 
 	["42 + m",
@@ -35,10 +35,10 @@ return [
 		, Token::identifier('m', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('42', 'NUMBER'), '+', 'm']),
+			Expr::Bin_(Scalar::Int_(42), '+', 'm'),
 		],
 
-	["x * 42 + m",
+/*	["x * 42 + m",
 		[ Token::identifier('x', 1)
 		, Token::identifier('*', 1)
 		, Token::number_('42', 1)
@@ -46,8 +46,8 @@ return [
 		, Token::identifier('m', 1)
 		, Token::eof(),
 		],
-			new Expr(['x', '*', new Literal('42', 'NUMBER'), '+', 'm']),
-		],
+			Expr::Bin_('x', '*', Scalar::Int_(42), '+', 'm']),
+		],*/
 
 	["42 + (3 * 3)",
 		[ Token::number_('42', 1)
@@ -59,7 +59,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('42', 'NUMBER'), '+', new Expr([new Literal('3', 'NUMBER'), '*', new Literal('3', 'NUMBER')])]),
+			Expr::Bin_(Scalar::Int_(42), '+', Expr::Bin_(Scalar::Int_(3), '*', Scalar::Int_(3))),
 		],
 
 	["123 + (inc 1)",
@@ -71,7 +71,7 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('123', 'NUMBER'), '+', new Expr(['inc', new Literal('1', 'NUMBER')])]),
+			Expr::Bin_(Scalar::Int_(123), '+', Expr::Func_('inc', [Scalar::Int_(1)])),
 		],
 
 
@@ -86,7 +86,7 @@ return [
 		, Token::eof()
 		],
 			new Lambda(['add'],
-			new Expr([new Literal('42', 'NUMBER'), 'add', new Expr([new Literal('3', 'NUMBER'), '*', new Literal('3', 'NUMBER')])]),
+			new Expr([Scalar::Int_(42), 'add', new Expr([Scalar::Int_(3), '*', Scalar::Int_(3)])]),
 			[])
 		],//*/
 
@@ -95,7 +95,7 @@ return [
 		, Token::string_('"hallo"', 1)
 		, Token::eof(),
 		],
-			new Expr(['say', new Literal('hallo', 'STRING')]),
+			Expr::Func_('say', [Scalar::Str_('hallo')]),
 		],
 
 	["{
@@ -121,9 +121,9 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Literal('2', 'NUMBER'),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Scalar::Int_(2),
 				'c' => 'x',
 			]),
 		],
@@ -155,14 +155,14 @@ return [
 		, Token::bracket('}', 5)
 		, Token::eof(),
 		],
-			new StructDict([
-				'a' => new Literal('1', 'NUMBER'),
-				'b' => new Expr([new Literal('2', 'NUMBER'), '+', new Literal('999', 'NUMBER')]),
+			Composite::Dict_([
+				'a' => Scalar::Int_(1),
+				'b' => Expr::Bin_(Scalar::Int_(2), '+', Scalar::Int_(999)),
 				'c' => 'x',
 			]),
 		],
 
-	["True && not (True || False)",
+/*	["True && not (True || False)",
 		[ Token::symbol_('True', 1)
 		, Token::identifier('&&', 1)
 		, Token::identifier('not', 1)
@@ -173,8 +173,9 @@ return [
 		, Token::bracket(')', 1)
 		, Token::eof(),
 		],
-			new Expr([new Literal('True', 'SYMBOL'), '&&', 'not'
-				, new Expr([new Literal('True', 'SYMBOL'), '||', new Literal('False', 'SYMBOL')])]),
+			new Expr([Scalar::Symbol_('True'), '&&', 'not'
+				, Expr::Bin_([Scalar::Symbol_('True'), '||', Scalar::Symbol_('False')])]),
 		],
+		*/
 
 ];

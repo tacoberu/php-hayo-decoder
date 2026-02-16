@@ -21,10 +21,10 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new Expr(['prelude.map', 'x', new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
+			Expr::Func_('prelude.map', ['x', Composite::List_([
+				Scalar::Int_(1),
+				Scalar::Int_(2),
+				Scalar::Int_(4),
 			])]),
 		],
 
@@ -46,12 +46,15 @@ return [
 		, Token::bracket(']', 1)
 		, Token::eof(),
 		],
-			new Expr(['prelude.map', new Lambda(['x'], new Expr(['x', '+', new Literal('1', 'NUMBER')])), new StructList([
-				new Literal('1', 'NUMBER'),
-				new Literal('2', 'NUMBER'),
-				new Literal('4', 'NUMBER'),
-			])]),
+			Expr::Func_('prelude.map', [
+				new Lambda(['x'], Expr::Bin_('x', '+', Scalar::Int_(1))),
+				Composite::List_([
+					Scalar::Int_(1),
+					Scalar::Int_(2),
+					Scalar::Int_(4),
+				])]),
 		],
+//*/
 
 /*	'bug 1' => ["source = x -> [ 1, 5, 8]\nsource 5\n",
 		[ Token::identifier('source', 1)
@@ -71,11 +74,11 @@ return [
 		, Token::terminator("\n", 2)
 		, Token::eof(),
 		],
-			new Expr(['source', new Literal('5', 'NUMBER')], [
-				new Let('source', new Lambda(['x'], new StructList([
-					new Literal('1', 'NUMBER'),
-					new Literal('5', 'NUMBER'),
-					new Literal('8', 'NUMBER'),
+			new Expr(['source', Scalar::Int_(5)], [
+				new Let('source', new Lambda(['x'], Composite::List_([
+					Scalar::Int_(1),
+					Scalar::Int_(5),
+					Scalar::Int_(8),
 				]))),
 			]),
 		],
@@ -104,11 +107,11 @@ return [
 		, Token::terminator("\n", 3)
 		, Token::eof(),
 		],
-			new Expr(['source', new Literal('5', 'NUMBER')], [
-				new Let('source', new Lambda(['x'], new StructList([
-					new Literal('1', 'NUMBER'),
-					new Literal('5', 'NUMBER'),
-					new Literal('8', 'NUMBER'),
+			new Expr(['source', Scalar::Int_(5)], [
+				new Let('source', new Lambda(['x'], Composite::List_([
+					Scalar::Int_(1),
+					Scalar::Int_(5),
+					Scalar::Int_(8),
 				]))),
 			]),
 		],
