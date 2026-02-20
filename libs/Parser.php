@@ -164,7 +164,7 @@ class HayoParser
 
 		if (self::isClosure($token, $src)) {
 			array_unshift($src, $token);
-			list($body, $src) = self::buildLambda($src, $ns);
+			list($body, $src) = self::buildScope($src, $ns);
 		}
 		// Definice na dalším řádku
 		elseif ($token->type === 'INDENT') {
@@ -189,7 +189,7 @@ class HayoParser
 	 * @param list<string> $ns
 	 * @return array<{0: Term, 1: list<Token>}>
 	 */
-	private static function buildLambda(array $src, array $ns = [])
+	private static function buildScope(array $src, array $ns = [])
 	{
 		$args = [];
 		$xs = [];
@@ -269,62 +269,7 @@ class HayoParser
 			}
 		}
 
-
-		return [self::makeLambda($args, $lets,$xs, $ns), $src];
-	}
-
-
-
-	/**
-	 * @param list<string> $args
-	 * @param array<string, Value> $lets
-	 * @param list<Value> $body
-	 * @return Value
-	 */
-	private static function makeLambda(array $args, array $lets, array $body)
-	{
-		if (empty($body)) {
-			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
-		}
-
-		if (count($body) === 1) {
-			return reset($body);
-		}
-
-		if (empty($args) && empty($lets)) {
-			return self::isInfix($body)
-				? Expr::Bin_($body[0], $body[1], $body[2])
-				: Expr::Func_($body[0], array_slice($body, 1));
-		}
-
-		if (count($args) && empty($lets)) {
-			return new Lambda($args, self::makeLambdaBody($body));
-		}
-		throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
-	}
-
-
-
-	/**
-	 * @param list<Value> $body
-	 * @return string | Value
-	 */
-	private static function makeLambdaBody(array $body)
-	{
-		// `(x) -> x`
-		// `() -> 42`
-		if (count($body) === 1) {
-			return reset($body);
-		}
-		// `(x) -> x + x`
-		// `(x) -> inc x`
-		// `(x) -> inc x x`
-		return self::isInfix($body)
-			? Expr::Bin_($body[0], $body[1], $body[2])
-			: Expr::Func_($body[0], array_slice($body, 1));
-
-		// @TODO A tohle?
-		// `(x) -> (y) -> x + y`
+		return [self::makeScope($args, $lets,$xs, $ns), $src];
 	}
 
 
@@ -358,7 +303,7 @@ class HayoParser
 					break;
 
 				case 'BRACKET' && $token->val === '(' && self::isLambda($src):
-					list($body, $src) = self::buildLambda($src, $ns);
+					list($body, $src) = self::buildScope($src, $ns);
 					$xs[] = $body;
 					break;
 
@@ -393,21 +338,10 @@ class HayoParser
 		}
 
 		if (empty($xs)) {
-			throw HayoParserException::createMissingRequiredToken($token, "closing bracked");
+			throw HayoParserException::createMissingRequiredToken($src[0], "closing bracked");
 		}
 
-		// operátor `1 + a` se skládá vždy z právě tří prvků.
-		// funkce může mít víc jak jeden argument. Ale nejsme schopni rozlišit, zda první prvek je zrovna funkce, nebo operátor.
-		// Touto zkratkou řešíme zřetězení operátorů (a funkcí): `a + 1 * 6 div 8 ^ 12`
-		if (count($xs) > 3 && ! self::isFunc($xs)) {
-			return [(new PrattParser($xs))->rebuild(),
-				$src,
-				];
-		}
-
-		return [self::isInfix($xs)
-			? Expr::Bin_($xs[0], $xs[1], $xs[2])
-			: Expr::Func_($xs[0], array_slice($xs, 1)), $src];
+		return [self::makeExpression($xs), $src];
 	}
 
 
@@ -644,6 +578,78 @@ class HayoParser
 
 		return [$xs, $src];
 	}
+
+
+
+
+	/**
+	 * @param list<string> $args
+	 * @param array<string, Value> $lets
+	 * @param list<Value> $body
+	 * @return Value
+	 */
+	private static function makeScope(array $args, array $lets, array $body)
+	{
+		if (empty($body)) {
+			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+		}
+
+		if (count($body) === 1) {
+			return reset($body);
+		}
+
+		if (empty($args) && empty($lets)) {
+			return self::makeExpression($body);
+		}
+
+		if (count($args) && empty($lets)) {
+			return new Lambda($args, self::makeLambdaBody($body));
+		}
+		throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+	}
+
+
+
+	private static function makeExpression(array $xs)
+	{
+		if (empty($xs)) {
+			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+		}
+
+		// operátor `1 + a` se skládá vždy z právě tří prvků.
+		// funkce může mít víc jak jeden argument. Ale nejsme schopni rozlišit, zda první prvek je zrovna funkce, nebo operátor.
+		// Touto zkratkou řešíme zřetězení operátorů (a funkcí): `a + 1 * 6 div 8 ^ 12`
+		if (count($xs) > 3 && ! self::isFunc($xs)) {
+			return (new PrattParser($xs))->rebuild();
+		}
+
+		return self::isInfix($xs)
+			? Expr::Bin_($xs[0], $xs[1], $xs[2])
+			: Expr::Func_($xs[0], array_slice($xs, 1));
+	}
+
+
+	/**
+	 * @param list<Value> $body
+	 * @return string | Value
+	 */
+	private static function makeLambdaBody(array $body)
+	{
+		// `(x) -> x`
+		// `() -> 42`
+		if (count($body) === 1) {
+			return reset($body);
+		}
+
+		// `(x) -> x + x`
+		// `(x) -> inc x`
+		// `(x) -> inc x x`
+		return self::makeExpression($body);
+
+		// @TODO A tohle?
+		// `(x) -> (y) -> x + y`
+	}
+
 
 
 
