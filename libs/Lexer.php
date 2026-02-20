@@ -25,16 +25,15 @@ class HayoLexer
 	const INDENT = '~^(?:\n[^\n\S]*)+~';
 	const SHEBANG = '~^#!.*~';
 
-	private $lines;
-	private $indent = 0;
-	private $indents = [];
-	private $tokens = [];
+	private int $lines;
+	private int $indent = 0;
+	private array $indents = [];
+	private array $tokens = [];
 
 	/**
-	 * @param string
-	 * @return list of Token
+	 * @return list<Token>
 	 */
-	function tokenise($src)
+	function tokenise(string $src)
 	{
 		$this->lines = 1;
 		$this->indent = 0;
@@ -55,7 +54,10 @@ class HayoLexer
 				?: $this->lineToken($chunk)
 				?: $this->literalToken($chunk);
 			if ( ! $diff) {
-				throw new Exception("Couldn't tokenise: `" . substr($chunk, 0, strpos($chunk, "\n")) . "'.");
+				$context = strpos($chunk, "\n") === False
+					? $chunk
+					: substr($chunk, 0, (int) strpos($chunk, "\n"));
+				throw new Exception("Couldn't tokenise: '" . $context . "'.");
 			}
 			$i += $diff;
 		}
@@ -173,7 +175,6 @@ class HayoLexer
 		$quoted = False;
 		$nextChar = Null;
 		if ($firstChar === '"' || $firstChar === "'") {
-			// @TODO Optimalize
 			for ($i = 1; $i < strlen($chunk); $i++) {
 				if ( ! $quoted) {
 					$nextChar = $chunk[$i];
@@ -402,7 +403,7 @@ class Token
 	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
 	public $line;
 
-	function __construct($type, $val, $line = Null)
+	function __construct(string $type, $val, ?int $line = Null)
 	{
 		$this->type = $type;
 		$this->val = $val;
@@ -411,56 +412,56 @@ class Token
 
 
 
-	static function comment($val, $line = Null)
+	static function comment(string $val, ?int $line = Null)
 	{
 		return new static('COMMENT', $val, $line);
 	}
 
 
 
-	static function generic($val, $line = Null)
+	static function generic($val, ?int $line = Null)
 	{
 		return new static('GENERIC', $val, $line);
 	}
 
 
 
-	static function arrow($val, $line = Null)
+	static function arrow($val, ?int $line = Null)
 	{
 		return new static('ARROW', $val, $line);
 	}
 
 
 
-	static function assign_($val = '=', $line = Null)
+	static function assign_(string $val = '=', ?int $line = Null)
 	{
 		return new static('ASSIGN', $val, $line);
 	}
 
 
 
-	static function bracket($val, $line = Null)
+	static function bracket(string $val, ?int $line = Null)
 	{
 		return new static('BRACKET', $val, $line);
 	}
 
 
 
-	static function terminator($val, $line = Null)
+	static function terminator(string $val, ?int $line = Null)
 	{
 		return new static('TERMINATOR', $val, $line);
 	}
 
 
 
-	static function indent($val, $line = Null)
+	static function indent(int $val, ?int $line = Null)
 	{
 		return new static('INDENT', $val, $line);
 	}
 
 
 
-	static function outdent($val, $line = Null)
+	static function outdent(int $val, ?int $line = Null)
 	{
 		return new static('OUTDENT', $val, $line);
 	}
@@ -474,35 +475,35 @@ class Token
 
 
 
-	static function identifier($val, $line = Null)
+	static function identifier(string $val, ?int $line = Null)
 	{
 		return new static('IDENTIFIER', $val, $line);
 	}
 
 
 
-	static function string_($val, $line = Null)
+	static function string_(string $val, ?int $line = Null)
 	{
 		return new static('STRING', $val, $line);
 	}
 
 
 
-	static function number_($val, $line = Null)
+	static function number_($val, ?int $line = Null)
 	{
 		return new static('NUMBER', $val, $line);
 	}
 
 
 
-	static function symbol_($val, $line = Null)
+	static function symbol_(string $val, ?int $line = Null)
 	{
 		return new static('SYMBOL', $val, $line);
 	}
 
 
 
-	function __toString()
+	function __toString(): string
 	{
 		if ($this->type === 'EOF') {
 			return 'EOF';

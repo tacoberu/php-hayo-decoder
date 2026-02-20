@@ -8,6 +8,7 @@
 namespace Taco\Hayo;
 
 use Exception;
+use Throwable;
 use LogicException;
 
 
@@ -56,7 +57,7 @@ class HayoParser
 
 	/**
 	 * @param list<Token> $src
-	 * @return Term | string | null
+	 * @return Value | string | null
 	 */
 	function decode(array $src)
 	{
@@ -64,10 +65,10 @@ class HayoParser
 			throw new HayoParserException('Empty content.');
 		}
 
-		list($expr, $src) = self::buildBlock($src);
+		list($expr, $tail) = self::buildBlock($src);
 
-		if (count($src)) {
-			throw new HayoParserException('Unprocessable content.', $src[0]->line);
+		if (count($tail)) {
+			throw new HayoParserException('Unprocessable content.', $tail[0]->line);
 		}
 
 		return $expr;
@@ -130,9 +131,9 @@ class HayoParser
 
 		if ($lets && $expr) {
 			if (is_string($expr)) {
-				foreach ($lets as $x) {
-					if ($x->getSymbol() === $expr) {
-						$expr = $x->getTerm();
+				foreach ($lets as $id => $term) {
+					if ($id === $expr) {
+						$expr = $term;
 						break;
 					}
 				}
@@ -340,8 +341,16 @@ class HayoParser
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
-				case 'SYMBOL':
 					$xs[] = self::buildScalar($token);
+					break;
+
+				case 'SYMBOL':
+					$val = strtoupper($token->val);
+					// Výjimky
+					// Standardně očekáváme, že symbol začíná malým písmenem, a Typ velkým písmenem
+					$xs[] = in_array($val, ['AND', 'OR', 'IN', 'HAS', 'SUPERSET', 'SUBSET', 'INTERSECTS',], True)
+						? $val
+						: self::buildScalar($token);
 					break;
 
 				case 'IDENTIFIER':
@@ -385,6 +394,15 @@ class HayoParser
 
 		if (empty($xs)) {
 			throw HayoParserException::createMissingRequiredToken($token, "closing bracked");
+		}
+
+		// operátor `1 + a` se skládá vždy z právě tří prvků.
+		// funkce může mít víc jak jeden argument. Ale nejsme schopni rozlišit, zda první prvek je zrovna funkce, nebo operátor.
+		// Touto zkratkou řešíme zřetězení operátorů (a funkcí): `a + 1 * 6 div 8 ^ 12`
+		if (count($xs) > 3 && ! self::isFunc($xs)) {
+			return [(new PrattParser($xs))->rebuild(),
+				$src,
+				];
 		}
 
 		return [self::isInfix($xs)
@@ -597,7 +615,7 @@ class HayoParser
 					: Scalar::Int_((int) $token->val);
 
 			case 'SYMBOL':
-				return Scalar::Symbol_((string) $token->val);
+				return Scalar::Symbol_($token->val);
 
 			default:
 				throw new LogicException("Comming soon... (2026.02.15 02:55:05 CET): '{$token->type}'");
@@ -608,7 +626,7 @@ class HayoParser
 
 	/**
 	 * @param list<Token> $src
-	 * @return array<{0: Token, 1: list<Token>>
+	 * @return array{0: Token, 1: list<Token>}
 	 */
 	private static function buildNamespace(array $src)
 	{
@@ -724,12 +742,42 @@ class HayoParser
 	 */
 	private static function isInfix(array $xs): bool
 	{
-		if (count($xs) === 3
-				&& is_string($xs[1])
-				&& in_array($xs[1], ['+', '-', '*', '/', 'div', 'mod', '^', '&&', 'and', '||', 'or', '%', '++', '**',], True)) {
+		if (count($xs) === 3 && is_string($xs[1]) && self::isOperator($xs[1])) {
 			return True;
 		}
 		return False;
+	}
+
+
+
+	private static function isOperator(string $m): bool
+	{
+		return in_array(strtolower($m), [
+			'+', '-', '*', '/', 'div', 'mod', '^',
+			// 7/ porovnání: rovnost a nerovnost
+			'==', '!=', '<>', 'is',	'in', 'has', 'superset', 'subset', 'intersects',
+			'&&', 'and', '||', 'or',
+			'%', '++', '**',
+			], True);
+	}
+
+
+
+	/**
+	 * @param list<string | Value> $xs
+	 */
+	private static function isFunc(array $xs): bool
+	{
+		if (is_string($xs[0]) && in_array(strtolower($xs[0]), ['!', 'not'], True)) {
+			return False;
+		}
+		if ( ! is_string($xs[1])) {
+			return True;
+		}
+		if (self::isOperator($xs[1])) {
+			return False;
+		}
+		return True;
 	}
 
 
@@ -778,6 +826,168 @@ class HayoParser
 	{
 		$def = (object)json_decode($str);
 		return new Scalar($def->val, $def->type);
+	}
+
+}
+
+
+
+/**
+ * @internal
+ */
+final class PrattParser
+{
+
+	/**
+	 * @var list<string | Value>
+	 */
+	private array $tokens;
+
+	private int $pos = 0;
+
+	/**
+	 * @param list<string | Value> $tokens
+	 */
+	function __construct(array $tokens)
+	{
+		$this->tokens = $tokens;
+	}
+
+
+
+	/**
+	 * @return string | Value
+	 */
+	function rebuild(int $minBp = 0)
+	{
+		// NUD: načti levý operand (musí být Scalar nebo prefix)
+		$left = $this->consume();
+
+		if (self::isOperator($left)) {
+			throw new LogicException("Očekáván operand, dostal jsem operátor: '{$left}'.");
+		}
+
+		// LED: dokud má další operátor dostatečnou vazebnou sílu
+		while (($op = $this->peek()) !== null && self::bindingPower($op) > $minBp) {
+			$this->consume(); // spolkni operátor
+
+			// Pravý operand parsujeme s vazebnou silou tohoto operátoru
+			$right = $this->rebuild(self::bindingPower($op));
+
+			// Operátor "obalí" levý a pravý operand
+			$left = self::buildExpression($op, $left, $right);
+		}
+
+		return $left;
+	}
+
+
+
+	/**
+	 * @return string | Value | null
+	 */
+	private function peek()
+	{
+		return $this->tokens[$this->pos] ?? null;
+	}
+
+
+
+	/**
+	 * @return string | Value
+	 */
+	private function consume()
+	{
+		return $this->tokens[$this->pos++];
+	}
+
+
+
+	/**
+	 * @param string | Value $x
+	 */
+	private static function isOperator($x): bool
+	{
+		return is_string($x) && self::bindingPower($x) > 0;
+	}
+
+
+
+	/**
+	 * Váhy jednotlivých operací.
+	 */
+	private static function bindingPower(string $op): int
+	{
+		$op = strtolower($op);
+		switch (True) {
+			// 1/ grupování a unární operace
+			case in_array($op, ['()', '[]', '->', '.', '::', '++', '--',], True):
+				return 120;
+
+			// 2/ logická negace a unární operace
+			case in_array($op, ['**', '!', '~'], True):
+				return 120;
+
+			// 3/ násobení, dělení, modulo
+			case in_array($op, ['*', '/', 'div', '%', 'mod'], True):
+				return 110;
+
+			// 4/ sčítání a odčítání
+			case in_array($op, ['+', '-',], True):
+				return 100;
+
+			// 5/ bitové posuny
+			case in_array($op, ['<<', '>>',], True):
+				return 90;
+
+			// 6/ porovnání: větší než, menší než …
+			case in_array($op, ['<', '<=', '>=', '>',], True):
+				return 80;
+
+			// 7/ porovnání: rovnost a nerovnost
+			case in_array($op, ['==', '!=', '<>', 'is',
+					'in', 'has',
+					'superset', 'subset', 'intersects',
+					], True):
+				return 70;
+
+			// 8/ bitové AND
+			case in_array($op, ['&',], True):
+				return 60;
+
+			// 9/ bitové XOR
+			case in_array($op, ['^',], True):
+				return 50;
+
+			// 10/ bitové OR
+			case in_array($op, ['|',], True):
+				return 40;
+
+			// 11/ logické A
+			case in_array($op, ['&&', 'and',], True):
+				return 30;
+
+			// 12/ logické NEBO
+			case in_array($op, ['||', 'or',], True):
+				return 20;
+
+			// 13 	= += -= *= /= %= &= ^= <<= >>= 	přiřazovací operátory
+
+			default:
+				return 0;
+		}
+	}
+
+
+
+	/**
+	 * @param string | Value $left
+	 * @param string | Value $right
+	 */
+	private static function buildExpression(string $op, $left, $right): Expr
+	{
+		// ěTODO Funkce zatím neřeším
+		return Expr::Bin_($left, $op, $right);
 	}
 
 }

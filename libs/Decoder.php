@@ -18,7 +18,7 @@ class HayoDecoder
 
 
 	/**
-	 * @return Term | string | null
+	 * @return Value | string | null
 	 */
 	function decode(string $src)
 	{
