@@ -54,6 +54,39 @@ return [
 					Scalar::Int_(4),
 				])]),
 		],
+
+	'lambda zapsaná inline, dva argumenty' => ["prelude.fold 0 (prev x -> prev + x) [1, 2, 4]",
+		[ Token::identifier("prelude.fold", 1)
+		, Token::number_('0', 1)
+		, Token::bracket('(', 1)
+		, Token::identifier("prev", 1)
+		, Token::identifier("x", 1)
+		, Token::arrow('->', 1)
+		, Token::identifier("prev", 1)
+		, Token::identifier("+", 1)
+		, Token::identifier("x", 1)
+		, Token::bracket(')', 1)
+		, Token::bracket('[', 1)
+		, Token::number_('1', 1)
+		, Token::generic(',', 1)
+		, Token::number_('2', 1)
+		, Token::generic(',', 1)
+		, Token::number_('4', 1)
+		, Token::bracket(']', 1)
+		, Token::eof(),
+		],
+			Expr::Func_('prelude.fold', [
+				Scalar::Int_(0),
+				new Lambda(['prev', 'x'], Expr::Bin_('prev', '+', 'x')),
+				Composite::List_([
+					Scalar::Int_(1),
+					Scalar::Int_(2),
+					Scalar::Int_(4),
+				])]),
+		],
+
+
+
 //*/
 
 /*	'bug 1' => ["source = x -> [ 1, 5, 8]\nsource 5\n",
