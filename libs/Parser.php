@@ -761,7 +761,7 @@ class HayoParser
 		return in_array(strtolower($m), [
 			'+', '-', '*', '/', 'div', 'mod', '^',
 			// 7/ porovnání: rovnost a nerovnost
-			'==', '!=', '<>', 'is',	'in', 'has', 'superset', 'subset', 'intersects',
+			'==', '!=', '<>', '<', '<=', '>=', '>', 'is', 'in', 'has', 'superset', 'subset', 'intersects',
 			'&&', 'and', '||', 'or',
 			'%', '++', '**',
 			], True);
