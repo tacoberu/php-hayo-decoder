@@ -77,28 +77,16 @@ class HayoLexer
 	{
 		if (preg_match(self::IDENTIFIER, $chunk, $matches)) {
 			switch ($matches[0]) {
-/*
-				case 'let':
-					$type = 'LET';
-					break;
-
 				case 'if':
-					$type = 'IF';
-					break;
-
+				case 'when':
+				case 'is':
 				case 'then':
-					$type = 'THEN';
-					break;
-
+				case 'elseif':
+				case 'elif':
 				case 'else':
-					$type = 'ELSE';
+					$type = 'KEYWORD';
 					break;
 
-				case 'true':
-				case 'false':
-					$type = 'BOOLEAN';
-					break;
-*/
 				default:
 					$type = self::isSymbol($matches[0])
 						? 'SYMBOL'
@@ -381,12 +369,18 @@ class HayoLexer
 
 
 	/**
-	 * Symbol je identifikátor začínající na velké písmeno.
+	 * Symbol je identifikátor začínající na velké písmeno. Například True, False, Nothing.
+	 * Může být prefixován, ale pak stále musí začínat velkým písmenem: Bool.True je symbol, versus Bool.true je identifikátor.
 	 */
-	private static function isSymbol($m)
+	private static function isSymbol(string $src): bool
 	{
-		$m = ord($m[0]);
-		return $m >= ord('A') && $m <= ord('Z');
+		foreach (explode('.', $src) as $m) {
+			$m = ord($m[0]);
+			if ( ! ($m >= ord('A') && $m <= ord('Z'))) {
+				return False;
+			}
+		}
+		return True;
 	}
 
 }

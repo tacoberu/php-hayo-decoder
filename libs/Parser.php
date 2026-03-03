@@ -124,6 +124,18 @@ class HayoParser
 					list($expr, $src) = self::buildExpression($src, $ns);
 					break;
 
+				case 'KEYWORD':
+					array_unshift($src, $token);
+					switch ($token->val) {
+						case 'if':
+							list($expr, $src) = self::buildIfElseForm($src, $ns);
+							break;
+
+						default:
+							HayoParserException::createUnexpectedToken($token);
+					}
+					break;
+
 				default:
 					HayoParserException::createUnexpectedToken($token);
 			}
@@ -348,6 +360,49 @@ class HayoParser
 		}
 
 		return [self::makeExpression($xs), $src];
+	}
+
+
+
+	/**
+	 * if <condition 1> then <expression 1>
+	 *  elif <condition 2> then <expression 2>
+	 * 	...
+	 *  elif <condition n> then <expression n>
+	 *  else <expression>
+	 *
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array<{0: Term, 1: list<Token>}>
+	 */
+	private static function buildIfElseForm(array $src, array $ns = [])
+	{
+		$chains = [];
+		while ($token = array_shift($src)) {
+			if ($token->type === 'TERMINATOR') {
+				continue;
+			}
+			elseif ($token->type === 'KEYWORD' && in_array($token->val, ['if', 'elseif', 'elif'], True)) {
+				list($condition, $src) = self::buildExpression($src, $ns);
+				$token = array_shift($src);
+				if ( ! ($token->type === 'KEYWORD' && $token->val === 'then')) {
+					throw HayoParserException::createMissingRequiredToken($token, "then of if-then-else");
+				}
+				list($expr, $src) = self::buildExpression($src, $ns);
+				$chains[] = (object) [
+					'cond' => $condition,
+					'expr' => $expr,
+				];
+			}
+			elseif ($token->type === 'KEYWORD' && in_array($token->val, ['else'], True)) {
+				list($expr, $src) = self::buildExpression($src, $ns);
+				return [Form::IfThenElse_($chains, $expr), $src];
+			}
+			else {
+				throw HayoParserException::createUnexpectedToken($token, "if-then-else");
+			}
+		}
+		throw HayoParserException::createUnexpectedToken($token, "if-then-else");
 	}
 
 
@@ -587,7 +642,6 @@ class HayoParser
 
 
 
-
 	/**
 	 * @param list<string> $args
 	 * @param array<string, Value> $lets
@@ -600,6 +654,10 @@ class HayoParser
 			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
 		}
 
+		if (count($args) && empty($lets)) {
+			return new Lambda($args, self::makeLambdaBody($body));
+		}
+
 		if (count($body) === 1) {
 			return reset($body);
 		}
@@ -608,14 +666,15 @@ class HayoParser
 			return self::makeExpression($body);
 		}
 
-		if (count($args) && empty($lets)) {
-			return new Lambda($args, self::makeLambdaBody($body));
-		}
 		throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
 	}
 
 
 
+	/**
+	 * @param list<Value | string> $xs
+	 * @return string | Value
+	 */
 	private static function makeExpression(array $xs)
 	{
 		if (empty($xs)) {
@@ -633,6 +692,7 @@ class HayoParser
 			? Expr::Bin_($xs[0], $xs[1], $xs[2])
 			: Expr::Func_($xs[0], array_slice($xs, 1));
 	}
+
 
 
 	/**
@@ -658,7 +718,6 @@ class HayoParser
 
 
 
-
 	/**
 	 * @param list<Token> $src
 	 */
@@ -669,6 +728,7 @@ class HayoParser
 				case 'NUMBER':
 				case 'STRING':
 				case 'SYMBOL':
+				case 'KEYWORD':
 				case 'INDENT':
 				case 'OUTDENT':
 				case 'BRACKET':

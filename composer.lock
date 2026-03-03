@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d37ed10bb36f242a90f1b2469075d04c",
+    "content-hash": "543fdf996d1dd16248fbaa34e686ffd3",
     "packages": [
         {
             "name": "nette/utils",
@@ -90,16 +90,16 @@
         },
         {
             "name": "tacoberu/hayo-ast",
-            "version": "v0.1.2",
+            "version": "v0.1.4",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.com:tacoberu/php-hayo-ast.git",
-                "reference": "1e40de225fb5bf026f99142914a6458d5d138a6d"
+                "reference": "79edda32661693b6d0c5f13d1142667496529723"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/tacoberu%2Fphp-hayo-ast/repository/archive.zip?sha=1e40de225fb5bf026f99142914a6458d5d138a6d",
-                "reference": "1e40de225fb5bf026f99142914a6458d5d138a6d",
+                "url": "https://gitlab.com/api/v4/projects/tacoberu%2Fphp-hayo-ast/repository/archive.zip?sha=79edda32661693b6d0c5f13d1142667496529723",
+                "reference": "79edda32661693b6d0c5f13d1142667496529723",
                 "shasum": ""
             },
             "require": {
@@ -143,10 +143,10 @@
             ],
             "description": "...",
             "support": {
-                "source": "https://gitlab.com/tacoberu/php-hayo-ast/-/tree/v0.1.2",
+                "source": "https://gitlab.com/tacoberu/php-hayo-ast/-/tree/v0.1.4",
                 "issues": "https://gitlab.com/tacoberu/php-hayo-ast/-/issues"
             },
-            "time": "2026-02-20T20:50:34+01:00"
+            "time": "2026-03-05T23:29:58+01:00"
         }
     ],
     "packages-dev": [

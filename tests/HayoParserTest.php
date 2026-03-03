@@ -37,6 +37,7 @@ dump($ast);
 	#[DataProvider('dataComposite')]
 	#[DataProvider('dataExpr')]
 	#[DataProvider('dataScope')]
+	#[DataProvider('dataForm')]
 	function testScalar(string $src, Value $expected)
 	{
 		$this->assertEquals($expected, $this->parse($src));
@@ -164,7 +165,7 @@ dump($ast);
 			// redukce na scalar
 			["a = 5\n"
 			. 'a',
-					Scalar::Int_(5)
+					Scalar::Int_(5),
 				],
 
 /*			["a = 5 * 5\n" // @TODO Mělo by se to redukovat na 25, ale redukuje se to na Expr - Tak němělo, tohle je jen AST.
@@ -172,6 +173,70 @@ dump($ast);
 					Scalar::Int_(25)
 				],
 				//*/
+		];
+	}
+
+
+
+	static function dataForm()
+	{
+		return [
+			[""
+			. 'if a then 1 elseif a > 1 then 2 else 3',
+				Form::IfThenElse_([
+						(object) ['cond' => 'a', 'expr' => Scalar::Int_(1)],
+						(object) ['cond' => Expr::Bin_('a', '>', Scalar::Int_(1)),
+							 'expr' => Scalar::Int_(2),
+							],
+						],
+					Scalar::Int_(3)
+					),
+				],
+			[""
+			. 'if a > 1 then a else b',
+				Form::IfThenElse_([
+						(object) ['cond' => Expr::Bin_('a', '>', Scalar::Int_(1)),
+							 'expr' => 'a',
+							],
+						],
+					'b'
+					),
+				],
+			[""
+			. 'if a > 1 or b < 99 then a + 1 else b + 3',
+				Form::IfThenElse_([
+						(object) ['cond' => Expr::Bin_(Expr::Bin_('a', '>', Scalar::Int_(1)),
+							'or',
+							Expr::Bin_('b', '<', Scalar::Int_(99))
+							),
+							'expr' => Expr::Bin_('a', '+', Scalar::Int_(1)),
+							],
+						],
+					Expr::Bin_('b', '+', Scalar::Int_(3))
+					),
+				],
+			[""
+			. "if a > 1 or b < 99 then a + 1\n"
+			. "elif a > 99 then a + 200\n"
+			. "elif b < 1 then a + -1\n"
+			. "else b + 3",
+				Form::IfThenElse_([
+						(object) ['cond' => Expr::Bin_(Expr::Bin_('a', '>', Scalar::Int_(1)),
+							'or',
+							Expr::Bin_('b', '<', Scalar::Int_(99))
+							),
+							'expr' => Expr::Bin_('a', '+', Scalar::Int_(1)),
+							],
+						(object) ['cond' => Expr::Bin_('a', '>', Scalar::Int_(99)),
+							'expr' => Expr::Bin_('a', '+', Scalar::Int_(200)),
+							],
+						(object) ['cond' => Expr::Bin_('b', '<', Scalar::Int_(1)),
+							'expr' => Expr::Bin_('a', '+', Scalar::Int_(-1)),
+							],
+						],
+					Expr::Bin_('b', '+', Scalar::Int_(3))
+					),
+				],
 		];
 	}
 
