@@ -138,6 +138,12 @@ class HayoParser
 					}
 				}
 			}
+
+			// Mohlo se to redukovat až na Scalar
+			if ($expr instanceof Scalar) {
+				return [$expr, $src];
+			}
+
 			$expr = new Scope($lets, $expr);
 		}
 

@@ -160,6 +160,18 @@ dump($ast);
 					Expr::Func_('sum', [Scalar::Int_(2), 'a'])
 					),
 				],
+
+			// redukce na scalar
+			["a = 5\n"
+			. 'a',
+					Scalar::Int_(5)
+				],
+
+/*			["a = 5 * 5\n" // @TODO Mělo by se to redukovat na 25, ale redukuje se to na Expr - Tak němělo, tohle je jen AST.
+			. 'a',
+					Scalar::Int_(25)
+				],
+				//*/
 		];
 	}
 
