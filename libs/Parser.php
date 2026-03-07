@@ -212,6 +212,7 @@ class HayoParser
 		$args = [];
 		$xs = [];
 		$lets = [];
+		$parenArg = false;
 		while ($token = array_shift($src)) {
 			switch ($token->type) {
 				case 'NUMBER':
@@ -237,6 +238,7 @@ class HayoParser
 					if (count($expr->getItems()) < 2) {
 						$expr = $expr->getItems();
 						$expr = reset($expr);
+						$parenArg = true;
 					}
 					$xs[] = $expr;
 					break;
@@ -273,8 +275,12 @@ class HayoParser
 					return [$val, $src];
 
 				case 'ARROW':
+					if ($parenArg) {
+						throw new LogicException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
+					}
 					$args = $xs;
 					$xs = [];
+					$parenArg = false;
 					break;
 
 				case 'TERMINATOR':
@@ -282,12 +288,25 @@ class HayoParser
 				//~ case '_OUTDENT':
 					break 2;
 
+				case 'KEYWORD':
+					array_unshift($src, $token);
+					switch ($token->val) {
+						case 'if':
+							list($expr, $src) = self::buildIfElseForm($src, $ns);
+							$xs[] = $expr;
+							break;
+
+						default:
+							HayoParserException::createUnexpectedToken($token);
+					}
+					break;
+
 				default:
 					HayoParserException::createUnexpectedToken($token);
 			}
 		}
 
-		return [self::makeScope($args, $lets,$xs, $ns), $src];
+		return [self::makeScope($args, $lets, $xs, $ns), $src];
 	}
 
 
