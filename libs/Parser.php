@@ -97,6 +97,10 @@ class HayoParser
 				case 'COMMENT':
 					break;
 
+				// Stredník jako alternativní oddelovac vyrazu
+				case 'IDENTIFIER' && $token->val === ';':
+					break;
+
 				case 'EOF':
 				case 'OUTDENT':
 					break 2;
@@ -122,6 +126,16 @@ class HayoParser
 				case 'BRACKET':
 					array_unshift($src, $token);
 					list($expr, $src) = self::buildExpression($src, $ns);
+					break;
+
+				// Odsazený blok po výrazu – pipe chain
+				case 'INDENT':
+					if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>' && $expr !== Null) {
+						list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
+					}
+					else {
+						HayoParserException::createUnexpectedToken($token);
+					}
 					break;
 
 				case 'KEYWORD':
@@ -221,6 +235,10 @@ class HayoParser
 					$xs[] = self::buildScalar($token);
 					break;
 
+				// Stredník jako alternativní oddelovac vyrazu
+				case 'IDENTIFIER' && $token->val === ';':
+					break;
+
 				// Přiřazení lokálního symbolu
 				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
 					array_unshift($src, $token);
@@ -259,15 +277,26 @@ class HayoParser
 					break;
 
 				case 'INDENT':
-					list($val, $src) = self::buildBlock($src, $ns);
-					$xs[] = $val;
+					// Pipe chain block: odsazený blok začínající |>
+					if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>') {
+						$left = count($xs) === 1
+							? $xs[0]
+							: self::makeExpression($xs);
+						list($val, $src) = self::buildPipeChainBlock($left, $src, $ns);
+						$xs = [$val];
+					}
+					else {
+						list($val, $src) = self::buildBlock($src, $ns);
+						$xs[] = $val;
 
-					// @TODO
-					if (count($xs) > 1) {
-						$token = reset($src);
-						throw new HayoParserException('Unexpected many items.', $token->line);
+						// @TODO
+						if (count($xs) > 1) {
+							$token = reset($src);
+							throw new HayoParserException('Unexpected many items.', $token->line);
+						}
 					}
 
+					$val = $xs[0];
 					if (count($args)) {
 						$val = new Lambda($args, $val);
 					}
@@ -334,6 +363,10 @@ class HayoParser
 						? $val
 						: self::buildScalar($token);
 					break;
+
+				case 'IDENTIFIER' && $token->val === ';':
+					array_unshift($src, $token);
+					break 2;
 
 				case 'IDENTIFIER':
 					$xs[] = self::buildIdentifier($token->val, $ns);
@@ -677,6 +710,13 @@ class HayoParser
 			return new Lambda($args, self::makeLambdaBody($body));
 		}
 
+		if (count($args) && count($lets)) {
+			$bodyVal = count($body) === 1
+				? reset($body)
+				: self::makeLambdaBody($body);
+			return new Lambda($args, new Scope($lets, $bodyVal));
+		}
+
 		if (count($body) === 1) {
 			return reset($body);
 		}
@@ -700,6 +740,11 @@ class HayoParser
 			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
 		}
 
+		// Pipe operátor |> má nejnižší prioritu, zpracujeme ho jako první
+		if (in_array('|>', $xs, True)) {
+			return self::makePipeExpression($xs);
+		}
+
 		// operátor `1 + a` se skládá vždy z právě tří prvků.
 		// funkce může mít víc jak jeden argument. Ale nejsme schopni rozlišit, zda první prvek je zrovna funkce, nebo operátor.
 		// Touto zkratkou řešíme zřetězení operátorů (a funkcí): `a + 1 * 6 div 8 ^ 12`
@@ -710,6 +755,89 @@ class HayoParser
 		return self::isInfix($xs)
 			? Expr::Bin_($xs[0], $xs[1], $xs[2])
 			: Expr::Func_($xs[0], array_slice($xs, 1));
+	}
+
+
+
+	/**
+	 * Zpracuje pipe operátor |>: `a |> f b |> g c` -> `g (f a b) c`
+	 * @param list<string | Value> $xs
+	 * @return string | Value
+	 */
+	private static function makePipeExpression(array $xs)
+	{
+		$segments = [];
+		$current = [];
+		foreach ($xs as $item) {
+			if ($item === '|>') {
+				$segments[] = $current;
+				$current = [];
+			}
+			else {
+				$current[] = $item;
+			}
+		}
+		$segments[] = $current;
+
+		$left = count($segments[0]) === 1
+			? $segments[0][0]
+			: self::makeExpression($segments[0]);
+
+		for ($i = 1; $i < count($segments); $i++) {
+			$step = $segments[$i];
+			if (empty($step)) {
+				continue;
+			}
+			$func = $step[0];
+			$extraArgs = array_slice($step, 1);
+			$left = Expr::Func_($func, array_merge([$left], $extraArgs));
+		}
+
+		return $left;
+	}
+
+
+
+	/**
+	 * Zpracuje odsazený blok začínající |> jako řetězec pipe operátorů.
+	 * @param string | Value $left Levá strana (akumulátor)
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array{0: mixed, 1: list<Token>}
+	 */
+	private static function buildPipeChainBlock($left, array $src, array $ns)
+	{
+		$acc = $left;
+		while ($token = array_shift($src)) {
+			switch ($token->type) {
+				case 'TERMINATOR':
+				case 'COMMENT':
+					break;
+
+				case 'EOF':
+				case 'OUTDENT':
+					break 2;
+
+				case 'IDENTIFIER' && $token->val === '|>':
+					list($step, $src) = self::buildExpression($src, $ns);
+					if ($step instanceof Expr && $step->getNotation() === Expr::NotationPrefix) {
+						$items = $step->getItems();
+						$func = $items[0];
+						$extraArgs = array_slice($items, 1);
+					}
+					else {
+						$func = $step;
+						$extraArgs = [];
+					}
+					$acc = Expr::Func_($func, array_merge([$acc], $extraArgs));
+					break;
+
+				default:
+					HayoParserException::createUnexpectedToken($token);
+			}
+		}
+
+		return [$acc, $src];
 	}
 
 
@@ -742,7 +870,22 @@ class HayoParser
 	 */
 	private static function isLambda(array $src): bool
 	{
+		$depth = 0;
 		foreach ($src as $token) {
+			if ($token->type === 'BRACKET' && in_array($token->val, ['(', '[', '{'], True)) {
+				$depth++;
+				continue;
+			}
+			if ($token->type === 'BRACKET' && in_array($token->val, [')', ']', '}'], True)) {
+				if ($depth === 0) {
+					return False;
+				}
+				$depth--;
+				continue;
+			}
+			if ($depth > 0) {
+				continue;
+			}
 			switch ($token->type) {
 				case 'NUMBER':
 				case 'STRING':
@@ -750,7 +893,6 @@ class HayoParser
 				case 'KEYWORD':
 				case 'INDENT':
 				case 'OUTDENT':
-				case 'BRACKET':
 				case 'GENERIC':
 				case 'IDENTIFIER':
 				case 'COMMENT':
@@ -794,6 +936,9 @@ class HayoParser
 
 				case 'TERMINATOR':
 				case 'EOF':
+					return False;
+
+				case 'IDENTIFIER' && $token->val === ';':
 					return False;
 
 				case 'IDENTIFIER':
