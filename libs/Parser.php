@@ -7,49 +7,7 @@
 
 namespace Taco\Hayo;
 
-use Exception;
-use Throwable;
 use LogicException;
-
-
-class HayoParserException extends Exception
-{
-
-	/**
-	 * Řádek zdrojového kódu, na kterém nastala chyba.
-	 */
-	private $codeline;
-
-	function __construct($message, $codeline = Null, $code = 0, ?Throwable $previous = NULL)
-	{
-		parent::__construct($message, $code, $previous);
-
-		$this->codeline = $codeline;
-	}
-
-
-
-	function getCodeline()
-	{
-		return $this->codeline;
-	}
-
-
-
-	static function createUnexpectedToken(Token $token)
-	{
-		throw new self("Unexpected $token.", $token->line);
-	}
-
-
-
-	static function createMissingRequiredToken(Token $token, $label)
-	{
-		throw new self("Required $label: $token.", $token->line);
-	}
-
-}
-
 
 
 class HayoParser
@@ -62,7 +20,7 @@ class HayoParser
 	function decode(array $src)
 	{
 		if (empty($src)) {
-			throw new HayoParserException('Empty content.');
+			throw new HayoParserException('Empty content.', 0);
 		}
 
 		list($expr, $tail) = self::buildBlock($src);
@@ -305,7 +263,7 @@ class HayoParser
 
 				case 'ARROW':
 					if ($parenArg) {
-						throw new LogicException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
+						throw new HayoParserException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
 					}
 					$args = $xs;
 					$xs = [];
@@ -665,7 +623,7 @@ class HayoParser
 				return Scalar::Symbol_($token->val);
 
 			default:
-				throw new LogicException("Comming soon... (2026.02.15 02:55:05 CET): '{$token->type}'");
+				throw new HayoParserException("Comming soon... (2026.02.15 02:55:05 CET): '{$token->type}'");
 		}
 	}
 
@@ -1100,7 +1058,7 @@ final class PrattParser
 		$left = $this->consume();
 
 		if (self::isOperator($left)) {
-			throw new LogicException("Očekáván operand, dostal jsem operátor: '{$left}'.");
+			throw new HayoParserException("Očekáván operand, dostal jsem operátor: '{$left}'.");
 		}
 
 		// LED: dokud má další operátor dostatečnou vazebnou sílu

@@ -7,9 +7,6 @@
 
 namespace Taco\Hayo;
 
-use Exception;
-
-
 /**
  * Zpracuje zdrojový surový text na tokeny, teprve ze kterých vytváříme AST.
  */
@@ -57,7 +54,7 @@ class HayoLexer
 				$context = strpos($chunk, "\n") === False
 					? $chunk
 					: substr($chunk, 0, (int) strpos($chunk, "\n"));
-				throw new Exception("Couldn't tokenise: '" . $context . "'.");
+				throw new HayoParserException("Couldn't tokenise: '" . $context . "'.", $this->lines);
 			}
 			$i += $diff;
 		}
@@ -346,7 +343,7 @@ class HayoLexer
 	{
 		while (True) {
 			if ( ! $close = strpos($chunk, '-}', $offset)) {
-				throw new Exception("Missing closing of comment block.");
+				throw new HayoParserException("Missing closing of comment block.");
 			}
 			$open = strpos($chunk, '{-', $offset);
 
