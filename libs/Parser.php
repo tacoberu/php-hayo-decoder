@@ -262,8 +262,14 @@ class HayoParser
 					return [$val, $src];
 
 				case 'ARROW':
+					if ($parenArg && count($xs) === 1 && $xs[0] === false) {
+						throw new HayoParserException("Zero-argument lambdas are not supported. Use a local variable instead: `val = 42`.", $token->line);
+					}
 					if ($parenArg) {
 						throw new HayoParserException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
+					}
+					if (!empty($args)) {
+						throw new HayoParserException("Curried lambdas (x -> y -> ...) are not supported. Use a multi-argument lambda instead: `x y -> ...`.", $token->line);
 					}
 					$args = $xs;
 					$xs = [];
