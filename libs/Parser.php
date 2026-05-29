@@ -73,6 +73,9 @@ class HayoParser
 				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
 					array_unshift($src, $token);
 					list($symbol, $def, $src) = self::buildAssign($src, $ns);
+					if (isset($lets[$symbol])) {
+						throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
+					}
 					$lets[$symbol] = $def;
 					break;
 
@@ -201,6 +204,9 @@ class HayoParser
 				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
 					array_unshift($src, $token);
 					list($symbol, $def, $src) = self::buildAssign($src, $ns);
+					if (isset($lets[$symbol])) {
+						throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
+					}
 					$lets[$symbol] = $def;
 					break;
 
