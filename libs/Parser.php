@@ -80,6 +80,19 @@ class HayoParser
 					break;
 
 				// Výraz
+				// Closing bracket belongs to the enclosing parenthesised expression
+				// (e.g. the ) that closes a lambda body containing a match form).
+				// Stop processing this block and let the caller consume it.
+				case 'BRACKET' && $token->val === ')':
+					array_unshift($src, $token);
+					break 2;
+
+				// Same-line pipe chain continuation: `expr\n|> step`
+				case 'IDENTIFIER' && $token->val === '|>' && $expr !== Null:
+					array_unshift($src, $token);
+					list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
+					break;
+
 				case 'IDENTIFIER':
 				case 'NUMBER':
 				case 'STRING':
@@ -104,6 +117,18 @@ class HayoParser
 					switch ($token->val) {
 						case 'if':
 							list($expr, $src) = self::buildIfElseForm($src, $ns);
+							break;
+
+						case 'match':
+							list($expr, $src) = self::buildMatchForm($src, $ns);
+							break;
+
+						case 'type':
+							// type declarations are stripped by the PHP pre-processor before
+							// the source reaches the decoder, so this branch is a safety net only
+							while ($src && $src[0]->type !== 'TERMINATOR' && $src[0]->type !== 'EOF') {
+								array_shift($src);
+							}
 							break;
 
 						default:
@@ -159,8 +184,13 @@ class HayoParser
 			array_unshift($src, $token);
 			list($body, $src) = self::buildScope($src, $ns);
 		}
-		// Definice na dalším řádku
+		// Definice na dalším řádku (přímý indent)
 		elseif ($token->type === 'INDENT') {
+			list($body, $src) = self::buildBlock($src, $ns);
+		}
+		// Definice na dalším řádku oddělená newline: `x =\n    match ...`
+		elseif ($token->type === 'TERMINATOR' && isset($src[0]) && $src[0]->type === 'INDENT') {
+			array_shift($src); // consume INDENT
 			list($body, $src) = self::buildBlock($src, $ns);
 		}
 		else {
@@ -265,7 +295,20 @@ class HayoParser
 						$val = new Lambda($args, $val);
 					}
 
+					// Consume the closing ')' left by buildBlock when the indented
+					// block was itself inside a parenthesised lambda expression.
+					if ($src && isset($src[0]) && $src[0]->type === 'BRACKET' && $src[0]->val === ')') {
+						array_shift($src);
+					}
+
 					return [$val, $src];
+
+				case 'KEYWORD' && $token->val === 'match':
+					// match expression as (part of) the lambda body
+					array_unshift($src, $token);
+					list($val, $src) = self::buildMatchForm($src, $ns);
+					$xs[] = $val;
+					break;
 
 				case 'ARROW':
 					if ($parenArg && count($xs) === 1 && $xs[0] === false) {
@@ -382,6 +425,156 @@ class HayoParser
 		}
 
 		return [self::makeExpression($xs), $src];
+	}
+
+
+
+	/**
+	 * match <subject>
+	 *     case Pattern binds then body
+	 *     case Pattern1 | Pattern2 then body
+	 *     else body
+	 *
+	 * Also supports inline: match x case A then 1 case B then 2 else 0
+	 *
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array{0: Form, 1: list<Token>}
+	 */
+	private static function buildMatchForm(array $src, array $ns = [])
+	{
+		array_shift($src); // consume KEYWORD 'match'
+
+		list($subject, $src) = self::buildExpression($src, $ns);
+
+		// Skip terminators and optional indent before arms
+		while ($src && ($src[0]->type === 'TERMINATOR' || $src[0]->type === 'INDENT')) {
+			array_shift($src);
+		}
+
+		$arms = [];
+		while ($src) {
+			$token = $src[0];
+
+			if ($token->type === 'TERMINATOR') {
+				array_shift($src);
+				continue;
+			}
+
+			if ($token->type === 'OUTDENT') {
+				// Leave OUTDENT for the enclosing buildBlock to consume —
+				// it signals the end of an indented block that wraps this match.
+				break;
+			}
+
+			if ($token->type === 'EOF') {
+				array_shift($src);
+				break;
+			}
+
+			// case arm: case Pattern [| Pattern]* then body
+			if ($token->type === 'KEYWORD' && $token->val === 'case') {
+				array_shift($src); // consume 'case'
+				list($newArms, $src) = self::buildMatchCaseArm($src, $ns);
+				foreach ($newArms as $arm) {
+					$arms[] = $arm;
+				}
+			}
+			// else arm: wildcard
+			elseif ($token->type === 'KEYWORD' && $token->val === 'else') {
+				array_shift($src); // consume 'else'
+				list($expr, $src) = self::buildExpression($src, $ns);
+				$arms[] = (object) [
+					'pattern' => '_',
+					'binds'   => [],
+					'expr'    => $expr,
+				];
+				break;
+			}
+			else {
+				break;
+			}
+		}
+
+		return [Form::Match_($subject, $arms), $src];
+	}
+
+
+
+	/**
+	 * Parses a case arm: Pattern [| Pattern]* [binds] then body
+	 *
+	 * Multiple patterns (via |) expand to separate arms sharing the same body.
+	 * Binds are lowercase identifiers following the last pattern, before 'then'.
+	 *
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array{0: list<object>, 1: list<Token>}
+	 */
+	private static function buildMatchCaseArm(array $src, array $ns = [])
+	{
+		$patterns = [];
+		$currentPattern = null;
+		$binds = [];
+
+		// Collect patterns and binds until KEYWORD 'then'
+		while ($src && !($src[0]->type === 'KEYWORD' && $src[0]->val === 'then')) {
+			$t = array_shift($src);
+
+			if (($t->type === 'SYMBOL' || $t->type === 'IDENTIFIER') && $t->val === '|') {
+				// Pattern-alternative separator — must be checked before the identifier branch
+				if ($currentPattern !== null) {
+					$patterns[] = $currentPattern;
+					$currentPattern = null;
+				}
+			}
+			elseif (($t->type === 'SYMBOL' || $t->type === 'NUMBER' || $t->type === 'STRING')
+				|| ($t->type === 'IDENTIFIER' && $t->val === '_')) {
+				// Pattern token (constructor, literal, or wildcard)
+				if ($currentPattern === null) {
+					$currentPattern = $t->val;
+				}
+				else {
+					$binds[] = $t->val;
+				}
+			}
+			elseif ($t->type === 'IDENTIFIER' && ctype_lower($t->val[0])) {
+				// Lowercase-starting identifier — bind variable or plain-name pattern
+				if ($currentPattern === null) {
+					$currentPattern = $t->val;
+				}
+				else {
+					$binds[] = $t->val;
+				}
+			}
+			else {
+				throw HayoParserException::createUnexpectedToken($t, 'match case arm');
+			}
+		}
+
+		if ($currentPattern !== null) {
+			$patterns[] = $currentPattern;
+		}
+
+		// Consume KEYWORD 'then'
+		if ($src && $src[0]->type === 'KEYWORD' && $src[0]->val === 'then') {
+			array_shift($src);
+		}
+
+		// Parse body expression
+		list($expr, $src) = self::buildExpression($src, $ns);
+
+		// Expand multiple patterns to separate arms sharing the same body
+		$arms = [];
+		foreach ($patterns as $pattern) {
+			$arms[] = (object) [
+				'pattern' => $pattern,
+				'binds'   => $binds,
+				'expr'    => $expr,
+			];
+		}
+
+		return [$arms, $src];
 	}
 
 
@@ -914,6 +1107,13 @@ class HayoParser
 				case 'IDENTIFIER':
 				case 'ARROW':
 					return True;
+
+				case 'SYMBOL':
+					// A Symbol (e.g. a constructor like Color.Red) cannot start a lambda
+					return False;
+
+				case 'KEYWORD':
+					return False;
 
 				default:
 					HayoParserException::createUnexpectedToken($token);
