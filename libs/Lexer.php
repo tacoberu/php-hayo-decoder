@@ -78,9 +78,12 @@ class HayoLexer
 				case 'when':
 				case 'is':
 				case 'then':
+				case 'case':
 				case 'elseif':
 				case 'elif':
 				case 'else':
+				case 'match':
+				case 'type':
 					$type = 'KEYWORD';
 					break;
 
