@@ -1,108 +1,28 @@
-php hayo decoder
-================
+# Hayo Decoder for PHP
 
-Zdrojový kód v Hayo naparsuje a vytvoří z něho AST, které následně můžeme rovnou kompilovat do cílového jazyka.
+A PHP library that parses Hayo source code and creates an Abstract Syntax Tree (AST), which can then be compiled into a target language.
 
+> **Note:** This project is not useful on its own as it is a component of the [php-hayo](https://github.com/tacoberu/php-hayo) project.
 
-## Fáze
+## About Hayo
 
-1. Naparsování zdrojáku a vytvoření AST.
-2. Dohledání závislostí.
-3. Výsledný script obsahující všechny elementy.
+Hayo is a purely functional scripting language. A script is passed as a string, compiled into a function, and called with concrete data. The result is always the last evaluated expression. No side effects are possible.
 
-Pracujeme s několika typy elementů.
+For more information about the language syntax, see [SYNTAX.md](SYNTAX.md).
 
-- Buildin symboly = True, False, 1, 2, 3.14, "A", "č".
-- Expresion
-- Programové symboly - ty se musí někde dohledat.
+## Installation
 
+You can install the package via Composer:
 
-## Popis jazyka
+```bash
+composer require tacoberu/hayo-decoder
+```
 
-### Hodnoty
+## Usage
 
-čísla a texty: `1`, `3.14`, `True`, `"Lorem ipsum doler ist."`
+```php
+use Taco\Hayo\HayoDecoder;
 
-Symboly se od typů rozlišují pomocí prvního velkého písmena. Tedy:
-`true = 1`
-`true = True`
-
-
-### Výrazy
-`1 + 1`
-`1 + a`
-`1 + (a * a)`
-
-
-### Komentáře
-- řádkový `--`
-- blokový `{- -}` (lze zanořovat)
-
-
-### Funkce
-
-Jedná se o lambdu přiřazenou nějakému symbolu. Strukturu určujeme buď zanořením a
-odsazením, nebo explicitně složenými závorkami. Poslední prvek je výraz a výsledek je vracen.
-
-	`fn = a b -> a + b`
-
-	`fn = a b -> { a + b }`
-
-	`fn = a b ->
-		a + b`
-
-	`fn = a -> { pi = 3.14; inc = a -> {base = 1; a + base}; a + b }`
-
-	`fn = a -> {
-		pi = 3.14
-		inc = a -> {
-			base = 1
-			a + base
-		}
-		a + b
-	}`
-
-	`fn = a ->
-		pi = 3.14
-		inc = a ->
-			base = 1
-			a + base
-		a + b`
-
-Funkci voláme vždy s argumentem. Bez argumentu se inlinuje. Výjimka je funkce se sideeffektem, která se zpracuje speciálně.
-
-
-
-### Streamy
-
-	`source |> filter1 |> filter2 42 |> print`
-
-
-### Flow
-
-#### If, else, match
-
-	`match x {
-		true -> echo "True"
-		_    -> echo "False"
-	}`
-
-#### Cikly
-
-	`list.each {(x) -> echo x}`
-
-
-### Typy a struktury
-
-#### Základní typy
-
-- čísla
-- text
-- funkce
-- pole
-- slovník
-
-
-
-## Ke zvážení:
-- makra
+$decoder = new HayoDecoder();
+$ast = $decoder->decode('... hayo source code ...');
+```

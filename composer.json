@@ -1,6 +1,6 @@
 {
 	"name": "tacoberu/hayo-decoder",
-	"description": "...",
+	"description": "Hayo scripting language decoder and parser.",
 	"type": "library",
 	"require": {
 		"ext-json": "*",
