@@ -193,6 +193,15 @@ class HayoParser
 			array_shift($src); // consume INDENT
 			list($body, $src) = self::buildBlock($src, $ns);
 		}
+		// Inline forma na pravé straně: `x = match ...` / `x = if ...`
+		elseif ($token->type === 'KEYWORD' && $token->val === 'match') {
+			array_unshift($src, $token);
+			list($body, $src) = self::buildMatchForm($src, $ns);
+		}
+		elseif ($token->type === 'KEYWORD' && $token->val === 'if') {
+			array_unshift($src, $token);
+			list($body, $src) = self::buildIfElseForm($src, $ns);
+		}
 		else {
 			array_unshift($src, $token);
 			list($body, $src) = self::buildExpression($src, $ns);
@@ -447,8 +456,14 @@ class HayoParser
 
 		list($subject, $src) = self::buildExpression($src, $ns);
 
-		// Skip terminators and optional indent before arms
+		// Skip terminators and optional indent before arms. Count how many
+		// indentation levels the arms opened so we can balance the matching
+		// OUTDENTs ourselves — when arms are indented deeper than `match`.
+		$openedIndents = 0;
 		while ($src && ($src[0]->type === 'TERMINATOR' || $src[0]->type === 'INDENT')) {
+			if ($src[0]->type === 'INDENT') {
+				$openedIndents++;
+			}
 			array_shift($src);
 		}
 
@@ -462,8 +477,13 @@ class HayoParser
 			}
 
 			if ($token->type === 'OUTDENT') {
-				// Leave OUTDENT for the enclosing buildBlock to consume —
+				// Consume the OUTDENTs that close the indentation levels these arms
+				// opened; leave any remaining OUTDENT for the enclosing buildBlock —
 				// it signals the end of an indented block that wraps this match.
+				while ($openedIndents > 0 && $src && $src[0]->type === 'OUTDENT') {
+					array_shift($src);
+					$openedIndents--;
+				}
 				break;
 			}
 

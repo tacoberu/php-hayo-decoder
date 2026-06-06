@@ -46,6 +46,39 @@ dump($ast);
 
 
 
+	/**
+	 * `match` na pravé straně přiřazení musí dát stejné AST nezávisle na tom,
+	 * zda je inline, nebo zda jsou sekce odsazená stejně/hlouběji než `match`.
+	 */
+	function testMatchAssignIndentationVariants(): void
+	{
+		// A — ramena na stejné úrovni jako `match` (referenční, dosud funkční).
+		$a = $this->parse("x =\n    match c\n    case Color.Red then 1\n    case Color.Blue then 0\nx");
+		// B — inline `match` na pravé straně přiřazení.
+		$b = $this->parse("x = match c\n    case Color.Red then 1\n    case Color.Blue then 0\nx");
+		// C — ramena odsazená hlouběji než `match`.
+		$c = $this->parse("x =\n    match c\n        case Color.Red then 1\n        case Color.Blue then 0\nx");
+
+		$this->assertEquals($a, $b);
+		$this->assertEquals($a, $c);
+	}
+
+
+
+	/**
+	 * Inline `if` na pravé straně přiřazení musí dát stejné AST jako forma
+	 * odsazená na další řádek.
+	 */
+	function testIfAssignInlineEqualsIndented(): void
+	{
+		$indented = $this->parse("x =\n    if a then 1 else 2\nx");
+		$inline = $this->parse("x = if a then 1 else 2\nx");
+
+		$this->assertEquals($indented, $inline);
+	}
+
+
+
 	static function dataScalar()
 	{
 		return [
