@@ -613,12 +613,22 @@ class HayoParser
 	private static function buildIfElseForm(array $src, array $ns = [])
 	{
 		$chains = [];
+		// Count indentation levels opened by `then`/`else` sitting on their own
+		// indented line, so we can balance the matching OUTDENTs ourselves —
+		// the same approach buildMatchForm uses for `case` arms.
+		$openedIndents = 0;
 		while ($token = array_shift($src)) {
 			if ($token->type === 'TERMINATOR') {
 				continue;
 			}
 			elseif ($token->type === 'KEYWORD' && in_array($token->val, ['if', 'elseif', 'elif'], True)) {
 				list($condition, $src) = self::buildExpression($src, $ns);
+				while ($src && ($src[0]->type === 'TERMINATOR' || $src[0]->type === 'INDENT')) {
+					if ($src[0]->type === 'INDENT') {
+						$openedIndents++;
+					}
+					array_shift($src);
+				}
 				$token = array_shift($src);
 				if ( ! ($token->type === 'KEYWORD' && $token->val === 'then')) {
 					throw HayoParserException::createMissingRequiredToken($token, "then of if-then-else");
@@ -631,6 +641,10 @@ class HayoParser
 			}
 			elseif ($token->type === 'KEYWORD' && in_array($token->val, ['else'], True)) {
 				list($expr, $src) = self::buildExpression($src, $ns);
+				while ($openedIndents > 0 && $src && $src[0]->type === 'OUTDENT') {
+					array_shift($src);
+					$openedIndents--;
+				}
 				return [Form::IfThenElse_($chains, $expr), $src];
 			}
 			else {

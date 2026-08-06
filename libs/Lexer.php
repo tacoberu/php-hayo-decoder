@@ -38,6 +38,14 @@ class HayoLexer
 		$this->tokens = [];
 
 		$i = 0;
+		// Odsazení prvního řádku nemá před sebou žádný newline, takže by ho jinak
+		// tiše spolykal whitespaceToken() a baseline by zůstal 0 — další řádek se
+		// stejným odsazením by pak vypadal jako hlubší (INDENT) místo stejné úrovně
+		// (TERMINATOR). Nastavíme baseline hned z odsazení prvního řádku.
+		if (preg_match(self::WHITESPACE, $src, $matches)) {
+			$this->indent = strlen($matches[0]);
+			$i = strlen($matches[0]);
+		}
 		while (($chunk = substr($src, $i)) !== '') {
 			$diff = $this->shebangToken($chunk)
 				?: $this->commentToken($chunk)

@@ -901,4 +901,177 @@ log 11
 					])
 				),
 			],
+
+		// `if` na pravé straně přiřazení, kde jsou `then`/`else` na vlastním
+		// odsazeném řádku, následované slovníkovým literálem odkazujícím na výsledek.
+		'assign-14' => ["result = if newPassword == newPasswordConfirm
+    then (Result.Ok newPassword)
+    else (Result.Err \"Hesla se neshodují.\")
+{
+    password: (Result.orFail result)
+}",
+				[ Token::identifier('result', 1)
+				, Token::assign_('=', 1)
+				, new Token('KEYWORD', 'if', 1)
+				, Token::identifier('newPassword', 1)
+				, Token::identifier('==', 1)
+				, Token::identifier('newPasswordConfirm', 1)
+				, Token::indent(4, 2)
+				, new Token('KEYWORD', 'then', 2)
+				, Token::bracket('(', 2)
+				, Token::symbol_('Result.Ok', 2)
+				, Token::identifier('newPassword', 2)
+				, Token::bracket(')', 2)
+				, Token::terminator("\n", 2)
+
+				, new Token('KEYWORD', 'else', 3)
+				, Token::bracket('(', 3)
+				, Token::symbol_('Result.Err', 3)
+				, Token::string_('"Hesla se neshodují."', 3)
+				, Token::bracket(')', 3)
+				, Token::outdent(4, 3)
+				, Token::terminator("\n", 3)
+
+				, Token::bracket('{', 4)
+				, Token::indent(4, 5)
+				, Token::identifier('password', 5)
+				, Token::generic(':', 5)
+				, Token::bracket('(', 5)
+				, Token::identifier('Result.orFail', 5)
+				, Token::identifier('result', 5)
+				, Token::bracket(')', 5)
+				, Token::outdent(4, 5)
+				, Token::terminator("\n", 5)
+
+				, Token::bracket('}', 6)
+				, Token::eof(),
+				],
+					new Scope([
+						'result' => Form::IfThenElse_([
+							(object) ['cond' => Expr::Bin_('newPassword', '==', 'newPasswordConfirm'),
+								'expr' => Expr::Func_(Scalar::Symbol_('Result.Ok'), ['newPassword']),
+								],
+							],
+							Expr::Func_(Scalar::Symbol_('Result.Err'), [Scalar::Str_('Hesla se neshodují.')])
+						),
+						],
+						Composite::Dict_([
+							'password' => Expr::Func_('Result.orFail', ['result']),
+						])
+					),
+				],
+
+		// Totéž jako 'assign-14', ale celý blok je o úroveň hlouběji odsazený —
+		// `then`/`else` musí být rozpoznané bez ohledu na absolutní odsazení.
+		'assign-15' => ["    result = if newPassword == newPasswordConfirm
+        then (Result.Ok newPassword)
+        else (Result.Err \"Hesla se neshodují.\")
+    {
+        password: (Result.orFail result)
+    }",
+				[ Token::identifier('result', 1)
+				, Token::assign_('=', 1)
+				, new Token('KEYWORD', 'if', 1)
+				, Token::identifier('newPassword', 1)
+				, Token::identifier('==', 1)
+				, Token::identifier('newPasswordConfirm', 1)
+				, Token::indent(4, 2)
+				, new Token('KEYWORD', 'then', 2)
+				, Token::bracket('(', 2)
+				, Token::symbol_('Result.Ok', 2)
+				, Token::identifier('newPassword', 2)
+				, Token::bracket(')', 2)
+				, Token::terminator("\n", 2)
+
+				, new Token('KEYWORD', 'else', 3)
+				, Token::bracket('(', 3)
+				, Token::symbol_('Result.Err', 3)
+				, Token::string_('"Hesla se neshodují."', 3)
+				, Token::bracket(')', 3)
+				, Token::outdent(4, 3)
+				, Token::terminator("\n", 3)
+
+				, Token::bracket('{', 4)
+				, Token::indent(4, 5)
+				, Token::identifier('password', 5)
+				, Token::generic(':', 5)
+				, Token::bracket('(', 5)
+				, Token::identifier('Result.orFail', 5)
+				, Token::identifier('result', 5)
+				, Token::bracket(')', 5)
+				, Token::outdent(4, 5)
+				, Token::terminator("\n", 5)
+
+				, Token::bracket('}', 6)
+				, Token::eof(),
+				],
+					new Scope([
+						'result' => Form::IfThenElse_([
+							(object) ['cond' => Expr::Bin_('newPassword', '==', 'newPasswordConfirm'),
+								'expr' => Expr::Func_(Scalar::Symbol_('Result.Ok'), ['newPassword']),
+								],
+							],
+							Expr::Func_(Scalar::Symbol_('Result.Err'), [Scalar::Str_('Hesla se neshodují.')])
+						),
+						],
+						Composite::Dict_([
+							'password' => Expr::Func_('Result.orFail', ['result']),
+						])
+					),
+				],
+
+		// Totéž jako 'assign-14'/'assign-15', ale celé `if ... then ... else ...`
+		// je na jednom řádku (inline) a je odsazené — dřív to selhávalo, protože
+		// odsazení prvního řádku vstupu se tiše zahazovalo a baseline zůstal na 0,
+		// takže `{` na stejné úrovni jako `result` vypadalo jako hlubší odsazení.
+		'assign-16' => ["    result = if newPassword == newPasswordConfirm then (Result.Ok newPassword) else (Result.Err \"Hesla se neshodují.\")
+    {
+        password: (Result.orFail result)
+    }",
+				[ Token::identifier('result', 1)
+				, Token::assign_('=', 1)
+				, new Token('KEYWORD', 'if', 1)
+				, Token::identifier('newPassword', 1)
+				, Token::identifier('==', 1)
+				, Token::identifier('newPasswordConfirm', 1)
+				, new Token('KEYWORD', 'then', 1)
+				, Token::bracket('(', 1)
+				, Token::symbol_('Result.Ok', 1)
+				, Token::identifier('newPassword', 1)
+				, Token::bracket(')', 1)
+				, new Token('KEYWORD', 'else', 1)
+				, Token::bracket('(', 1)
+				, Token::symbol_('Result.Err', 1)
+				, Token::string_('"Hesla se neshodují."', 1)
+				, Token::bracket(')', 1)
+				, Token::terminator("\n", 1)
+
+				, Token::bracket('{', 2)
+				, Token::indent(4, 3)
+				, Token::identifier('password', 3)
+				, Token::generic(':', 3)
+				, Token::bracket('(', 3)
+				, Token::identifier('Result.orFail', 3)
+				, Token::identifier('result', 3)
+				, Token::bracket(')', 3)
+				, Token::outdent(4, 3)
+				, Token::terminator("\n", 3)
+
+				, Token::bracket('}', 4)
+				, Token::eof(),
+				],
+					new Scope([
+						'result' => Form::IfThenElse_([
+							(object) ['cond' => Expr::Bin_('newPassword', '==', 'newPasswordConfirm'),
+								'expr' => Expr::Func_(Scalar::Symbol_('Result.Ok'), ['newPassword']),
+								],
+							],
+							Expr::Func_(Scalar::Symbol_('Result.Err'), [Scalar::Str_('Hesla se neshodují.')])
+						),
+						],
+						Composite::Dict_([
+							'password' => Expr::Func_('Result.orFail', ['result']),
+						])
+					),
+				],
 ];
