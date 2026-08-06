@@ -335,6 +335,7 @@ class HayoParser
 					break;
 
 				case 'TERMINATOR':
+				case 'EOF':
 				case 'BRACKET' && $token->val === ')':
 				//~ case '_OUTDENT':
 					break 2;
@@ -402,7 +403,7 @@ class HayoParser
 				// tuple nebo výraz: `(a 1)` je výraz, `(1)` je chybnej výraz, `(1,)` je tuple s jedním prvkem, `()` je prázdné tuple.
 				case 'BRACKET' && $token->val === '(':
 					list($expr, $src) = self::buildStructTuple($src, $ns);
-					if (count($expr->getItems()) === 1 && $expr->getItems()[0] instanceof Expr) {
+					if (count($expr->getItems()) === 1 && ($expr->getItems()[0] instanceof Expr || $expr->getItems()[0] instanceof Form)) {
 						$expr = $expr->getItems()[0];
 					}
 
@@ -416,6 +417,17 @@ class HayoParser
 
 				case 'BRACKET' && $token->val === '{':
 					list($expr, $src) = self::buildStructDict($src, $ns);
+					$xs[] = $expr;
+					break;
+
+				// `if`/`match` jako plnohodnotný primární výraz — kdekoliv, kde se
+				// očekává hodnota (argument funkce, prvek tuple/listu, hodnota v
+				// dictu, …), ne jen na začátku bloku, napravo od `=` nebo v těle lambdy.
+				case 'KEYWORD' && in_array($token->val, ['if', 'match'], True):
+					array_unshift($src, $token);
+					list($expr, $src) = $token->val === 'if'
+						? self::buildIfElseForm($src, $ns)
+						: self::buildMatchForm($src, $ns);
 					$xs[] = $expr;
 					break;
 
@@ -674,6 +686,7 @@ class HayoParser
 				case 'STRING':
 				case 'SYMBOL':
 				case 'BRACKET':
+				case 'KEYWORD':
 					// val
 					array_unshift($src, $token);
 					list($val, $src) = self::buildExpression($src, $ns);
@@ -736,6 +749,7 @@ class HayoParser
 				case 'STRING':
 				case 'SYMBOL':
 				case 'BRACKET':
+				case 'KEYWORD':
 					// val
 					array_unshift($src, $token);
 					list($val, $src) = self::buildExpression($src, $ns);

@@ -79,6 +79,48 @@ dump($ast);
 
 
 
+	/**
+	 * `if` je plnohodnotný primární výraz — musí jít použít jako inline tělo
+	 * lambdy (`x -> if ...`), stejně jako už fungovalo víceřádkové tělo
+	 * (`x ->\n    if ...`).
+	 */
+	function testIfAsInlineLambdaBody(): void
+	{
+		$indented = $this->parse("f = x ->\n    if x then 1 else 2\nf 5");
+		$inline = $this->parse("f = x -> if x then 1 else 2\nf 5");
+
+		$this->assertEquals($indented, $inline);
+	}
+
+
+
+	/**
+	 * `match`, stejně jako `if`, musí jít použít jako inline tělo lambdy.
+	 */
+	function testMatchAsInlineLambdaBody(): void
+	{
+		$indented = $this->parse("f = x ->\n    match x\n    case A then 1\n    else 2\nf 5");
+		$inline = $this->parse("f = x -> match x case A then 1 else 2\nf 5");
+
+		$this->assertEquals($indented, $inline);
+	}
+
+
+
+	/**
+	 * `match` jako plnohodnotný primární výraz musí jít zabalit jen do
+	 * závorek a použít jako holý argument funkce — stejně jako `if`.
+	 */
+	function testMatchAsBareParenthesisedArgument(): void
+	{
+		$this->assertEquals(
+			$this->parse("Cmd.andThen (match x case A then 1 else 2) 3"),
+			$this->parse("Cmd.andThen (match x\n    case A then 1\n    else 2) 3")
+		);
+	}
+
+
+
 	static function dataScalar()
 	{
 		return [
