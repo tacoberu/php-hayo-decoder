@@ -82,7 +82,7 @@ dump($ast);
 	/**
 	 * `if` je plnohodnotný primární výraz — musí jít použít jako inline tělo
 	 * lambdy (`x -> if ...`), stejně jako už fungovalo víceřádkové tělo
-	 * (`x ->\n    if ...`).
+	 * (`x ->\n if ...`).
 	 */
 	function testIfAsInlineLambdaBody(): void
 	{

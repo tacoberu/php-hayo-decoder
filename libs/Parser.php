@@ -403,7 +403,13 @@ class HayoParser
 				// tuple nebo výraz: `(a 1)` je výraz, `(1)` je chybnej výraz, `(1,)` je tuple s jedním prvkem, `()` je prázdné tuple.
 				case 'BRACKET' && $token->val === '(':
 					list($expr, $src) = self::buildStructTuple($src, $ns);
-					if (count($expr->getItems()) === 1 && ($expr->getItems()[0] instanceof Expr || $expr->getItems()[0] instanceof Form)) {
+					if (
+						count($expr->getItems()) === 1
+						&& (
+							$expr->getItems()[0] instanceof Expr
+							|| $expr->getItems()[0] instanceof Form
+						)
+					) {
 						$expr = $expr->getItems()[0];
 					}
 
@@ -813,7 +819,14 @@ class HayoParser
 				case 'SYMBOL':
 					// key
 					$key = $token->val;
-					if ($token->type !== 'IDENTIFIER') {
+					if ($token->type === 'SYMBOL') {
+						// Bareword klíč začínající velkým písmenem (`Order: ...`) - použije se
+						// přímo jeho jméno, stejně jako u lowercase IDENTIFIER výš. Bez týhle
+						// větve by spadl do formatScalar() větve níž a dict by dostal doslovný
+						// řetězec '{"val":"Order","type":"Symbol"}' místo "Order" jako klíč.
+						$key = (string) self::buildScalar($token)->getValue();
+					}
+					elseif ($token->type !== 'IDENTIFIER') {
 						$key = self::formatScalar(self::buildScalar($token));
 					}
 

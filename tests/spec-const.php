@@ -465,6 +465,31 @@ return [
 			]),
 		],
 
+	'klíč velkým písmenem (SYMBOL) použije svoje jméno, ne formatScalar() dump' => ["{
+	Order: 1,
+	b: 2
+}",
+		[ Token::bracket('{', 1)
+			, Token::indent(1, 2)
+			, Token::symbol_('Order', 2)
+			, Token::generic(':', 2)
+			, Token::number_('1', 2)
+			, Token::generic(',', 2)
+			, Token::terminator("\n", 2)
+			, Token::identifier('b', 3)
+			, Token::generic(':', 3)
+			, Token::number_('2', 3)
+			, Token::outdent(1, 3)
+		, Token::terminator("\n", 3)
+		, Token::bracket('}', 4)
+		, Token::eof(),
+		],
+			Composite::Dict_([
+				'Order' => Scalar::Int_(1),
+				'b' => Scalar::Int_(2),
+			]),
+		],
+
 	'klíčem nemusí být symbol' => ["{
 	1: 1,
 	'b': 2,
