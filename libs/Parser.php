@@ -38,107 +38,108 @@ class HayoParser
 	 * Blok je sekce vzniknuvší po odsazení.
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: Expr, 1: array<string>}>
+	 * @return array{0: Value|string|null, 1: list<Token>}
 	 */
 	private static function buildBlock(array $src, array $ns = [])
 	{
-		if ($src[0] && $src[0]->type === 'OUTDENT') {
-			throw HayoParserException::createUnexpectedToken($src[0]);
+		if (isset($src[0]) && $src[0]->type === 'OUTDENT') {
+			HayoParserException::createUnexpectedToken($src[0]);
 		}
 
 		$ns = [];
 		$lets = [];
 		$expr = Null;
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'TERMINATOR':
-				case 'COMMENT':
-					break;
-
-				// Stredník jako alternativní oddelovac vyrazu
-				case 'IDENTIFIER' && $token->val === ';':
-					break;
-
-				case 'EOF':
-				case 'OUTDENT':
-					break 2;
-
-				// Pravidlo use
-				case 'IDENTIFIER' && $token->val === 'use':
-					list($def, $src) = self::buildNamespace($src);
-					$ns = array_merge($ns, $def);
-					break;
-
-				// Přiřazení
-				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
-					array_unshift($src, $token);
-					list($symbol, $def, $src) = self::buildAssign($src, $ns);
-					if (isset($lets[$symbol])) {
-						throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
-					}
-					$lets[$symbol] = $def;
-					break;
-
-				// Výraz
-				// Closing bracket belongs to the enclosing parenthesised expression
-				// (e.g. the ) that closes a lambda body containing a match form).
-				// Stop processing this block and let the caller consume it.
-				case 'BRACKET' && $token->val === ')':
-					array_unshift($src, $token);
-					break 2;
-
-				// Same-line pipe chain continuation: `expr\n|> step`
-				case 'IDENTIFIER' && $token->val === '|>' && $expr !== Null:
-					array_unshift($src, $token);
-					list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
-					break;
-
-				case 'IDENTIFIER':
-				case 'NUMBER':
-				case 'STRING':
-				case 'SYMBOL':
-				case 'BRACKET':
-					array_unshift($src, $token);
-					list($expr, $src) = self::buildExpression($src, $ns);
-					break;
-
-				// Odsazený blok po výrazu – pipe chain
-				case 'INDENT':
-					if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>' && $expr !== Null) {
-						list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
-					}
-					else {
-						HayoParserException::createUnexpectedToken($token);
-					}
-					break;
-
-				case 'KEYWORD':
-					array_unshift($src, $token);
-					switch ($token->val) {
-						case 'if':
-							list($expr, $src) = self::buildIfElseForm($src, $ns);
-							break;
-
-						case 'match':
-							list($expr, $src) = self::buildMatchForm($src, $ns);
-							break;
-
-						case 'type':
-							// type declarations are stripped by the PHP pre-processor before
-							// the source reaches the decoder, so this branch is a safety net only
-							while ($src && $src[0]->type !== 'TERMINATOR' && $src[0]->type !== 'EOF') {
-								array_shift($src);
-							}
-							break;
-
-						default:
-							HayoParserException::createUnexpectedToken($token);
-					}
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if ($token->type === 'TERMINATOR' || $token->type === 'COMMENT') {
+				continue;
 			}
+
+			// Stredník jako alternativní oddelovac vyrazu
+			if ($token->type === 'IDENTIFIER' && $token->val === ';') {
+				continue;
+			}
+
+			if ($token->type === 'EOF' || $token->type === 'OUTDENT') {
+				break;
+			}
+
+			// Pravidlo use
+			if ($token->type === 'IDENTIFIER' && $token->val === 'use') {
+				list($def, $src) = self::buildNamespace($src);
+				$ns = array_merge($ns, $def);
+				continue;
+			}
+
+			// Přiřazení
+			if ($token->type === 'IDENTIFIER' && isset($src[0]) && $src[0]->type === 'ASSIGN') {
+				array_unshift($src, $token);
+				list($symbol, $def, $src) = self::buildAssign($src, $ns);
+				if (isset($lets[$symbol])) {
+					throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
+				}
+				$lets[$symbol] = $def;
+				continue;
+			}
+
+			// Výraz
+			// Closing bracket belongs to the enclosing parenthesised expression
+			// (e.g. the ) that closes a lambda body containing a match form).
+			// Stop processing this block and let the caller consume it.
+			if ($token->type === 'BRACKET' && $token->val === ')') {
+				array_unshift($src, $token);
+				break;
+			}
+
+			// Same-line pipe chain continuation: `expr\n|> step`
+			if ($token->type === 'IDENTIFIER' && $token->val === '|>' && $expr !== Null) {
+				array_unshift($src, $token);
+				list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
+				continue;
+			}
+
+			if (in_array($token->type, ['IDENTIFIER', 'NUMBER', 'STRING', 'SYMBOL', 'BRACKET'], True)) {
+				array_unshift($src, $token);
+				list($expr, $src) = self::buildExpression($src, $ns);
+				continue;
+			}
+
+			// Odsazený blok po výrazu – pipe chain
+			if ($token->type === 'INDENT') {
+				if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>' && $expr !== Null) {
+					list($expr, $src) = self::buildPipeChainBlock($expr, $src, $ns);
+				}
+				else {
+					HayoParserException::createUnexpectedToken($token);
+				}
+				continue;
+			}
+
+			if ($token->type === 'KEYWORD') {
+				array_unshift($src, $token);
+				switch ($token->val) {
+					case 'if':
+						list($expr, $src) = self::buildIfElseForm($src, $ns);
+						break;
+
+					case 'match':
+						list($expr, $src) = self::buildMatchForm($src, $ns);
+						break;
+
+					case 'type':
+						// type declarations are stripped by the PHP pre-processor before
+						// the source reaches the decoder, so this branch is a safety net only
+						while ($src && $src[0]->type !== 'TERMINATOR' && $src[0]->type !== 'EOF') {
+							array_shift($src);
+						}
+						break;
+
+					default:
+						HayoParserException::createUnexpectedToken($token);
+				}
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		if ($lets && $expr) {
@@ -156,7 +157,9 @@ class HayoParser
 				return [$expr, $src];
 			}
 
-			$expr = new Scope($lets, $expr);
+			// Scope::assertExprOfScope() akceptuje za běhu Expr|Composite|Form|string
+			// (viz komentář nad Scope), tedy širší množinu, než uvádí PHPDoc `Expr|string`.
+			$expr = new Scope($lets, $expr); // @phpstan-ignore argument.type
 		}
 
 		return [$expr, $src];
@@ -169,12 +172,12 @@ class HayoParser
 	 * Přiřazujeme buď hodnotu, nebo funkci, nebo typ.
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: string, 1: Value, 1: list<Token>}>
+	 * @return array{0: string, 1: Value|string, 2: list<Token>}
 	 */
 	private static function buildAssign(array $src, array $ns = [])
 	{
 		$token = array_shift($src);
-		$symbol = self::buildIdentifier($token->val, $ns);
+		$symbol = self::buildIdentifier((string) $token->val, $ns);
 		$token = array_shift($src); // =
 		self::assertTokenValue($token, ['='], 'assign expression');
 
@@ -219,7 +222,7 @@ class HayoParser
 	 * k definici slovníku.
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: Term, 1: list<Token>}>
+	 * @return array{0: Value|string, 1: list<Token>}
 	 */
 	private static function buildScope(array $src, array $ns = [])
 	{
@@ -228,137 +231,160 @@ class HayoParser
 		$lets = [];
 		$parenArg = false;
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'NUMBER':
-				case 'STRING':
-				case 'SYMBOL':
-					$xs[] = self::buildScalar($token);
-					break;
-
-				// Stredník jako alternativní oddelovac vyrazu
-				case 'IDENTIFIER' && $token->val === ';':
-					break;
-
-				// Přiřazení lokálního symbolu
-				case 'IDENTIFIER' && $src[0] && $src[0]->type === 'ASSIGN':
-					array_unshift($src, $token);
-					list($symbol, $def, $src) = self::buildAssign($src, $ns);
-					if (isset($lets[$symbol])) {
-						throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
-					}
-					$lets[$symbol] = $def;
-					break;
-
-				case 'IDENTIFIER':
-					$xs[] = self::buildIdentifier($token->val, $ns);
-					break;
-
-				// Struktura
-				case 'BRACKET' && $token->val === '(':
-					list($expr, $src) = self::buildStructTuple($src, $ns);
-					if (count($expr->getItems()) < 2) {
-						$expr = $expr->getItems();
-						$expr = reset($expr);
-						$parenArg = true;
-					}
-					$xs[] = $expr;
-					break;
-
-				case 'BRACKET' && $token->val === '[':
-					list($expr, $src) = self::buildStructList($src, $ns);
-					$xs[] = $expr;
-					break;
-
-				case 'BRACKET' && $token->val === '{':
-					list($expr, $src) = self::buildStructDict($src, $ns);
-					$xs[] = $expr;
-					break;
-
-				case 'INDENT' && ($src[0] && $src[0]->type === 'COMMENT') && ($src[1] && $src[1]->type === 'OUTDENT'):
-					array_shift($src);
-					array_shift($src);
-					break;
-
-				case 'INDENT':
-					// Pipe chain block: odsazený blok začínající |>
-					if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>') {
-						$left = count($xs) === 1
-							? $xs[0]
-							: self::makeExpression($xs);
-						list($val, $src) = self::buildPipeChainBlock($left, $src, $ns);
-						$xs = [$val];
-					}
-					else {
-						list($val, $src) = self::buildBlock($src, $ns);
-						$xs[] = $val;
-
-						// @TODO
-						if (count($xs) > 1) {
-							$token = reset($src);
-							throw new HayoParserException('Unexpected many items.', $token->line);
-						}
-					}
-
-					$val = $xs[0];
-					if (count($args)) {
-						$val = new Lambda($args, $val);
-					}
-
-					// Consume the closing ')' left by buildBlock when the indented
-					// block was itself inside a parenthesised lambda expression.
-					if ($src && isset($src[0]) && $src[0]->type === 'BRACKET' && $src[0]->val === ')') {
-						array_shift($src);
-					}
-
-					return [$val, $src];
-
-				case 'KEYWORD' && $token->val === 'match':
-					// match expression as (part of) the lambda body
-					array_unshift($src, $token);
-					list($val, $src) = self::buildMatchForm($src, $ns);
-					$xs[] = $val;
-					break;
-
-				case 'ARROW':
-					if ($parenArg && count($xs) === 1 && $xs[0] === false) {
-						throw new HayoParserException("Zero-argument lambdas are not supported. Use a local variable instead: `val = 42`.", $token->line);
-					}
-					if ($parenArg) {
-						throw new HayoParserException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
-					}
-					if (!empty($args)) {
-						throw new HayoParserException("Curried lambdas (x -> y -> ...) are not supported. Use a multi-argument lambda instead: `x y -> ...`.", $token->line);
-					}
-					$args = $xs;
-					$xs = [];
-					$parenArg = false;
-					break;
-
-				case 'TERMINATOR':
-				case 'EOF':
-				case 'BRACKET' && $token->val === ')':
-				//~ case '_OUTDENT':
-					break 2;
-
-				case 'KEYWORD':
-					array_unshift($src, $token);
-					switch ($token->val) {
-						case 'if':
-							list($expr, $src) = self::buildIfElseForm($src, $ns);
-							$xs[] = $expr;
-							break;
-
-						default:
-							HayoParserException::createUnexpectedToken($token);
-					}
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if (in_array($token->type, ['NUMBER', 'STRING', 'SYMBOL'], True)) {
+				$xs[] = self::buildScalar($token);
+				continue;
 			}
+
+			// Stredník jako alternativní oddelovac vyrazu
+			if ($token->type === 'IDENTIFIER' && $token->val === ';') {
+				continue;
+			}
+
+			// Přiřazení lokálního symbolu
+			if ($token->type === 'IDENTIFIER' && isset($src[0]) && $src[0]->type === 'ASSIGN') {
+				array_unshift($src, $token);
+				list($symbol, $def, $src) = self::buildAssign($src, $ns);
+				if (isset($lets[$symbol])) {
+					throw new HayoParserException("Symbol '{$symbol}' is already defined. Reassignment is not allowed.", $token->line);
+				}
+				$lets[$symbol] = $def;
+				continue;
+			}
+
+			if ($token->type === 'IDENTIFIER') {
+				$xs[] = self::buildIdentifier((string) $token->val, $ns);
+				continue;
+			}
+
+			// Struktura
+			if ($token->type === 'BRACKET' && $token->val === '(') {
+				list($expr, $src) = self::buildStructTuple($src, $ns);
+				// Tuple::getItems() vrací vždy plain array (stdClass jen u Dict).
+				$items = $expr->getItems();
+				if (is_array($items) && count($items) < 2) {
+					$expr = reset($items);
+					$parenArg = true;
+				}
+				$xs[] = $expr;
+				continue;
+			}
+
+			if ($token->type === 'BRACKET' && $token->val === '[') {
+				list($expr, $src) = self::buildStructList($src, $ns);
+				$xs[] = $expr;
+				continue;
+			}
+
+			if ($token->type === 'BRACKET' && $token->val === '{') {
+				list($expr, $src) = self::buildStructDict($src, $ns);
+				$xs[] = $expr;
+				continue;
+			}
+
+			if (
+				$token->type === 'INDENT'
+				&& (
+					isset($src[0])
+					&& $src[0]->type === 'COMMENT'
+				)
+				&& (
+					isset($src[1])
+					&& $src[1]->type === 'OUTDENT'
+				)
+			) {
+				array_shift($src);
+				array_shift($src);
+				continue;
+			}
+
+			if ($token->type === 'INDENT') {
+				// Pipe chain block: odsazený blok začínající |>
+				if (isset($src[0]) && $src[0]->type === 'IDENTIFIER' && $src[0]->val === '|>') {
+					$left = count($xs) === 1
+						? $xs[0]
+						: self::makeExpression($xs);
+					list($val, $src) = self::buildPipeChainBlock($left, $src, $ns);
+					$xs = [$val];
+				}
+				else {
+					list($val, $src) = self::buildBlock($src, $ns);
+					$xs[] = $val;
+
+					// @TODO
+					if (count($xs) > 1) {
+						$token = reset($src);
+						throw new HayoParserException('Unexpected many items.', $token ? $token->line : null);
+					}
+				}
+
+				$val = $xs[0];
+				if (count($args)) {
+					$val = new Lambda($args, $val);
+				}
+
+				// Consume the closing ')' left by buildBlock when the indented
+				// block was itself inside a parenthesised lambda expression.
+				if ($src && $src[0]->type === 'BRACKET' && $src[0]->val === ')') {
+					array_shift($src);
+				}
+
+				return [$val, $src];
+			}
+
+			if ($token->type === 'KEYWORD' && $token->val === 'match') {
+				// match expression as (part of) the lambda body
+				array_unshift($src, $token);
+				list($val, $src) = self::buildMatchForm($src, $ns);
+				$xs[] = $val;
+				continue;
+			}
+
+			if ($token->type === 'ARROW') {
+				if ($parenArg && count($xs) === 1 && $xs[0] === false) {
+					throw new HayoParserException("Zero-argument lambdas are not supported. Use a local variable instead: `val = 42`.", $token->line);
+				}
+				if ($parenArg) {
+					throw new HayoParserException("Lambda arguments must be simple names, not expressions. Use `(a b -> ...)` instead of `((a b) -> ...)` or `((a) -> ...)`.", $token->line);
+				}
+				if (!empty($args)) {
+					throw new HayoParserException("Curried lambdas (x -> y -> ...) are not supported. Use a multi-argument lambda instead: `x y -> ...`.", $token->line);
+				}
+				$args = $xs;
+				$xs = [];
+				$parenArg = false;
+				continue;
+			}
+
+			if (
+				$token->type === 'TERMINATOR'
+				|| $token->type === 'EOF'
+				|| (
+					$token->type === 'BRACKET'
+					&& $token->val === ')'
+				)
+			) {
+				break;
+			}
+
+			if ($token->type === 'KEYWORD') {
+				array_unshift($src, $token);
+				switch ($token->val) {
+					case 'if':
+						list($expr, $src) = self::buildIfElseForm($src, $ns);
+						$xs[] = $expr;
+						break;
+
+					default:
+						HayoParserException::createUnexpectedToken($token);
+				}
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
-		return [self::makeScope($args, $lets, $xs, $ns), $src];
+		return [self::makeScope($args, $lets, $xs), $src];
 	}
 
 
@@ -366,81 +392,86 @@ class HayoParser
 	/**
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: Term, 1: list<Token>}>
+	 * @return array{0: Value|string, 1: list<Token>}
 	 */
 	private static function buildExpression(array $src, array $ns = [])
 	{
 		$xs = [];
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'NUMBER':
-				case 'STRING':
-					$xs[] = self::buildScalar($token);
-					break;
-
-				case 'SYMBOL':
-					$val = strtoupper($token->val);
-					// Výjimky
-					// Standardně očekáváme, že symbol začíná malým písmenem, a Typ velkým písmenem
-					$xs[] = in_array($val, ['AND', 'OR', 'IN', 'HAS', 'SUPERSET', 'SUBSET', 'INTERSECTS',], True)
-						? $val
-						: self::buildScalar($token);
-					break;
-
-				case 'IDENTIFIER' && $token->val === ';':
-					array_unshift($src, $token);
-					break 2;
-
-				case 'IDENTIFIER':
-					$xs[] = self::buildIdentifier($token->val, $ns);
-					break;
-
-				case 'BRACKET' && $token->val === '(' && self::isLambda($src):
-					list($body, $src) = self::buildScope($src, $ns);
-					$xs[] = $body;
-					break;
-
-				// tuple nebo výraz: `(a 1)` je výraz, `(1)` je chybnej výraz, `(1,)` je tuple s jedním prvkem, `()` je prázdné tuple.
-				case 'BRACKET' && $token->val === '(':
-					list($expr, $src) = self::buildStructTuple($src, $ns);
-					if (
-						count($expr->getItems()) === 1
-						&& (
-							$expr->getItems()[0] instanceof Expr
-							|| $expr->getItems()[0] instanceof Form
-						)
-					) {
-						$expr = $expr->getItems()[0];
-					}
-
-					$xs[] = $expr;
-					break;
-
-				case 'BRACKET' && $token->val === '[':
-					list($expr, $src) = self::buildStructList($src, $ns);
-					$xs[] = $expr;
-					break;
-
-				case 'BRACKET' && $token->val === '{':
-					list($expr, $src) = self::buildStructDict($src, $ns);
-					$xs[] = $expr;
-					break;
-
-				// `if`/`match` jako plnohodnotný primární výraz — kdekoliv, kde se
-				// očekává hodnota (argument funkce, prvek tuple/listu, hodnota v
-				// dictu, …), ne jen na začátku bloku, napravo od `=` nebo v těle lambdy.
-				case 'KEYWORD' && in_array($token->val, ['if', 'match'], True):
-					array_unshift($src, $token);
-					list($expr, $src) = $token->val === 'if'
-						? self::buildIfElseForm($src, $ns)
-						: self::buildMatchForm($src, $ns);
-					$xs[] = $expr;
-					break;
-
-				default:
-					array_unshift($src, $token);
-					break 2;
+			if (in_array($token->type, ['NUMBER', 'STRING'], True)) {
+				$xs[] = self::buildScalar($token);
+				continue;
 			}
+
+			if ($token->type === 'SYMBOL') {
+				$val = strtoupper((string) $token->val);
+				// Výjimky
+				// Standardně očekáváme, že symbol začíná malým písmenem, a Typ velkým písmenem
+				$xs[] = in_array($val, ['AND', 'OR', 'IN', 'HAS', 'SUPERSET', 'SUBSET', 'INTERSECTS',], True)
+					? $val
+					: self::buildScalar($token);
+				continue;
+			}
+
+			if ($token->type === 'IDENTIFIER' && $token->val === ';') {
+				array_unshift($src, $token);
+				break;
+			}
+
+			if ($token->type === 'IDENTIFIER') {
+				$xs[] = self::buildIdentifier((string) $token->val, $ns);
+				continue;
+			}
+
+			if ($token->type === 'BRACKET' && $token->val === '(' && self::isLambda($src)) {
+				list($body, $src) = self::buildScope($src, $ns);
+				$xs[] = $body;
+				continue;
+			}
+
+			// tuple nebo výraz: `(a 1)` je výraz, `(1)` je chybnej výraz, `(1,)` je tuple s jedním prvkem, `()` je prázdné tuple.
+			if ($token->type === 'BRACKET' && $token->val === '(') {
+				list($expr, $src) = self::buildStructTuple($src, $ns);
+				// Tuple::getItems() vrací vždy plain array (stdClass jen u Dict).
+				$items = $expr->getItems();
+				if (
+					is_array($items)
+					&& count($items) === 1
+					&& ($items[0] instanceof Expr || $items[0] instanceof Form)
+				) {
+					$expr = $items[0];
+				}
+
+				$xs[] = $expr;
+				continue;
+			}
+
+			if ($token->type === 'BRACKET' && $token->val === '[') {
+				list($expr, $src) = self::buildStructList($src, $ns);
+				$xs[] = $expr;
+				continue;
+			}
+
+			if ($token->type === 'BRACKET' && $token->val === '{') {
+				list($expr, $src) = self::buildStructDict($src, $ns);
+				$xs[] = $expr;
+				continue;
+			}
+
+			// `if`/`match` jako plnohodnotný primární výraz — kdekoliv, kde se
+			// očekává hodnota (argument funkce, prvek tuple/listu, hodnota v
+			// dictu, …), ne jen na začátku bloku, napravo od `=` nebo v těle lambdy.
+			if ($token->type === 'KEYWORD' && in_array($token->val, ['if', 'match'], True)) {
+				array_unshift($src, $token);
+				list($expr, $src) = $token->val === 'if'
+					? self::buildIfElseForm($src, $ns)
+					: self::buildMatchForm($src, $ns);
+				$xs[] = $expr;
+				continue;
+			}
+
+			array_unshift($src, $token);
+			break;
 		}
 
 		if (count($xs) === 1) {
@@ -448,7 +479,7 @@ class HayoParser
 		}
 
 		if (empty($xs)) {
-			throw HayoParserException::createMissingRequiredToken($src[0], "closing bracked");
+			HayoParserException::createMissingRequiredToken($src[0], "closing bracked");
 		}
 
 		return [self::makeExpression($xs), $src];
@@ -547,7 +578,7 @@ class HayoParser
 	 *
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array{0: list<object>, 1: list<Token>}
+	 * @return array{0: list<object{pattern: string, binds: list<string>, expr: string|Value}>, 1: list<Token>}
 	 */
 	private static function buildMatchCaseArm(array $src, array $ns = [])
 	{
@@ -570,23 +601,23 @@ class HayoParser
 				|| ($t->type === 'IDENTIFIER' && $t->val === '_')) {
 				// Pattern token (constructor, literal, or wildcard)
 				if ($currentPattern === null) {
-					$currentPattern = $t->val;
+					$currentPattern = (string) $t->val;
 				}
 				else {
-					$binds[] = $t->val;
+					$binds[] = (string) $t->val;
 				}
 			}
-			elseif ($t->type === 'IDENTIFIER' && ctype_lower($t->val[0])) {
+			elseif ($t->type === 'IDENTIFIER' && ctype_lower(((string) $t->val)[0])) {
 				// Lowercase-starting identifier — bind variable or plain-name pattern
 				if ($currentPattern === null) {
-					$currentPattern = $t->val;
+					$currentPattern = (string) $t->val;
 				}
 				else {
-					$binds[] = $t->val;
+					$binds[] = (string) $t->val;
 				}
 			}
 			else {
-				throw HayoParserException::createUnexpectedToken($t, 'match case arm');
+				HayoParserException::createUnexpectedToken($t);
 			}
 		}
 
@@ -626,7 +657,7 @@ class HayoParser
 	 *
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: Term, 1: list<Token>}>
+	 * @return array{0: Form, 1: list<Token>}
 	 */
 	private static function buildIfElseForm(array $src, array $ns = [])
 	{
@@ -649,7 +680,7 @@ class HayoParser
 				}
 				$token = array_shift($src);
 				if ( ! ($token->type === 'KEYWORD' && $token->val === 'then')) {
-					throw HayoParserException::createMissingRequiredToken($token, "then of if-then-else");
+					HayoParserException::createMissingRequiredToken($token, "then of if-then-else");
 				}
 				list($expr, $src) = self::buildExpression($src, $ns);
 				$chains[] = (object) [
@@ -666,10 +697,10 @@ class HayoParser
 				return [Form::IfThenElse_($chains, $expr), $src];
 			}
 			else {
-				throw HayoParserException::createUnexpectedToken($token, "if-then-else");
+				HayoParserException::createUnexpectedToken($token);
 			}
 		}
-		throw HayoParserException::createUnexpectedToken($token, "if-then-else");
+		HayoParserException::createUnexpectedToken($token);
 	}
 
 
@@ -677,59 +708,51 @@ class HayoParser
 	/**
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: StructTuple, 1: list<Token>>
+	 * @return array{0: Composite, 1: list<Token>}
 	 */
 	private static function buildStructTuple(array $src, array $ns = [])
 	{
 		$xs = [];
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'BRACKET' && $token->val === ')':
-					break 2;
-
-				case 'IDENTIFIER':
-				case 'NUMBER':
-				case 'STRING':
-				case 'SYMBOL':
-				case 'BRACKET':
-				case 'KEYWORD':
-					// val
-					array_unshift($src, $token);
-					list($val, $src) = self::buildExpression($src, $ns);
-					$xs[] = $val;
-
-					// sep OR end
-					$token = array_shift($src);
-					if ($token->type === 'OUTDENT') {
-						$token = array_shift($src);
-					}
-
-					if ($token->type === 'TERMINATOR') {
-						break;
-					}
-					if ($token->val === ',') {
-						break;
-					}
-					if ($token->val === ')') {
-						break 2;
-					}
-
-					self::assertTokenValue($token, [',', ')'], 'delimiter or end of tuple');
-
-				case 'INDENT':
-					if (empty($xs)) {
-						break;
-					}
-					break;
-
-				case 'TERMINATOR':
-				case 'COMMENT':
-				case 'OUTDENT':
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if ($token->type === 'BRACKET' && $token->val === ')') {
+				break;
 			}
+
+			if (in_array($token->type, ['IDENTIFIER', 'NUMBER', 'STRING', 'SYMBOL', 'BRACKET', 'KEYWORD'], True)) {
+				// val
+				array_unshift($src, $token);
+				list($val, $src) = self::buildExpression($src, $ns);
+				$xs[] = $val;
+
+				// sep OR end
+				$token = array_shift($src);
+				if ($token->type === 'OUTDENT') {
+					$token = array_shift($src);
+				}
+
+				if ($token->type === 'TERMINATOR') {
+					continue;
+				}
+				if ($token->val === ',') {
+					continue;
+				}
+				if ($token->val === ')') {
+					break;
+				}
+
+				self::assertTokenValue($token, [',', ')'], 'delimiter or end of tuple');
+				continue;
+			}
+
+			if ($token->type === 'INDENT') {
+				continue;
+			}
+
+			if (in_array($token->type, ['TERMINATOR', 'COMMENT', 'OUTDENT'], True)) {
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		return [Composite::Tuple_($xs), $src];
@@ -740,59 +763,51 @@ class HayoParser
 	/**
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: StructList, 1: list<Token>}>
+	 * @return array{0: Composite, 1: list<Token>}
 	 */
 	private static function buildStructList(array $src, array $ns = [])
 	{
 		$xs = [];
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'BRACKET' && $token->val === ']':
-					break 2;
-
-				case 'IDENTIFIER':
-				case 'NUMBER':
-				case 'STRING':
-				case 'SYMBOL':
-				case 'BRACKET':
-				case 'KEYWORD':
-					// val
-					array_unshift($src, $token);
-					list($val, $src) = self::buildExpression($src, $ns);
-					$xs[] = $val;
-
-					// sep OR end
-					$token = array_shift($src);
-					if ($token->type === 'OUTDENT') {
-						$token = array_shift($src);
-					}
-
-					if ($token->type === 'TERMINATOR') {
-						break;
-					}
-					if ($token->val === ',') {
-						break;
-					}
-					if ($token->val === ']') {
-						break 2;
-					}
-
-					self::assertTokenValue($token, [',', ']'], 'delimiter or end of list');
-
-				case 'INDENT':
-					if (empty($xs)) {
-						break;
-					}
-					break;
-
-				case 'TERMINATOR':
-				case 'COMMENT':
-				case 'OUTDENT':
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if ($token->type === 'BRACKET' && $token->val === ']') {
+				break;
 			}
+
+			if (in_array($token->type, ['IDENTIFIER', 'NUMBER', 'STRING', 'SYMBOL', 'BRACKET', 'KEYWORD'], True)) {
+				// val
+				array_unshift($src, $token);
+				list($val, $src) = self::buildExpression($src, $ns);
+				$xs[] = $val;
+
+				// sep OR end
+				$token = array_shift($src);
+				if ($token->type === 'OUTDENT') {
+					$token = array_shift($src);
+				}
+
+				if ($token->type === 'TERMINATOR') {
+					continue;
+				}
+				if ($token->val === ',') {
+					continue;
+				}
+				if ($token->val === ']') {
+					break;
+				}
+
+				self::assertTokenValue($token, [',', ']'], 'delimiter or end of list');
+				continue;
+			}
+
+			if ($token->type === 'INDENT') {
+				continue;
+			}
+
+			if (in_array($token->type, ['TERMINATOR', 'COMMENT', 'OUTDENT'], True)) {
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		return [Composite::List_($xs), $src];
@@ -803,67 +818,62 @@ class HayoParser
 	/**
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array<{0: StructDict, 1: list<Token>}>
+	 * @return array{0: Composite, 1: list<Token>}
 	 */
 	private static function buildStructDict(array $src, array $ns = [])
 	{
 		$xs = [];
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'BRACKET' && $token->val === '}':
-					break 2;
-
-				case 'IDENTIFIER':
-				case 'NUMBER':
-				case 'STRING':
-				case 'SYMBOL':
-					// key
-					$key = $token->val;
-					if ($token->type === 'SYMBOL') {
-						// Bareword klíč začínající velkým písmenem (`Order: ...`) - použije se
-						// přímo jeho jméno, stejně jako u lowercase IDENTIFIER výš. Bez týhle
-						// větve by spadl do formatScalar() větve níž a dict by dostal doslovný
-						// řetězec '{"val":"Order","type":"Symbol"}' místo "Order" jako klíč.
-						$key = (string) self::buildScalar($token)->getValue();
-					}
-					elseif ($token->type !== 'IDENTIFIER') {
-						$key = self::formatScalar(self::buildScalar($token));
-					}
-
-					// ':'
-					$token = array_shift($src);
-					self::assertTokenValue($token, [':'], 'delimiter between key and value');
-
-					// val
-					list($val, $src) = self::buildExpression($src, $ns);
-					$xs[$key] = $val;
-
-					// ',' | '}'
-					$token = array_shift($src);
-					if ($token->val === ',') {
-						break;
-					}
-					if ($token->type === 'TERMINATOR') {
-						break;
-					}
-					if ($token->val === '}') {
-						break 2;
-					}
-
-				case 'INDENT':
-					if (empty($xs)) {
-						break;
-					}
-					break;
-
-				case 'TERMINATOR':
-				case 'COMMENT':
-				case 'OUTDENT':
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if ($token->type === 'BRACKET' && $token->val === '}') {
+				break;
 			}
+
+			if (in_array($token->type, ['IDENTIFIER', 'NUMBER', 'STRING', 'SYMBOL'], True)) {
+				// key
+				$key = (string) $token->val;
+				if ($token->type === 'SYMBOL') {
+					// Bareword klíč začínající velkým písmenem (`Order: ...`) - použije se
+					// přímo jeho jméno, stejně jako u lowercase IDENTIFIER výš. Bez týhle
+					// větve by spadl do formatScalar() větve níž a dict by dostal doslovný
+					// řetězec '{"val":"Order","type":"Symbol"}' místo "Order" jako klíč.
+					$key = (string) self::buildScalar($token)->getValue();
+				}
+				elseif ($token->type !== 'IDENTIFIER') {
+					$key = self::formatScalar(self::buildScalar($token));
+				}
+
+				// ':'
+				$token = array_shift($src);
+				self::assertTokenValue($token, [':'], 'delimiter between key and value');
+
+				// val
+				list($val, $src) = self::buildExpression($src, $ns);
+				$xs[$key] = $val;
+
+				// ',' | '}'
+				$token = array_shift($src);
+				if ($token->val === ',') {
+					continue;
+				}
+				if ($token->type === 'TERMINATOR') {
+					continue;
+				}
+				if ($token->val === '}') {
+					break;
+				}
+
+				continue;
+			}
+
+			if ($token->type === 'INDENT') {
+				continue;
+			}
+
+			if (in_array($token->type, ['TERMINATOR', 'COMMENT', 'OUTDENT'], True)) {
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		return [Composite::Dict_($xs), $src];
@@ -875,18 +885,20 @@ class HayoParser
 	{
 		switch ($token->type) {
 			case 'STRING':
+				$val = (string) $token->val;
 				// Multiline string
-				return substr($token->val, 0, 3) === '"""'
-					? Scalar::Str_(substr($token->val, 3, -3), $token->type)
-					: Scalar::Str_(substr($token->val, 1, -1), $token->type);
+				return substr($val, 0, 3) === '"""'
+					? Scalar::Str_(substr($val, 3, -3))
+					: Scalar::Str_(substr($val, 1, -1));
 
 			case 'NUMBER':
-				return strpos($token->val, '.')
-					? Scalar::Real_((float) $token->val)
-					: Scalar::Int_((int) $token->val);
+				$val = (string) $token->val;
+				return strpos($val, '.') !== False
+					? Scalar::Real_((float) $val)
+					: Scalar::Int_((int) $val);
 
 			case 'SYMBOL':
-				return Scalar::Symbol_($token->val);
+				return Scalar::Symbol_((string) $token->val);
 
 			default:
 				throw new HayoParserException("Comming soon... (2026.02.15 02:55:05 CET): '{$token->type}'");
@@ -897,7 +909,7 @@ class HayoParser
 
 	/**
 	 * @param list<Token> $src
-	 * @return array{0: Token, 1: list<Token>}
+	 * @return array{0: list<string>, 1: list<Token>}
 	 */
 	private static function buildNamespace(array $src)
 	{
@@ -905,7 +917,7 @@ class HayoParser
 		while ($token = array_shift($src)) {
 			switch ($token->type) {
 				case 'IDENTIFIER':
-					$xs[] = $token->val;
+					$xs[] = (string) $token->val;
 					break;
 
 				case 'TERMINATOR':
@@ -920,9 +932,9 @@ class HayoParser
 
 	/**
 	 * @param list<string> $args
-	 * @param array<string, Value> $lets
-	 * @param list<Value> $body
-	 * @return Value
+	 * @param array<string, Value|string> $lets
+	 * @param list<Value|string> $body
+	 * @return Value | string
 	 */
 	private static function makeScope(array $args, array $lets, array $body)
 	{
@@ -930,22 +942,31 @@ class HayoParser
 			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
 		}
 
+		// Lambda::assertExprOfLambda() akceptuje za běhu libovolnou Value|string,
+		// tedy širší množinu, než uvádí PHPDoc `Expr|string`.
 		if (count($args) && empty($lets)) {
-			return new Lambda($args, self::makeLambdaBody($body));
+			return new Lambda($args, self::makeLambdaBody($body)); // @phpstan-ignore argument.type
 		}
 
-		if (count($args) && count($lets)) {
+		// Sem se dostaneme jen když $lets není prázdné — jinak by to už
+		// odchytila předchozí větev (count($args) && empty($lets)).
+		if (count($args)) {
 			$bodyVal = count($body) === 1
 				? reset($body)
 				: self::makeLambdaBody($body);
-			return new Lambda($args, new Scope($lets, $bodyVal));
+			// Scope::assertExprOfScope() akceptuje za běhu Expr|Composite|Form|string;
+			// Lambda::assertExprOfLambda() zase libovolnou Value|string — obojí širší,
+			// než uvádí jejich PHPDoc `Expr|string`.
+			return new Lambda($args, new Scope($lets, $bodyVal)); // @phpstan-ignore argument.type, argument.type
 		}
 
 		if (count($body) === 1) {
 			return reset($body);
 		}
 
-		if (empty($args) && empty($lets)) {
+		// $args je tu vždy prázdné — jinak by to už odchytila jedna z
+		// předchozích větví.
+		if (empty($lets)) {
 			return self::makeExpression($body);
 		}
 
@@ -1027,38 +1048,36 @@ class HayoParser
 	 * @param string | Value $left Levá strana (akumulátor)
 	 * @param list<Token> $src
 	 * @param list<string> $ns
-	 * @return array{0: mixed, 1: list<Token>}
+	 * @return array{0: string|Value, 1: list<Token>}
 	 */
 	private static function buildPipeChainBlock($left, array $src, array $ns)
 	{
 		$acc = $left;
 		while ($token = array_shift($src)) {
-			switch ($token->type) {
-				case 'TERMINATOR':
-				case 'COMMENT':
-					break;
-
-				case 'EOF':
-				case 'OUTDENT':
-					break 2;
-
-				case 'IDENTIFIER' && $token->val === '|>':
-					list($step, $src) = self::buildExpression($src, $ns);
-					if ($step instanceof Expr && $step->getNotation() === Expr::NotationPrefix) {
-						$items = $step->getItems();
-						$func = $items[0];
-						$extraArgs = array_slice($items, 1);
-					}
-					else {
-						$func = $step;
-						$extraArgs = [];
-					}
-					$acc = Expr::Func_($func, array_merge([$acc], $extraArgs));
-					break;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if ($token->type === 'TERMINATOR' || $token->type === 'COMMENT') {
+				continue;
 			}
+
+			if ($token->type === 'EOF' || $token->type === 'OUTDENT') {
+				break;
+			}
+
+			if ($token->type === 'IDENTIFIER' && $token->val === '|>') {
+				list($step, $src) = self::buildExpression($src, $ns);
+				if ($step instanceof Expr && $step->getNotation() === Expr::NotationPrefix) {
+					$items = $step->getItems();
+					$func = $items[0];
+					$extraArgs = array_slice($items, 1);
+				}
+				else {
+					$func = $step;
+					$extraArgs = [];
+				}
+				$acc = Expr::Func_($func, array_merge([$acc], $extraArgs));
+				continue;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		return [$acc, $src];
@@ -1067,7 +1086,7 @@ class HayoParser
 
 
 	/**
-	 * @param list<Value> $body
+	 * @param list<Value|string> $body
 	 * @return string | Value
 	 */
 	private static function makeLambdaBody(array $body)
@@ -1148,37 +1167,32 @@ class HayoParser
 	{
 		array_unshift($src, $token);
 		foreach ($src as $token) {
-			switch ($token->type) {
-				case 'NUMBER':
-				case 'STRING':
-				case 'INDENT':
-				case 'OUTDENT':
-				case 'BRACKET':
-				case 'GENERIC':
-				case 'COMMENT':
-					break;
-
-				case 'TERMINATOR':
-				case 'EOF':
-					return False;
-
-				case 'IDENTIFIER' && $token->val === ';':
-					return False;
-
-				case 'IDENTIFIER':
-				case 'ARROW':
-					return True;
-
-				case 'SYMBOL':
-					// A Symbol (e.g. a constructor like Color.Red) cannot start a lambda
-					return False;
-
-				case 'KEYWORD':
-					return False;
-
-				default:
-					HayoParserException::createUnexpectedToken($token);
+			if (in_array($token->type, ['NUMBER', 'STRING', 'INDENT', 'OUTDENT', 'BRACKET', 'GENERIC', 'COMMENT'], True)) {
+				continue;
 			}
+
+			if ($token->type === 'TERMINATOR' || $token->type === 'EOF') {
+				return False;
+			}
+
+			if ($token->type === 'IDENTIFIER' && $token->val === ';') {
+				return False;
+			}
+
+			if ($token->type === 'IDENTIFIER' || $token->type === 'ARROW') {
+				return True;
+			}
+
+			if ($token->type === 'SYMBOL') {
+				// A Symbol (e.g. a constructor like Color.Red) cannot start a lambda
+				return False;
+			}
+
+			if ($token->type === 'KEYWORD') {
+				return False;
+			}
+
+			HayoParserException::createUnexpectedToken($token);
 		}
 
 		return False;
@@ -1189,7 +1203,7 @@ class HayoParser
 	/**
 	 * @param list<string> $ns
 	 */
-	private static function buildIdentifier(string $name, array $ns = [])
+	private static function buildIdentifier(string $name, array $ns = []): string
 	{
 		if ($ns && strpos($name, '.')) {
 			list($suffix, $key) = explode('.', $name, 2);
@@ -1205,7 +1219,7 @@ class HayoParser
 
 
 	/**
-	 * @param list<string> $xs
+	 * @param list<string | Value> $xs
 	 */
 	private static function isInfix(array $xs): bool
 	{
@@ -1252,10 +1266,10 @@ class HayoParser
 	/**
 	 * @param list<string> $vals
 	 */
-	private static function assertTokenValue(Token $token, array $vals, string $label)
+	private static function assertTokenValue(Token $token, array $vals, string $label): void
 	{
 		if ( ! in_array($token->val, $vals, True)) {
-			throw HayoParserException::createMissingRequiredToken($token, $label);
+			HayoParserException::createMissingRequiredToken($token, $label);
 		}
 	}
 
@@ -1272,27 +1286,12 @@ class HayoParser
 
 
 
-	/**
-	 * @return String
-	 */
-	private static function formatScalar(Scalar $x)
+	private static function formatScalar(Scalar $x): string
 	{
-		return json_encode((object)[
+		return (string) json_encode((object)[
 			'val' => (string) $x->getValue(),
 			'type' => $x->type(),
 		]);
-	}
-
-
-
-	/**
-	 * @param String
-	 * @return Scalar
-	 */
-	private static function parseScalar($str)
-	{
-		$def = (object)json_decode($str);
-		return new Scalar($def->val, $def->type);
 	}
 
 }
@@ -1335,7 +1334,7 @@ final class PrattParser
 		}
 
 		// LED: dokud má další operátor dostatečnou vazebnou sílu
-		while (($op = $this->peek()) !== null && self::bindingPower($op) > $minBp) {
+		while (($op = $this->peek()) !== null && is_string($op) && self::bindingPower($op) > $minBp) {
 			$this->consume(); // spolkni operátor
 
 			// Pravý operand parsujeme s vazebnou silou tohoto operátoru

@@ -17,9 +17,9 @@ class HayoParserException extends Exception
 	/**
 	 * Řádek zdrojového kódu, na kterém nastala chyba.
 	 */
-	private $codeline;
+	private ?int $codeline;
 
-	function __construct($message, $codeline = Null, $code = 0, ?Throwable $previous = NULL)
+	function __construct(string $message, ?int $codeline = Null, int $code = 0, ?Throwable $previous = NULL)
 	{
 		parent::__construct($message, $code, $previous);
 
@@ -28,21 +28,27 @@ class HayoParserException extends Exception
 
 
 
-	function getCodeline()
+	function getCodeline(): ?int
 	{
 		return $this->codeline;
 	}
 
 
 
-	static function createUnexpectedToken(Token $token)
+	/**
+	 * @phpstan-return never
+	 */
+	static function createUnexpectedToken(Token $token): void
 	{
 		throw new self("Unexpected $token.", $token->line);
 	}
 
 
 
-	static function createMissingRequiredToken(Token $token, $label)
+	/**
+	 * @phpstan-return never
+	 */
+	static function createMissingRequiredToken(Token $token, string $label): void
 	{
 		throw new self("Required $label: $token.", $token->line);
 	}

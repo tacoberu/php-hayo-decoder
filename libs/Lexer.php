@@ -24,13 +24,21 @@ class HayoLexer
 
 	private int $lines;
 	private int $indent = 0;
+
+	/**
+	 * @var list<int>
+	 */
 	private array $indents = [];
+
+	/**
+	 * @var list<Token>
+	 */
 	private array $tokens = [];
 
 	/**
 	 * @return list<Token>
 	 */
-	function tokenise(string $src)
+	function tokenise(string $src): array
 	{
 		$this->lines = 1;
 		$this->indent = 0;
@@ -75,10 +83,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function identifierToken($chunk)
+	private function identifierToken(string $chunk)
 	{
 		if (preg_match(self::IDENTIFIER, $chunk, $matches)) {
 			switch ($matches[0]) {
@@ -110,10 +117,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function assignToken($chunk)
+	private function assignToken(string $chunk)
 	{
 		if ($chunk[0] === '=' && ! self::isLiteral($chunk[1])) {
 			$this->tokens[] = Token::assign_('=', $this->lines);
@@ -126,10 +132,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function numberToken($chunk)
+	private function numberToken(string $chunk)
 	{
 		if (preg_match(self::NUMBER, $chunk, $matches)) {
 			$this->tokens[] = Token::number_($matches[0], $this->lines);
@@ -142,10 +147,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function stringmultilineToken($chunk)
+	private function stringmultilineToken(string $chunk)
 	{
 		if (substr($chunk, 0, 3) === '"""') {
 			$end = strpos($chunk, '"""', 3);
@@ -162,10 +166,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function stringToken($chunk)
+	private function stringToken(string $chunk)
 	{
 		$firstChar = $chunk[0];
 		$quoted = False;
@@ -194,10 +197,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function commentToken($chunk)
+	private function commentToken(string $chunk)
 	{
 		if (preg_match(self::COMMENT_LINE, $chunk, $matches)) {
 			$this->tokens[] = Token::comment($matches[0], $this->lines);
@@ -218,10 +220,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function shebangToken($chunk)
+	private function shebangToken(string $chunk)
 	{
 		if (preg_match(self::SHEBANG, $chunk, $matches)) {
 			$this->tokens[] = Token::comment($matches[0], $this->lines);
@@ -233,10 +234,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function whitespaceToken($chunk)
+	private function whitespaceToken(string $chunk)
 	{
 		if (preg_match(self::WHITESPACE, $chunk, $matches)) {
 			$this->lines += (int) strpos($matches[0], "\n");
@@ -249,10 +249,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function lineToken($chunk)
+	private function lineToken(string $chunk)
 	{
 		if (preg_match(self::INDENT, $chunk, $matches)) {
 			$lastNewline = strrpos($matches[0], "\n") + 1;
@@ -286,10 +285,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function bracketToken($chunk)
+	private function bracketToken(string $chunk)
 	{
 		if (strpos('[]{}()', $chunk[0]) !== False) {
 			$this->tokens[] = Token::bracket($chunk[0], $this->lines);
@@ -302,10 +300,9 @@ class HayoLexer
 
 
 	/**
-	 * @param string
-	 * @return Int | False
+	 * @return int | false
 	 */
-	private function literalToken($chunk)
+	private function literalToken(string $chunk)
 	{
 		$tag = substr($chunk, 0, 2);
 		switch ($tag) {
@@ -345,12 +342,7 @@ class HayoLexer
 
 
 
-	/**
-	 * @param string
-	 * @param int
-	 * @return Int
-	 */
-	private static function lookupCloseCommentBlockIndex($chunk, $offset)
+	private static function lookupCloseCommentBlockIndex(string $chunk, int $offset): int
 	{
 		while (True) {
 			if ( ! $close = strpos($chunk, '-}', $offset)) {
@@ -369,7 +361,7 @@ class HayoLexer
 
 
 
-	private static function isLiteral($m)
+	private static function isLiteral(string $m): bool
 	{
 		return strpos(self::IDENTIFIER_SPECIAL, $m) !== False;
 	}
@@ -398,13 +390,21 @@ class HayoLexer
 class Token
 {
 
-	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
-	public $type;
-	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
-	public $val;
-	// phpcs:ignore SlevomatCodingStandard.Classes.ForbiddenPublicProperty
-	public $line;
+	// phpcs:disable SlevomatCodingStandard.Classes.ForbiddenPublicProperty
+	public string $type;
 
+	/**
+	 * Hodnota tokenu. Číslo je jen u INDENT/OUTDENT, kde nese velikost odsazení.
+	 * @var string | int
+	 */
+	public $val;
+
+	public ?int $line;
+	// phpcs:enable SlevomatCodingStandard.Classes.ForbiddenPublicProperty
+
+	/**
+	 * @param string | int $val
+	 */
 	function __construct(string $type, $val, ?int $line = Null)
 	{
 		$this->type = $type;
@@ -414,93 +414,93 @@ class Token
 
 
 
-	static function comment(string $val, ?int $line = Null)
+	static function comment(string $val, ?int $line = Null): self
 	{
-		return new static('COMMENT', $val, $line);
+		return new self('COMMENT', $val, $line);
 	}
 
 
 
-	static function generic($val, ?int $line = Null)
+	static function generic(string $val, ?int $line = Null): self
 	{
-		return new static('GENERIC', $val, $line);
+		return new self('GENERIC', $val, $line);
 	}
 
 
 
-	static function arrow($val, ?int $line = Null)
+	static function arrow(string $val, ?int $line = Null): self
 	{
-		return new static('ARROW', $val, $line);
+		return new self('ARROW', $val, $line);
 	}
 
 
 
-	static function assign_(string $val = '=', ?int $line = Null)
+	static function assign_(string $val = '=', ?int $line = Null): self
 	{
-		return new static('ASSIGN', $val, $line);
+		return new self('ASSIGN', $val, $line);
 	}
 
 
 
-	static function bracket(string $val, ?int $line = Null)
+	static function bracket(string $val, ?int $line = Null): self
 	{
-		return new static('BRACKET', $val, $line);
+		return new self('BRACKET', $val, $line);
 	}
 
 
 
-	static function terminator(string $val, ?int $line = Null)
+	static function terminator(string $val, ?int $line = Null): self
 	{
-		return new static('TERMINATOR', $val, $line);
+		return new self('TERMINATOR', $val, $line);
 	}
 
 
 
-	static function indent(int $val, ?int $line = Null)
+	static function indent(int $val, ?int $line = Null): self
 	{
-		return new static('INDENT', $val, $line);
+		return new self('INDENT', $val, $line);
 	}
 
 
 
-	static function outdent(int $val, ?int $line = Null)
+	static function outdent(int $val, ?int $line = Null): self
 	{
-		return new static('OUTDENT', $val, $line);
+		return new self('OUTDENT', $val, $line);
 	}
 
 
 
-	static function eof()
+	static function eof(): self
 	{
-		return new static('EOF', '');
+		return new self('EOF', '');
 	}
 
 
 
-	static function identifier(string $val, ?int $line = Null)
+	static function identifier(string $val, ?int $line = Null): self
 	{
-		return new static('IDENTIFIER', $val, $line);
+		return new self('IDENTIFIER', $val, $line);
 	}
 
 
 
-	static function string_(string $val, ?int $line = Null)
+	static function string_(string $val, ?int $line = Null): self
 	{
-		return new static('STRING', $val, $line);
+		return new self('STRING', $val, $line);
 	}
 
 
 
-	static function number_($val, ?int $line = Null)
+	static function number_(string $val, ?int $line = Null): self
 	{
-		return new static('NUMBER', $val, $line);
+		return new self('NUMBER', $val, $line);
 	}
 
 
 
-	static function symbol_(string $val, ?int $line = Null)
+	static function symbol_(string $val, ?int $line = Null): self
 	{
-		return new static('SYMBOL', $val, $line);
+		return new self('SYMBOL', $val, $line);
 	}
 
 
