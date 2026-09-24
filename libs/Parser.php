@@ -437,23 +437,26 @@ class HayoParser
 				if (
 					is_array($items)
 					&& count($items) === 1
-					&& ($items[0] instanceof Expr || $items[0] instanceof Form)
+					&& ($items[0] instanceof Expr || $items[0] instanceof Form || $items[0] instanceof PropertyAccess)
 				) {
 					$expr = $items[0];
 				}
 
+				list($expr, $src) = self::buildPropertyAccessChain($expr, $src);
 				$xs[] = $expr;
 				continue;
 			}
 
 			if ($token->type === 'BRACKET' && $token->val === '[') {
 				list($expr, $src) = self::buildStructList($src, $ns);
+				list($expr, $src) = self::buildPropertyAccessChain($expr, $src);
 				$xs[] = $expr;
 				continue;
 			}
 
 			if ($token->type === 'BRACKET' && $token->val === '{') {
 				list($expr, $src) = self::buildStructDict($src, $ns);
+				list($expr, $src) = self::buildPropertyAccessChain($expr, $src);
 				$xs[] = $expr;
 				continue;
 			}
@@ -466,6 +469,7 @@ class HayoParser
 				list($expr, $src) = $token->val === 'if'
 					? self::buildIfElseForm($src, $ns)
 					: self::buildMatchForm($src, $ns);
+				list($expr, $src) = self::buildPropertyAccessChain($expr, $src);
 				$xs[] = $expr;
 				continue;
 			}
@@ -1196,6 +1200,41 @@ class HayoParser
 		}
 
 		return False;
+	}
+
+
+
+	/**
+	 * Dostaví trailing `.pole` (případně `.a.b`, což lexer stejně slepí do
+	 * jednoho IDENTIFIER tokenu) za primárním výrazem, který sám o sobě
+	 * neumí tečku pohltit — závorkovaný výraz, list, dict, `if`/`match`:
+	 * `(List.first xs Null).product`, `[1, 2].len`, `{a: 1}.a`.
+	 *
+	 * Bareword identifikátor (`x.pole`) tudy neprochází — ten si tečku
+	 * pohltí už lexer (viz HayoLexer::IDENTIFIER), takže mezi `x` a `.pole`
+	 * nikdy nevznikne samostatný GENERIC('.') token.
+	 *
+	 * @param list<Token> $src
+	 * @return array{0: Value, 1: list<Token>}
+	 */
+	private static function buildPropertyAccessChain(Value $expr, array $src): array
+	{
+		if (
+			! isset($src[0], $src[1])
+			|| $src[0]->type !== 'GENERIC' || $src[0]->val !== '.'
+			|| $src[1]->type !== 'IDENTIFIER'
+		) {
+			return [$expr, $src];
+		}
+
+		array_shift($src); // '.'
+		$field = array_shift($src); // třeba "product", nebo rovnou "product.other"
+
+		foreach (explode('.', (string) $field->val) as $part) {
+			$expr = PropertyAccess::Of_($expr, $part);
+		}
+
+		return [$expr, $src];
 	}
 
 

@@ -98,6 +98,7 @@ c = 8
 			require __dir__ . '/spec-comment.php',
 			require __dir__ . '/spec-shebank.php',
 			require __dir__ . '/spec-lambdas.php',
+			require __dir__ . '/spec-property-access.php',
 			self::dataDecodeIdentifier(),
 			self::dataDecodeTypes(),
 			[]

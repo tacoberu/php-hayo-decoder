@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "efbaf4f006e3ffd992a602cbe0763c31",
+    "content-hash": "7f7ea2f1b099c5ef286a8eee857ad3d3",
     "packages": [
         {
             "name": "tacoberu/hayo-ast",
-            "version": "v0.1.5",
+            "version": "v0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tacoberu/php-hayo-ast.git",
-                "reference": "baa78f933468a21a14d11408e64da0aa81176315"
+                "reference": "c8013d5c6d6ced0c9b0ff39d975976be017214a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tacoberu/php-hayo-ast/zipball/baa78f933468a21a14d11408e64da0aa81176315",
-                "reference": "baa78f933468a21a14d11408e64da0aa81176315",
+                "url": "https://api.github.com/repos/tacoberu/php-hayo-ast/zipball/c8013d5c6d6ced0c9b0ff39d975976be017214a4",
+                "reference": "c8013d5c6d6ced0c9b0ff39d975976be017214a4",
                 "shasum": ""
             },
             "require": {
@@ -49,9 +49,9 @@
             "description": "Abstract Syntax Tree (AST) implementation for the Hayo scripting language.",
             "support": {
                 "issues": "https://github.com/tacoberu/php-hayo-ast/issues",
-                "source": "https://github.com/tacoberu/php-hayo-ast/tree/v0.1.5"
+                "source": "https://github.com/tacoberu/php-hayo-ast/tree/v0.1.6"
             },
-            "time": "2026-06-02T02:58:09+00:00"
+            "time": "2026-09-24T22:00:39+00:00"
         }
     ],
     "packages-dev": [

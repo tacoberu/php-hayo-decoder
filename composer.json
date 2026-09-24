@@ -5,7 +5,7 @@
 	"require": {
 		"ext-json": "*",
 		"php" : ">=7.4",
-		"tacoberu/hayo-ast": "~0.1.5"
+		"tacoberu/hayo-ast": "~0.1.6"
 	},
 	"authors": [
 		{

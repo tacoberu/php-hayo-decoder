@@ -78,6 +78,7 @@ class ParserTest extends TestCase
 			require __dir__ . '/spec-comment.php',
 			require __dir__ . '/spec-shebank.php',
 			require __dir__ . '/spec-lambdas.php',
+			require __dir__ . '/spec-property-access.php',
 			[]
 		);
 	}
