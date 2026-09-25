@@ -7,9 +7,6 @@
 
 namespace Taco\Hayo;
 
-use LogicException;
-
-
 class HayoParser
 {
 
@@ -726,6 +723,7 @@ class HayoParser
 				// val
 				array_unshift($src, $token);
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[] = $val;
 
 				// sep OR end
@@ -781,6 +779,7 @@ class HayoParser
 				// val
 				array_unshift($src, $token);
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[] = $val;
 
 				// sep OR end
@@ -852,6 +851,7 @@ class HayoParser
 
 				// val
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[$key] = $val;
 
 				// ',' | '}'
@@ -943,7 +943,7 @@ class HayoParser
 	private static function makeScope(array $args, array $lets, array $body)
 	{
 		if (empty($body)) {
-			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+			throw new HayoParserException("Empty block/lambda body - expected an expression.");
 		}
 
 		// Lambda::assertExprOfLambda() akceptuje za běhu libovolnou Value|string,
@@ -974,7 +974,7 @@ class HayoParser
 			return self::makeExpression($body);
 		}
 
-		throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+		throw new HayoParserException("Unsupported block shape: multiple trailing expressions after local definitions ('let's) - only a single final expression (or a chain reducible by makeExpression()) is supported.");
 	}
 
 
@@ -986,7 +986,7 @@ class HayoParser
 	private static function makeExpression(array $xs)
 	{
 		if (empty($xs)) {
-			throw new LogicException("illegal state... (2026.02.16 04:04:15 CET)");
+			throw new HayoParserException("Empty expression (e.g. an empty pipe '|>' segment, or a malformed operator chain).");
 		}
 
 		// Pipe operátor |> má nejnižší prioritu, zpracujeme ho jako první
@@ -1062,7 +1062,29 @@ class HayoParser
 				continue;
 			}
 
-			if ($token->type === 'EOF' || $token->type === 'OUTDENT') {
+			if ($token->type === 'OUTDENT') {
+				// OUTDENT tu může znamenat DVĚ různé věci: (1) skutečný konec celého pipe
+				// řetězu, NEBO (2) jen konec víceřádkového těla PŘEDCHOZÍHO kroku (dict/lambda
+				// zanořené uvnitř `|> f (x -> { ... })`), po kterém řetěz POKRAČUJE dalším `|>`
+				// na STEJNÉ úrovni odsazení (viz issue F5 - `|> List.map (xs -> {víceřádkový
+				// dict})` následovaný dalším `|> ...` krokem). Bez rozlišení by se řetěz utnul
+				// předčasně a osiřelý `|>` dalšího kroku by skončil v rukou volajícího (např.
+				// `buildStructTuple()`), který ho chybně vezme jako začátek NOVÉHO prvku -
+				// `buildExpression()` pak sestaví `$xs` začínající rovnou tokenem `|>` a
+				// `makeExpression()`/`makePipeExpression()` na to spadne s "illegal state..."
+				// (prázdný segment před prvním `|>`).
+				$i = 0;
+				while (isset($src[$i]) && in_array($src[$i]->type, ['TERMINATOR', 'COMMENT', 'OUTDENT'], True)) {
+					$i++;
+				}
+				if (isset($src[$i]) && $src[$i]->type === 'IDENTIFIER' && $src[$i]->val === '|>') {
+					$src = array_slice($src, $i);
+					continue;
+				}
+				break;
+			}
+
+			if ($token->type === 'EOF') {
 				break;
 			}
 
@@ -1085,6 +1107,40 @@ class HayoParser
 		}
 
 		return [$acc, $src];
+	}
+
+
+
+	/**
+	 * Dostaví odsazený `|>` řetěz pokračující po víceřádkovém výrazu, tam kde
+	 * po jednom prvku čekáme jen oddělovač/konec struktury — prvek tuple,
+	 * listu, nebo hodnota v dictu (issue F5). `buildBlock()`/`buildScope()`
+	 * tohle umí (viz jejich "Odsazený blok po výrazu – pipe chain" větev),
+	 * ale `buildStructTuple()`/`buildStructList()`/`buildStructDict()` po
+	 * `buildExpression()` prostě čekaly další token jako oddělovač a na
+	 * nekonzumovaný `INDENT` spadly.
+	 *
+	 * `buildExpression()` sama o sobě víceřádkový `|>` neumí — když za
+	 * výrazem, co právě sestavila, následuje `INDENT`, vrátí se s tím
+	 * tokenem ještě před sebou (nekonzumovaným), protože `INDENT` nepatří
+	 * mezi tokeny, které umí zpracovat sama.
+	 *
+	 * @param Value|string $val
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array{0: Value|string, 1: list<Token>}
+	 */
+	private static function continuePipeChainIfIndented($val, array $src, array $ns): array
+	{
+		if (
+			isset($src[0], $src[1])
+			&& $src[0]->type === 'INDENT'
+			&& $src[1]->type === 'IDENTIFIER' && $src[1]->val === '|>'
+		) {
+			array_shift($src); // INDENT
+			return self::buildPipeChainBlock($val, $src, $ns);
+		}
+		return [$val, $src];
 	}
 
 
