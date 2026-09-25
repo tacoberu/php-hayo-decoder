@@ -726,6 +726,7 @@ class HayoParser
 				// val
 				array_unshift($src, $token);
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[] = $val;
 
 				// sep OR end
@@ -781,6 +782,7 @@ class HayoParser
 				// val
 				array_unshift($src, $token);
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[] = $val;
 
 				// sep OR end
@@ -852,6 +854,7 @@ class HayoParser
 
 				// val
 				list($val, $src) = self::buildExpression($src, $ns);
+				list($val, $src) = self::continuePipeChainIfIndented($val, $src, $ns);
 				$xs[$key] = $val;
 
 				// ',' | '}'
@@ -1085,6 +1088,40 @@ class HayoParser
 		}
 
 		return [$acc, $src];
+	}
+
+
+
+	/**
+	 * Dostaví odsazený `|>` řetěz pokračující po víceřádkovém výrazu, tam kde
+	 * po jednom prvku čekáme jen oddělovač/konec struktury — prvek tuple,
+	 * listu, nebo hodnota v dictu (issue F5). `buildBlock()`/`buildScope()`
+	 * tohle umí (viz jejich "Odsazený blok po výrazu – pipe chain" větev),
+	 * ale `buildStructTuple()`/`buildStructList()`/`buildStructDict()` po
+	 * `buildExpression()` prostě čekaly další token jako oddělovač a na
+	 * nekonzumovaný `INDENT` spadly.
+	 *
+	 * `buildExpression()` sama o sobě víceřádkový `|>` neumí — když za
+	 * výrazem, co právě sestavila, následuje `INDENT`, vrátí se s tím
+	 * tokenem ještě před sebou (nekonzumovaným), protože `INDENT` nepatří
+	 * mezi tokeny, které umí zpracovat sama.
+	 *
+	 * @param Value|string $val
+	 * @param list<Token> $src
+	 * @param list<string> $ns
+	 * @return array{0: Value|string, 1: list<Token>}
+	 */
+	private static function continuePipeChainIfIndented($val, array $src, array $ns): array
+	{
+		if (
+			isset($src[0], $src[1])
+			&& $src[0]->type === 'INDENT'
+			&& $src[1]->type === 'IDENTIFIER' && $src[1]->val === '|>'
+		) {
+			array_shift($src); // INDENT
+			return self::buildPipeChainBlock($val, $src, $ns);
+		}
+		return [$val, $src];
 	}
 
 
